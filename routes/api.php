@@ -3,9 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 
-Route::group(['middleware' => ['lang']], function () {
-    // Route::get('/testlang', function () {
-    //     return response()->json(['message' => __('messages.somthing went wrong'), 'local' => App::currentLocale()], 200);
-    // });
+Route::group(['middleware' => ['apikey', 'lang']], function () {
+    Route::get('/testlang', function () {
+        return response()->json(['message' => __('messages.somthing went wrong'), 'local' => App::currentLocale()], 200);
+    });
 });

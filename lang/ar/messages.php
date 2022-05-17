@@ -13,4 +13,5 @@ return [
     |
     */
     'somthing went wrong' => 'حدث خطأ ما :(',
+    'unauthenticated' => 'غير مصرح بالدخول',
 ];

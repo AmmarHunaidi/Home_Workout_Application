@@ -13,4 +13,5 @@ return [
     |
     */
     'somthing went wrong' => 'Somthung went wrong :(',
+    'unauthenticated' => 'Unauthenticated',
 ];
