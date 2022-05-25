@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'lang' => \App\Http\Middleware\CheckLang::class,
         'apikey' => \App\Http\Middleware\CheckApiKey::class,
+        'json' => \App\Http\Middleware\ForceJson::class,
     ];
 }
