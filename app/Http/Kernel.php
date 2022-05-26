@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'lang' => \App\Http\Middleware\CheckLang::class,
         'apikey' => \App\Http\Middleware\CheckApiKey::class,
         'json' => \App\Http\Middleware\ForceJson::class,
+        'bots' => \App\Http\Middleware\BotsCheck::class,
     ];
 }

@@ -15,7 +15,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
     //Forget Password
     Route::prefix('forgetpassword')->controller(ForgotPasswordController::class)->group(function () {
-        Route::post('/', 'submitForgetPasswordForm');
+        Route::post('/', 'submitForgetPasswordForm')->middleware('bots');
         Route::post('/verify', 'verifytoken');
         Route::post('/reset', 'resetpassword');
     });
