@@ -22,7 +22,6 @@ class ForgotPasswordController extends Controller
         ]);
         if ($validator->fails())
             return $this->fail($validator->errors(), 400);
-
         $token = Str::upper(Str::random(5));
         if (!DB::table('password_resets')->where('email', $request->email)->first()) {
             DB::table('password_resets')->insert([
