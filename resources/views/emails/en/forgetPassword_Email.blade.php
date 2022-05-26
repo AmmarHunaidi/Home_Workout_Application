@@ -65,7 +65,7 @@
     ">{{$name}}</span>!
     <p>We have received a password reset request from your account</p>
     <p>Please verify your email with bellow code :</p>
-    <div class="code">{{$code}}</div>
+    <div class="code">{{$token}}</div>
     <p><span class="danger"> IF </span> you are not the one who made this
         request, please <span class="danger">do not</span>
         share this code with anyone.</p>
@@ -74,7 +74,7 @@
         you will need to request a new code after this time has passed.
     </p>
     <h4>Thanks,</h4>
-    <h4>The xxxxx team.</h4>
+    <h4>The Vigor team.</h4>
 </body>
 
 </html>

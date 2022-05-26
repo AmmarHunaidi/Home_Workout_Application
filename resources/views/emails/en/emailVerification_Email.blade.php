@@ -62,7 +62,7 @@
     <p>Copy this code and paste inside the app,</p>
     <p>Do not share this link with anyone.</p>
     <h4>Thanks,</h4>
-    <h4>The XXXXX team.</h4>
+    <h4>The Vigor team.</h4>
 </body>
 
 </html>

@@ -32,6 +32,6 @@
     <p>Your account's password has been reset at : {{$time}}</p>
     <p><span class="danger"> If </span> you are not the one who change it, please sign-in into your account and reset your password with stronger one as soon as possible.</p>
     <h4>Thanks,</h4>
-    <h4>The xxxxxx team.</h4>
+    <h4>The Vigor team.</h4>
 </body>
 </html>
