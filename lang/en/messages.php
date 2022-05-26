@@ -20,5 +20,6 @@ return [
     'Reset Password Notification' => 'Reset Password Notification ',
     'This code has Expired' => 'This code has Expired. We have sent you a new Verification Code, please check your email.',
     'Your password has been changed!' => 'Your password has been changed!',
+    'Reset Password confirmation' => 'Reset Password confirmation ',
     //
 ];

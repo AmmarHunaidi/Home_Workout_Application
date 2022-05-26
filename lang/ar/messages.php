@@ -20,5 +20,6 @@ return [
     'Reset Password Notification' => ' تنبيه استعادة كلمة المرور ',
     'This code has Expired' => 'انتهت صلاحية هذا الرمز. لقد أرسلنا رمز تأكيد جديد , يرجى التحقق من بريدك الإلكتروني',
     'Your password has been changed!' => 'تم إعادة تعيين كلمة المرور!',
+    'Reset Password confirmation' => ' تأكيد تغير كلمة المرور  ',
     //
 ];
