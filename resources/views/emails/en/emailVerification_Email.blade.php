@@ -60,7 +60,7 @@
     <p>Please verify your email with bellow code : </p>
     <div class="code">{{$code}}</div>
     <p>Copy this code and paste inside the app,</p>
-    <p>Do not share this link with anyone.</p>
+    <p>Do not share this code with anyone.</p>
     <h4>Thanks,</h4>
     <h4>The Vigor team.</h4>
 </body>
