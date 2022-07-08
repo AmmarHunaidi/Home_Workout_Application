@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Email Verification Mail</title>
+    <title>Recover Account</title>
     <style>
         body {
             font-family: sans-serif;
@@ -19,7 +19,7 @@
             border-radius: 9px;
             color: whitesmoke;
             text-transform: uppercase;
-            background-color: rgba(255, 140, 0, 0.795);
+            background-color: #1976d2;
             box-shadow: 0px 4px 9px 0px #3860cf9e;
             transition: 0.2s;
             font-weight: bold;
@@ -39,33 +39,34 @@
 
         @media (min-width:600px) {
             .code {
-                margin-left: 100px;
+                margin-right: 100px;
             }
 
             p {
-                max-width: 600px;
+                max-width: -600px;
             }
         }
     </style>
 </head>
 
 <body>
-    <h1>Email Verification Mail</h1>
+    <h1 dir="rtl">البريد الخاص باستعادة الحساب</h1>
     <hr>
-    Hey <span
-        style="
+    <p dir="rtl"> أهلاً بعودتك <span
+            style="
         font-size: large;
         font-weight: 600;
         color: darkorange;
     ">{{ $name }}</span>!
-    <p>Thank you for regist in our app,</p>
-    <p>We hope that you will like our application.</p>
-    <p>Please verify your email with bellow code : </p>
+    <p dir="rtl">نحن سعداء جدا لأنك عدت لاستخدام تطبيقنا, كل ما عليك فعله هو تأكيد هذه العملية من خلال الرمز التالي:
+    </p>
     <div class="code">{{ $code }}</div>
-    <p>Copy this code and paste inside the app,</p>
-    <p>Do not share this code with anyone.</p>
-    <h4>Thanks,</h4>
-    <h4>The Vigor team.</h4>
+    <p dir="rtl">
+        ستنتهي صلاحية هذا الرمز تلقائياً بعد 20 دقيقة من طلب إعادة تعيين كلمة المرور,
+        سيتوجب عليك طلب رمز جديد بعد إنقضاء هذه المدة .
+    </p>
+    <h4 dir="rtl">شكراً,</h4>
+    <h4 dir="rtl">فريق تطبيق Vigor .</h4>
 </body>
 
 </html>

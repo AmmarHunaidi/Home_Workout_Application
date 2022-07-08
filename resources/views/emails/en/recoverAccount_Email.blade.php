@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Email Verification Mail</title>
+    <title>Recover Account</title>
     <style>
         body {
             font-family: sans-serif;
@@ -19,7 +19,7 @@
             border-radius: 9px;
             color: whitesmoke;
             text-transform: uppercase;
-            background-color: rgba(255, 140, 0, 0.795);
+            background-color: #1976d2;
             box-shadow: 0px 4px 9px 0px #3860cf9e;
             transition: 0.2s;
             font-weight: bold;
@@ -50,20 +50,23 @@
 </head>
 
 <body>
-    <h1>Email Verification Mail</h1>
+    <h1>Recover account Email</h1>
     <hr>
-    Hey <span
+    Welcome back <span
         style="
         font-size: large;
         font-weight: 600;
         color: darkorange;
     ">{{ $name }}</span>!
-    <p>Thank you for regist in our app,</p>
-    <p>We hope that you will like our application.</p>
-    <p>Please verify your email with bellow code : </p>
+    <p>
+        We are so glad you are back to using our app, all you have to do is confirm this process with the following
+        code:
+    </p>
     <div class="code">{{ $code }}</div>
-    <p>Copy this code and paste inside the app,</p>
-    <p>Do not share this code with anyone.</p>
+    <p>
+        The code will automaticlly expire after 20 minutes from your password reset request,
+        you will need to request a new code after this time has passed.
+    </p>
     <h4>Thanks,</h4>
     <h4>The Vigor team.</h4>
 </body>

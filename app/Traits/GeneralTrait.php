@@ -6,17 +6,17 @@ use Illuminate\Http\Request;
 
 trait GeneralTrait
 {
-    protected function success($message, $data = [], $status = 200)
+    protected function success($message = 'ok', $data = [], $status = 200)
     {
         return response()->json([
             'success' => true,
             'status' => $status,
-            'message' => $message,
+            'message' => (string) $message,
             'data' => $data,
         ], $status);
     }
 
-    protected function fail($message, $status = 422)
+    protected function fail($message, $status = 400)
     {
         return response()->json([
             'success' => false,

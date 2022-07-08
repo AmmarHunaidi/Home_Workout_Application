@@ -18,7 +18,7 @@ class BotsCheck
             'c_name' => ['present'],
         ]);
         if ($validator->fails())
-            return $this->fail($validator->errors(), 400);
+            return $this->fail($validator->errors()->first(), 400);
         if (is_null($request->c_name)) {
             return $next($request);
         }

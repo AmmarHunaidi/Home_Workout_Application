@@ -67,5 +67,9 @@ class Kernel extends HttpKernel
         'apikey' => \App\Http\Middleware\CheckApiKey::class,
         'json' => \App\Http\Middleware\ForceJson::class,
         'bots' => \App\Http\Middleware\BotsCheck::class,
+        'timeZone' => \App\Http\Middleware\CheckTimeZone::class,
+        'emailVerified' => \App\Http\Middleware\IsEmailVerified::class,
+        'provider' => \App\Http\Middleware\CheckProvider::class,
+        'deltedAccount' => \App\Http\Middleware\CheckDeletedAccount::class,
     ];
 }
