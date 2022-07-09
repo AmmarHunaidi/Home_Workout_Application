@@ -25,10 +25,10 @@ trait EmailTrait
     }
     protected static function sendEmailVerifyCode($token, $name, $email)
     {
-        Mail::send('emails.' . App::currentLocale() . '.emailVerification_Email', ['code' => $token, 'name' => $name], function ($msg) use ($email) {
-            $msg->to($email);
-            $msg->subject(__('messages.Email Verification for') . config('app.name'));
-        });
+        // Mail::send('emails.' . App::currentLocale() . '.emailVerification_Email', ['code' => $token, 'name' => $name], function ($msg) use ($email) {
+        //     $msg->to($email);
+        //     $msg->subject(__('messages.Email Verification for') . config('app.name'));
+        // });
     }
     protected static function sendDeleteEmail($name, $email)
     {
