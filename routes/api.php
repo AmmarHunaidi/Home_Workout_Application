@@ -47,7 +47,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
 });
 
 //Token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'deltedAccount', 'auth:api']], function () {
     Route::prefix('user')->controller(AuthController::class)->group(function () {
         Route::post('/info', 'info'); //add his info
         Route::get('/profile', 'useraccount'); //get his profile
@@ -73,6 +73,9 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
     Route::prefix('diseases')->controller(DiseasesController::class)->group(function () {
         Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 });
 Route::get('/any', function () {

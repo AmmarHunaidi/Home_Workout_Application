@@ -18,6 +18,7 @@ return [
     'Invalid credentials' => 'بيانات غير صالحة',
     'Access denied' => 'تم رفض الوصول',
     'Welcome' => ' مرحبا ',
+    'Not found' => 'غير موجود',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
     'Reset Password Notification' => ' تنبيه استعادة كلمة المرور ',
