@@ -39,10 +39,10 @@ trait EmailTrait
     }
     protected static function sendRecoverEmail($name, $code, $email)
     {
-        Mail::send('emails.' . App::currentLocale() . '.recoverAccount_Email', ['name' => $name, 'code' => $code], function ($msg) use ($email) {
-            $msg->to($email);
-            $msg->subject(__('messages.Account Recover Email') . config('app.name'));
-        });
+        // Mail::send('emails.' . App::currentLocale() . '.recoverAccount_Email', ['name' => $name, 'code' => $code], function ($msg) use ($email) {
+        //     $msg->to($email);
+        //     $msg->subject(__('messages.Account Recover Email') . config('app.name'));
+        // });
     }
 }
 // use App\Traits\EmailTrait; befor the controller class

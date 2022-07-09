@@ -440,7 +440,7 @@ class AuthController extends Controller
             Recovery::updateOrCreate([
                 'user_id' => $id,
             ], [
-                'code' => $code
+                'code' => $code,
             ]);
         } catch (\Exception $e) {
             // return $this->fail(__("messages.somthing went wrong"), 500);
