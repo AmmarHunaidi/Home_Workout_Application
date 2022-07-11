@@ -451,8 +451,11 @@ class AuthController extends Controller
     public function reGetRecoveryCode(Request $request)
     {
         try {
-            app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
-            return $this->success(__("messages.we resent you new code"), [], 200);
+            if ($request->user()->delete_at != NULL) {
+                app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
+                return $this->success(__("messages.we resent you new code"), [], 200);
+            }
+            return $this->success();
         } catch (\Exception $e) {
             return $this->fail(__("messages.somthing went wrong"), 500);
         }
@@ -461,23 +464,26 @@ class AuthController extends Controller
     public function recoverVerify(Request $request)
     {
         try {
-            $validator = Validator::make($request->only('code'), [
-                'code' => ['required', 'min:5', 'max:5', 'string']
-            ]);
-            if ($validator->fails())
-                return $this->fail($validator->errors()->first(), 400);
-            $user = $request->user();
-            if (is_null(Recovery::where('user_id', $user->id)->first()) || (Carbon::parse(Recovery::where('user_id', $user->id)->first()->updated_at)->addMinutes(20))->lt(Carbon::now())) {
-                app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
-                return $this->success(__("messages.Welcome back, Please check your email for verification code"), [], 200);
+            if ($request->user()->delete_at != NULL) {
+                $validator = Validator::make($request->only('code'), [
+                    'code' => ['required', 'min:5', 'max:5', 'string']
+                ]);
+                if ($validator->fails())
+                    return $this->fail($validator->errors()->first(), 400);
+                $user = $request->user();
+                if (is_null(Recovery::where('user_id', $user->id)->first()) || (Carbon::parse(Recovery::where('user_id', $user->id)->first()->updated_at)->addMinutes(20))->lt(Carbon::now())) {
+                    app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
+                    return $this->success(__("messages.Welcome back, Please check your email for verification code"), [], 200);
+                }
+                if ($recover = Recovery::where(['user_id' => $user->id, 'code' => $request->code])->first()) {
+                    $user->deleted_at = NULL;
+                    $user->save();
+                    $recover->delete();
+                    return $this->success(__("messages.Your e-mail has been verified."));
+                }
+                return $this->fail(__("messages.Wrong code."));
             }
-            if ($recover = Recovery::where(['user_id' => $user->id, 'code' => $request->code])->first()) {
-                $user->deleted_at = NULL;
-                $user->save();
-                $recover->delete();
-                return $this->success(__("messages.Your e-mail has been verified."));
-            }
-            return $this->fail(__("messages.Wrong code."));
+            return $this->success(__("messages.Account already active"));
         } catch (\Exception $e) {
             return $this->fail(__("messages.somthing went wrong"), 500);
         }
