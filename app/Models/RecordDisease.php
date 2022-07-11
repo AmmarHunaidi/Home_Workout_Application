@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Disease extends Model
+class RecordDisease extends Model
 {
     use HasFactory;
-    protected $table = "diseases";
+    protected $table = "records_diseases";
     protected $primaryKey = "id";
-    protected $fillable = ['name'];
+    protected $fillable = ['record_id', 'disease_id'];
     protected $timestamp = true;
 
-    public function records()
+    public function record()
     {
-        return $this->hasMany(RecordDisease::class);
+        return $this->belongsTo(HealthRecord::class);
     }
 }

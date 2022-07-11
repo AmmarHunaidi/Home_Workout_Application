@@ -73,6 +73,10 @@ class User extends Authenticatable
         return $this->hasMany(Provider::class, 'id');
     }
 
+    public function healthRecords()
+    {
+        return $this->hasMany(HealthRecord::class, 'user_id');
+    }
     //Accessor
     public function setFNameAttribute($f_name)
     {

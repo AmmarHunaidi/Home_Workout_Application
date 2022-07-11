@@ -9,7 +9,7 @@ use App\Http\Controllers\VerifyUserController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\DiseasesController;
-
+use App\Http\Controllers\HealthRecordsController;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -76,6 +76,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::post('/', 'store');
         Route::put('/{id}', 'update');
         Route::delete('/{id}', 'destroy');
+    });
+    Route::prefix('hRecord')->controller(HealthRecordsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/', 'update');
+        Route::delete('/', 'destroy');
     });
 });
 Route::get('/any', function () {
