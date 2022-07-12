@@ -21,7 +21,10 @@ class ForgotPasswordController extends Controller
             'email' => ['required', 'email', 'exists:users,email'],
         ]);
         if ($validator->fails())
-            return $this->fail($validator->errors(), 400);
+            return $this->fail($validator->errors()->first(), 400);
+        if (User::where('email', $request->email)->first()->providers()) {
+            return $this->fail(__("messages.You can login with your provider account"));
+        }
         $token = Str::upper(Str::random(5));
         if (!DB::table('password_resets')->where('email', $request->email)->first()) {
             DB::table('password_resets')->insert([
@@ -38,10 +41,10 @@ class ForgotPasswordController extends Controller
         }
         try {
             $this->sendForgetPassword($token, User::query()->where('email', request()->email)->first()->name, $request->email);
+            return $this->success(__('messages.You need to confirm your email'), [], 201);
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
         }
-        return $this->success(__('messages.You need to confirm your email'));
     }
     //
     public function verifytoken(Request $request)
@@ -50,7 +53,7 @@ class ForgotPasswordController extends Controller
             'code' => ['required', 'string', 'exists:password_resets,token'],
         ]);
         if ($validator->fails())
-            return $this->fail($validator->errors(), 400);
+            return $this->fail($validator->errors()->first(), 400);
 
         $token = request()->code;
         $rp = DB::table('password_resets')->where('token', $token)->first(); //rp = reset password record in DB
@@ -71,9 +74,9 @@ class ForgotPasswordController extends Controller
             } catch (\Exception $e) {
                 return $this->fail($e->getMessage(), 500);
             }
-            return response()->json(["message" => __("messages.This code has Expired")], 400);
+            return $this->fail(__("messages.This code has Expired"), 400);
         }
-        return response()->json(["message" => __("messages.Wrong code.")], 400);
+        return $this->fail(__("messages.Wrong code."), 400);
     }
     //
     public function resetpassword(Request $request)
@@ -85,7 +88,7 @@ class ForgotPasswordController extends Controller
             'code' => ['required', 'string', 'exists:password_resets,token'],
         ]);
         if ($validator->fails())
-            return $this->fail($validator->errors(), 400);
+            return $this->fail($validator->errors()->first(), 400);
 
         $updatePassword = DB::table('password_resets')
             ->where(['email' => $request->email, 'is_used' => 1, 'token' => request()->code])

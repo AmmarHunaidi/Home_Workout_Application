@@ -6,52 +6,90 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
+use App\Models\UserDevice;
+use App\Models\UserInfo;
+use App\Models\Follow;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $primaryKey = "id";
     protected $fillable = [
-        'name',
+        'f_name',
+        'l_name',
         'email',
         'password',
+        'prof_img_url',
+        'gender',
+        'birth_date',
+        'bio',
+        'role_id',
+        'email_verified_at',
+        'deleted_at'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    public function setNameAttribute($name)
+    //realations
+    public function role()
     {
-        $this->attributes['name'] = strtolower($name);
+        return $this->belongsTo(Role::class);
     }
 
-    public function getNameAttribute($name)
+    public function devices()
     {
-        return ucfirst($name);
+        return $this->hasMany(UserDevice::class);
     }
 
+    public function info()
+    {
+        return $this->hasMany(UserInfo::class);
+    }
+
+    public function followers() //people follow this user
+    {
+        return $this->hasMany(Follow::class, 'following');
+    }
+
+    public function follows() //people this users follow
+    {
+        return $this->hasMany(Follow::class, 'follower_id');
+    }
+
+    public function blocks() //people this users follow
+    {
+        return $this->hasMany(Follow::class, 'user_id');
+    }
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class, 'id');
+    }
+
+    //Accessor
+    public function setFNameAttribute($f_name)
+    {
+        $this->attributes['f_name'] = strtolower($f_name);
+    }
+    public function setLNameAttribute($l_name)
+    {
+        $this->attributes['l_name'] = strtolower($l_name);
+    }
+    public function getFNameAttribute($f_name)
+    {
+        return ucfirst($f_name);
+    }
+    public function getLNameAttribute($l_name)
+    {
+        return ucfirst($l_name);
+    }
     public function setEmailAttribute($email)
     {
         $this->attributes['email'] = strtolower($email);

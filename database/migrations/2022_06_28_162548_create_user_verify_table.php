@@ -8,17 +8,16 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('password_resets', function (Blueprint $table) {
+        Schema::create('user_verify', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->index();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('token');
-            $table->boolean('is_used')->default(0);
-            $table->timestamp('created_at')->nullable();
+            $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('password_resets');
+        Schema::dropIfExists('user_verify');
     }
 };
