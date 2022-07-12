@@ -10,6 +10,7 @@ use Laravel\Passport\HasApiTokens;
 use App\Models\UserDevice;
 use App\Models\UserInfo;
 use App\Models\Follow;
+use App\Models\Post;
 
 class User extends Authenticatable
 {
@@ -76,6 +77,16 @@ class User extends Authenticatable
     public function healthRecords()
     {
         return $this->hasMany(HealthRecord::class, 'user_id');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function postLikes()
+    {
+        return $this->hasMany(postLikes::class);
     }
     //Accessor
     public function setFNameAttribute($f_name)

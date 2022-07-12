@@ -153,9 +153,14 @@ class AuthController extends Controller
                         ]);
                     }
                 }
+                $is_verified = true;
+                if (!$request->user()->email_verified_at) {
+                    $is_verified = false;
+                }
                 $data = [
                     "user" => new UserResource($request->user()),
                     "provider" => false,
+                    'is_verified' => $is_verified,
                     "token_type" => $collection->get('token_type'),
                     "access_token" => $collection->get('access_token'),
                     "refresh_token" => $collection->get('refresh_token'),
