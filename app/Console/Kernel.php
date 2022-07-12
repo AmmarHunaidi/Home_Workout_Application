@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('Delete:DeadAccount')->daily()->runInBackground();
         $schedule->command('Delete:unVerified')->daily()->runInBackground();
+        $schedule->command('Delete:VerificationCodes')->everyMinute()->runInBackground();
     }
 
     protected function commands()
