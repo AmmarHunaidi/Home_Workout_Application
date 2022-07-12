@@ -64,7 +64,7 @@ class PostLikesController extends Controller
             ];
         }
         $data = [
-            "likeNum" => $this->likeNum($id),
+            "likeNum" => ['total' => Post::where('id', $id)->first()->likes()->count(), 'types' => $this->likeNum($id)],
             "users" => $users,
         ];
         return $this->success('ok', $data);
