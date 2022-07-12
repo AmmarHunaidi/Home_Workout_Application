@@ -18,6 +18,7 @@ return [
     'Invalid credentials' => 'Invalid credentials',
     'Access denied' => 'Access denied',
     'Welcome' => 'Welcome ',
+    'Not found' => 'Not found',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',
