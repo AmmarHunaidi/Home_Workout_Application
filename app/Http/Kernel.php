@@ -71,5 +71,7 @@ class Kernel extends HttpKernel
         'emailVerified' => \App\Http\Middleware\IsEmailVerified::class,
         'provider' => \App\Http\Middleware\CheckProvider::class,
         'deltedAccount' => \App\Http\Middleware\CheckDeletedAccount::class,
+        'posts' => \App\Http\Middleware\CRUDPosts::class,
+        'block' => \App\Http\Middleware\Blocked::class,
     ];
 }

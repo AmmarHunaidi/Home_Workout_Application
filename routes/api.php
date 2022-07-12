@@ -10,6 +10,8 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\DiseasesController;
 use App\Http\Controllers\HealthRecordsController;
+use App\Http\Controllers\PostLikesController;
+use App\Http\Controllers\PostsController;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -82,6 +84,17 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::post('/', 'store');
         Route::put('/', 'update');
         Route::delete('/', 'destroy');
+    });
+    Route::prefix('posts')->middleware(['posts'])->controller(PostsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/', 'update');
+        Route::delete('/{id}', 'destroy');
+    });
+    Route::prefix('posts/like')->middleware(['block'])->controller(PostLikesController::class)->group(function () {
+        Route::get('/list/{id}', 'likeList');
+        Route::get('/{id}/{type}', 'like');
+        Route::get('/{id}', 'unlike');
     });
 });
 Route::get('/any', function () {
