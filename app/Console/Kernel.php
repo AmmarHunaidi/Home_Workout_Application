@@ -9,7 +9,8 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('Delete:DeadAccount')->everyMinute()->runInBackground();
+        $schedule->command('Delete:DeadAccount')->daily()->runInBackground();
+        $schedule->command('Delete:unVerified')->daily()->runInBackground();
     }
 
     protected function commands()
