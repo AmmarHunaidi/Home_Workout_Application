@@ -46,6 +46,7 @@ return [
     'You cannot Block your self' => 'لا يمكنك حظر نفسك',
     'You cannot unBlock your self' => 'لا يمكنك إلغاء حظر نفسك',
     'Welcome back, Please check your email for verification code' => 'أهلاً بعودتك, الرجاء التحقق من البريد الالكتروني للحصول على الرمز',
+    'Account already active' => 'الحساب فعال',
     //User/Follow
     'You cannot follow your self' => 'لا يمكنك متابعة نفسك',
     'User not found' => 'لم يتم العثور على المستخدم',

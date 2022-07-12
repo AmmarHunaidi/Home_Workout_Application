@@ -59,8 +59,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::post('/updatePassword', 'updatePassword')->middleware('provider');
         Route::post('/verifyNewEmail', 'confirmNewEmail');
         Route::post('/delete', 'firstdestroy');
-        Route::get('/regetRecover', 'reGetRecoveryCode')->withoutMiddleware('deltedAccount');
-        Route::post('/recover', 'recoverVerify')->withoutMiddleware('deltedAccount');
+        Route::post('/recover/reget', 'reGetRecoveryCode')->middleware('bots')->withoutMiddleware('deltedAccount');
+        Route::post('/recover', 'recoverVerify')->middleware('bots')->withoutMiddleware('deltedAccount');
     });
     Route::prefix('user')->controller(FollowController::class)->group(function () {
         Route::get('/follow/{id}', 'follow');
