@@ -16,13 +16,18 @@ class HealthRecordsController extends Controller
     {
         try {
             $record = $request->user()->healthRecords->last();
+            $data = [
+                "record" => $recordArr = [
+                    "record_id" => (int)'',
+                    "record_desc" => '',
+                ],
+                "dis" => $dsieasesArr = []
+            ];
             if ($record) {
-                $data = [];
                 $recordArr = [
                     "record_id" => $record->id,
                     "record_desc" => $record->description,
                 ];
-                $dsieasesArr = [];
                 $diseases = $record->diseases;
                 if ($diseases)
                     foreach ($diseases as $dis) {
@@ -34,7 +39,7 @@ class HealthRecordsController extends Controller
                 $data = ["record" => $recordArr, "dis" => $dsieasesArr];
                 return $this->success('ok', $data);
             }
-            return $this->success();
+            return $this->success('ok', $data);
         } catch (\Exception $e) {
             return $this->fail(__('messages.somthing went wrong'), 500);
         }
@@ -43,38 +48,11 @@ class HealthRecordsController extends Controller
     public function store(Request $request)
     {
         try {
+            // $request->dis = json_decode(json_encode($request->dis));
+            $request->dis = json_decode($request->dis);
             $validator = Validator::make($request->only(['dis', 'desc']), [
-                'dis' => ['array', 'nullable'],
-                'dis.*' => ['integer', 'exists:diseases,id', 'nullable'],
-                'desc' => ['string', 'max:5000', 'nullable'],
-            ]);
-            if ($validator->fails())
-                return $this->fail($validator->errors()->first(), 400);
-            // return is_integer((int)$request->dis[1]);
-            $user = $request->user();
-            $record = HealthRecord::create([
-                'user_id' => $user->id,
-                'description' => $request->desc,
-            ]);
-            foreach ($request->dis as $disease) {
-                RecordDisease::create([
-                    'record_id' => $record->id,
-                    'disease_id' => (int)$disease,
-                ]);
-            }
-            return $this->success();
-        } catch (\Exception $e) {
-            return $this->fail(__('messages.somthing went wrong'), 500);
-        }
-    }
-
-
-    public function update(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->only(['dis', 'desc']), [
-                'dis' => ['array', 'nullable'],
-                'dis.*' => ['integer', 'exists:diseases,id', 'nullable'],
+                // 'dis' => ['array', 'nullable'],
+                // 'dis.*' => ['integer', 'exists:diseases,id', 'nullable'],
                 'desc' => ['string', 'max:5000', 'nullable'],
             ]);
             if ($validator->fails())
@@ -83,7 +61,7 @@ class HealthRecordsController extends Controller
             $record = HealthRecord::updateOrCreate([
                 'user_id' => $user->id
             ], [
-                'description' => $request->desc
+                'description' => (string)$request->desc
             ]);
             RecordDisease::query()->where('record_id', $record->id)->delete();
             $data = collect($request->dis)->filter();
@@ -97,7 +75,8 @@ class HealthRecordsController extends Controller
             }
             return $this->success();
         } catch (\Exception $e) {
-            return $this->fail(__('messages.somthing went wrong'), 500);
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
         }
     }
 

@@ -9,9 +9,9 @@ class CheckTimeZone
 {
     public function handle(Request $request, Closure $next)
     {
-        config(['app.timezone' => 'UTC']);  //default value
+        config(['app.timeoffset' => 0]);  //default value
         if (($request->header("timeZone"))) {
-            config(['app.timezone' => $request->header('timeZone')]); // if request have timeZone
+            config(['app.timeoffset' => $request->header('timeZone')]); // if request have timeZone
         }
         return $next($request);
     }

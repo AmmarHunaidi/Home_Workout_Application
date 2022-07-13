@@ -67,7 +67,7 @@ class AuthController extends Controller
                 "token_type" => $collection->get('token_type'),
                 "access_token" => $collection->get('access_token'),
                 "refresh_token" => $collection->get('refresh_token'),
-                "expire_at" => Carbon::now(config('app.timezone'))->addDays(7)->format("Y-m-d H-i-s")
+                "expire_at" => Carbon::now()->utcOffset(config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
             ];
             $message = 'You need to confirm your email. We have sent you a Verification Code, please check your email.';
             Storage::makeDirectory('public/images/users/' . $user->id);
@@ -157,14 +157,19 @@ class AuthController extends Controller
                 if (!$request->user()->email_verified_at) {
                     $is_verified = false;
                 }
+                $info = false;
+                if ($request->user()->info()->get()->last()) {
+                    $info = true;
+                }
                 $data = [
                     "user" => new UserResource($request->user()),
                     "provider" => false,
                     'is_verified' => $is_verified,
+                    'is_info' => $info,
                     "token_type" => $collection->get('token_type'),
                     "access_token" => $collection->get('access_token'),
                     "refresh_token" => $collection->get('refresh_token'),
-                    "expire_at" => Carbon::now(config('app.timezone'))->addDays(7)->format("Y-m-d H-i-s")
+                    "expire_at" => Carbon::now()->utcOffset(config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
                 ];
                 if (!($request->user()->deleted_at == NULL)) {
                     app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
@@ -180,6 +185,7 @@ class AuthController extends Controller
         }
     }
 
+    //delete mac from here
     public function logout(Request $request)
     {
         try {
@@ -303,7 +309,7 @@ class AuthController extends Controller
                 && ($request->weight_unit == 'kg' || $request->weight_unit == 'lb')
             ) {
                 $info->update([
-                    'changed_at' => Carbon::now(config('app.timezone'))->format('Y-m-d H:i:s'),
+                    'changed_at' => Carbon::now()->utcOffset(config('app.timeoffset'))->format('Y-m-d H:i:s'),
                 ]);
                 UserInfo::create([
                     'user_id' => $user->id,

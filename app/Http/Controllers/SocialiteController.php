@@ -69,15 +69,19 @@ class SocialiteController extends Controller
                     'mac' => $request->mac
                 ]);
             $oClient = OClient::where('password_client', 1)->first();
-
+            $info = false;
+            if ($user->info()->get()->last()) {
+                $info = true;
+            }
             $collection = $this->getTokenAndRefreshToken($oClient, $user->email, $password);
             $data = [
                 "user" => new UserResource($user),
                 'provider' => true,
+                "is_info" => $info,
                 "token_type" => $collection->get('token_type'),
                 "access_token" => $collection->get('access_token'),
                 "refresh_token" => $collection->get('refresh_token'),
-                "expire_at" => Carbon::now(config('app.timezone'))->addDays(7)->format("Y-m-d H-i-s")
+                "expire_at" => Carbon::now()->utcOffset(config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
             ];
             if (!($user->deleted_at == NULL)) {
                 app('App\Http\Controllers\AuthController')->recoveryMail($user->id, $user->f_name, $user->email);
