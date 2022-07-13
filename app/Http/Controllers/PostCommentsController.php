@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PostCommentReport;
 use App\Models\PostComments;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -104,7 +105,12 @@ class PostCommentsController extends Controller
     public function report($id)
     {
         try {
-            if (DB::table('post_comments')->where('id', $id)->increment('reports')) {
+            if ($comment = PostComments::where('id', $id)->first()) {
+                if (PostCommentReport::query()->where(['comment_id' => $comment->id, 'user_id' => Auth::id()])->count() < 2)
+                    PostCommentReport::create([
+                        'user_id' => Auth::id(),
+                        'comment_id' => $comment->id,
+                    ]);
                 return $this->success();
             }
             return $this->fail(__("messages.Not found"));
