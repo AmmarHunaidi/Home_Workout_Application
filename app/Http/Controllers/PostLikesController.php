@@ -18,6 +18,10 @@ class PostLikesController extends Controller
     {
         $likeTypes = [1, 2, 3, 4, 5];
         if (in_array($type, $likeTypes)) {
+            if (!is_null($like = PostLike::where(['post_id' => $id, 'user_id' => Auth::id(), 'type' => $type])->first())) {
+                $like->delete();
+                return $this->success('ok', $this->likeNum($id));
+            }
             PostLike::updateOrCreate([
                 "user_id" => Auth::id(),
                 "post_id" => Post::find($id)->first()->id
@@ -27,12 +31,6 @@ class PostLikesController extends Controller
             return $this->success('ok', $this->likeNum($id));
         }
         return $this->fail(__('messages.somthing went wrong'));
-    }
-
-    public function unlike($id)
-    {
-        PostLike::where(['post_id' => $id, 'user_id' => Auth::id()])->delete();
-        return $this->success('ok', $this->likeNum($id));
     }
 
     public function likeNum($id)

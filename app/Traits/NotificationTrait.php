@@ -8,27 +8,29 @@ use Carbon\Carbon;
 
 trait NotificationTrait
 {
-    protected function sendNotification($tokens = [], $title, $body, $page)
+    protected function sendNotification($tokens = [], $title, $body, $page = 'Home Screen')
     {
-        $SERVER_API_KEY = 'AAAAXSQRj3o:APA91bE53VhoxMn8WVSF4Vdbs3JPDXctWaT0IgJ2u40iMzzBSlXwpDCGdftymoM2IGwcNU_zbVnV2By1NzqSHQwrRECmgJCFvG7h5bXAjdAk3KjeZxylfbXKM8z0jbtIyTcBJOQZnHGl';
+        $SERVER_API_KEY = env('Server_Key');
         foreach ($tokens as $token) {
             $data = [
 
                 "registration_ids" => [
-                    $token
+                    $token->mobile_token
                 ],
 
                 "notification" => [
-                    // "csrf-token" => csrf_token(),
                     "title" => $title,
 
                     "body" => $body,
 
-                    "page" => $page,
-
                     "sound" => "default"
 
                 ],
+
+                "data" => [
+                    "click_action" => "FLUTTER_NOTIFICATION_CLICK",
+                    "page" => $page
+                ]
 
             ];
             $dataString = json_encode($data);
@@ -56,7 +58,7 @@ trait NotificationTrait
 
             curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
 
-            $response = curl_exec($ch);
+            dd($response = curl_exec($ch));
         }
         return true;
     }
