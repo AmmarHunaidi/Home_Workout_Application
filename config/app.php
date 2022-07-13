@@ -70,7 +70,7 @@ return [
     */
 
     'timezone' => 'UTC',
-
+    'timeoffset' => 0,
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

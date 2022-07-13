@@ -10,6 +10,7 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\DiseasesController;
 use App\Http\Controllers\HealthRecordsController;
+use App\Http\Controllers\PostCommentsController;
 use App\Http\Controllers\PostLikesController;
 use App\Http\Controllers\PostsController;
 
@@ -82,7 +83,6 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     Route::prefix('hRecord')->controller(HealthRecordsController::class)->group(function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
-        Route::put('/', 'update');
         Route::delete('/', 'destroy');
     });
     Route::prefix('posts')->middleware(['posts'])->controller(PostsController::class)->group(function () {
@@ -95,6 +95,13 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/list/{id}', 'likeList');
         Route::get('/{id}/{type}', 'like');
         Route::get('/{id}', 'unlike');
+    });
+    Route::prefix('posts/comment')->middleware(['block'])->controller(PostCommentsController::class)->group(function () {
+        Route::get('/{id}', 'index');
+        Route::post('/{id}', 'store');
+        Route::put('/{id}', 'update')->withoutMiddleware('block');
+        Route::delete('/{id}', 'destroy')->withoutMiddleware('block');
+        Route::get('/report/{id}', 'report')->withoutMiddleware('block');
     });
 });
 Route::get('/any', function () {
