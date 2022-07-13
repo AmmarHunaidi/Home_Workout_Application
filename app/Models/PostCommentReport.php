@@ -5,24 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PostComments extends Model
+class PostCommentReport extends Model
 {
     use HasFactory;
-    protected $table = "post_comments";
+    protected $table = "posts_comments_reports";
     protected $primaryKey = "id";
-    protected $fillable = ['user_id', 'post_id', 'text'];
+    protected $fillable = ['user_id', 'comment_id'];
     protected $timestamp = true;
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    public function post()
+    public function comment()
     {
-        return $this->belongsTo(Post::class);
-    }
-    public function reports()
-    {
-        return $this->hasMany(PostCommentReport::class);
+        return $this->belongsTo(PostComments::class);
     }
 }
