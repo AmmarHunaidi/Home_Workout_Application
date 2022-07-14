@@ -87,11 +87,13 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     });
     Route::prefix('posts')->middleware(['posts'])->controller(PostsController::class)->group(function () {
         Route::get('/', 'index');
-        Route::post('/', 'store');
+        Route::get('/vote/{id}/{vote_id}', 'vote')->middleware('block');
+        Route::get('/report/{id}', 'report')->middleware('block');
+        Route::post('/poll', 'storepoll');
         Route::put('/', 'update');
         Route::delete('/{id}', 'destroy');
     });
-    Route::prefix('posts/like')->middleware(['block'])->controller(PostLikesController::class)->group(function () {
+    Route::prefix('posts/like')->middleware(['block', 'likeable'])->controller(PostLikesController::class)->group(function () {
         Route::get('/list/{id}', 'likeList');
         Route::get('/{id}/{type}', 'like');
     });

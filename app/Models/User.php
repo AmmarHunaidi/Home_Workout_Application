@@ -86,7 +86,30 @@ class User extends Authenticatable
 
     public function postLikes()
     {
-        return $this->hasMany(postLikes::class);
+        return $this->hasMany(PostLikes::class);
+    }
+
+    public function postComments()
+    {
+        return $this->hasMany(PostComments::class);
+    }
+
+    public function postCommentsReports()
+    {
+        return $this->hasMany(PostCommentReport::class, 'user_id');
+    }
+
+    public function postVots()
+    {
+        return $this->hasMany(PostVote::class, 'user_id');
+    }
+    public function postsReports()
+    {
+        return $this->hasMany(PostReport::class, 'user_id');
+    }
+    public function postsMedia()
+    {
+        return $this->hasMany(PostMedia::class, 'user_id');
     }
     //Accessor
     public function setFNameAttribute($f_name)

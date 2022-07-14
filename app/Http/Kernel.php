@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
         'deltedAccount' => \App\Http\Middleware\CheckDeletedAccount::class,
         'posts' => \App\Http\Middleware\CRUDPosts::class,
         'block' => \App\Http\Middleware\Blocked::class,
+        'likeable' => \App\Http\Middleware\CheckLikeAble::class,
     ];
 }
