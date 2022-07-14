@@ -94,7 +94,6 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     Route::prefix('posts/like')->middleware(['block'])->controller(PostLikesController::class)->group(function () {
         Route::get('/list/{id}', 'likeList');
         Route::get('/{id}/{type}', 'like');
-        Route::get('/{id}', 'unlike');
     });
     Route::prefix('posts/comment')->middleware(['block'])->controller(PostCommentsController::class)->group(function () {
         Route::get('/{id}', 'index');

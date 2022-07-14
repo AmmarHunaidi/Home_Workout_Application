@@ -11,7 +11,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class PostCommentsController extends Controller
 {
@@ -41,7 +40,6 @@ class PostCommentsController extends Controller
             return $this->fail(__("messages.somthing went wrong"), 500);
         }
     }
-
 
     //post $id
     public function store($id, Request $request)
