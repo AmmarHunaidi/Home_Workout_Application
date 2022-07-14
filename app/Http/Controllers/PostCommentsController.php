@@ -32,7 +32,7 @@ class PostCommentsController extends Controller
                     "img" => $url,
                     "comment_id" => $comment->id,
                     "comment" => $comment->text,
-                    'created_at' => Carbon::parse($comment->created_at)->utcOffset(config('app.timeoffset'))->format('Y-m-d H:i:s')
+                    'created_at' => Carbon::parse($comment->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A')
                 ];
             }
             return $this->success('ok', $data);

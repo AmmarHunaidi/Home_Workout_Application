@@ -10,7 +10,7 @@ class Post extends Model
     use HasFactory;
     protected $table = "posts";
     protected $primaryKey = "id";
-    protected $fillable = ['user_id', 'text', 'is_accepted'];
+    protected $fillable = ['user_id', 'text', 'is_accepted', 'type'];
     protected $timestamp = true;
 
     public function user()
@@ -24,5 +24,17 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(PostComments::class, 'post_id');
+    }
+    public function votes()
+    {
+        return $this->hasMany(PostVote::class, 'post_id');
+    }
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class, 'post_id');
+    }
+    public function media()
+    {
+        return $this->hasMany(PostMedia::class, 'post_id');
     }
 }

@@ -12,6 +12,7 @@ return [
     | these language lines according to your application's requirements.
     |
     */
+    //public
     'somthing went wrong' => 'Something went wrong :(',
     'unauthenticated' => 'Unauthenticated',
     'invalid data' => 'Invalid data',
@@ -19,6 +20,7 @@ return [
     'Access denied' => 'Access denied',
     'Welcome' => 'Welcome ',
     'Not found' => 'Not found',
+    'UnAccepted action' => 'UnAccepted action',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',
