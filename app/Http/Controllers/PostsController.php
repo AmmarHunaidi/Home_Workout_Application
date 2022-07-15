@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Block;
+use App\Models\Follow;
 use App\Models\Post;
+use App\Models\PostMedia;
+use App\Models\PostLike;
 use App\Models\PostReport;
 use App\Models\PostVote;
+use App\Models\Role;
 use App\Models\UserVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,21 +27,142 @@ use function PHPUnit\Framework\throwException;
 class PostsController extends Controller
 {
     use GeneralTrait;
-    public function index()
+    public function index(Request $request)
     {
+        try {
+            $blocks = Block::where('blocked', Auth::id())->get('user_id'); //users who blocked me
+            $coaches_ids = Follow::query()
+                ->where('follower_id', Auth::id())
+                ->whereNotIn('following', $blocks)
+                ->get('following'); //users I following without who blocked me
+            $posts = [];
+            if ($request->user()->role_id == 2 || $request->user()->role_id == 3) {
+                $posts = Post::query() //posts if I am a coach
+                    ->whereIn('user_id', $coaches_ids)
+                    ->orWhere('user_id', Auth::id())
+                    ->where('is_accepted', true)
+                    ->orderBy('created_at')
+                    ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+            } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3)) {
+                $posts = Post::query() //posts if I am not a coach
+                    ->whereIn('user_id', $coaches_ids)
+                    ->whereNot('type', 2)
+                    ->where('is_accepted', true)
+                    ->orderBy('created_at')
+                    ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+            }
+            return $this->success('ok', $this->postData($posts));
+        } catch (\Exception $e) {
+            return $this->fail(__("messages.somthing went wrong"), 500);
+        }
+    }
+
+    public function postData($posts)
+    {
+        $data = [];
+        foreach ($posts as $post) {
+            $user = $post->user()->first(['id', 'f_name', 'l_name', 'role_id', 'prof_img_url']);
+            $url = $user->prof_img_url;
+            if (!(Str::substr($url, 0, 4) == 'http')) {
+                $url = 'storage/images/users/' . $url;
+            }
+
+            $data[] = [
+                'post_main_data' => [
+                    'id' => $post->id,
+                    'user_id' => $post->user_id,
+                    'text' => $post->text,
+                    'type' => $post->type,
+                    'created_at' => (string)Carbon::parse($post->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                    'comments' => $post->comments()->count()
+                ],
+                'user_data' => [
+                    'id' => $user->id,
+                    'name' => $user->f_name . ' ' . $user->l_name,
+                    'img' => $url,
+                    'role' => Role::where('id', $user->role_id)->first()->name
+                ],
+                'post_likes' => [
+                    "type1" => PostLike::where(['post_id' => $post->id, 'type' => 1])->count(),
+                    "type2" => PostLike::where(['post_id' => $post->id, 'type' => 2])->count(),
+                    "type3" => PostLike::where(['post_id' => $post->id, 'type' => 3])->count(),
+                    "type4" => PostLike::where(['post_id' => $post->id, 'type' => 4])->count(),
+                    "type5" => PostLike::where(['post_id' => $post->id, 'type' => 5])->count(),
+                ],
+                'media' => $this->getPostMedia($post),
+                'votes' => $this->getVotes($post->id)
+            ];
+        }
+        return $data;
+    }
+
+    public function getPostMedia($post)
+    {
+        $data = [
+            'imgs' => [],
+            'vids' => []
+        ];
+        $media = PostMedia::where('post_id', $post->id)->get(['id', 'url']);
+        foreach ($media as $med) {
+            if (substr($med->url, -4) == 'jpeg' || in_array(substr($med->url, -3), ['jpg', 'png', 'gif', 'svg', 'bmp'])) {
+                $data['imgs'][] = [
+                    'id' => $med->id,
+                    'url' => 'storage/images/users/' . $med->url,
+                ];
+            } elseif (substr($med->url, -4) == 'mpeg' || in_array(substr($med->url, -3), ['mp4', 'avi', 'ogv', '3gp', 'm4v', 'wmv'])) {
+                $data['vids'][] = [
+                    'id' => $med->id,
+                    'url' => 'storage/images/users/' . $med->url
+                ];
+            }
+        }
+        return $data;
     }
 
     public function storeNormal(Request $request)
     {
         try {
-            // $request->media = json_decode($request->media);
+            $request->media = json_decode($request->media);
             $validator = Validator::make($request->only('text', 'media'), [
                 'text' => ['string', 'max:10000', 'nullable'],
+                // 'media' => ['array', 'nullable']
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
+            if (!(is_null($request->text)) || !(is_null($request->media))) {
+                $is_accepted = false;
+                if ($request->user()->posts()->where(['is_accepted' => true, 'type' => 1])->count() >= 5)
+                    $is_accepted = true;
+                $post = Post::create([
+                    'user_id' => Auth::id(),
+                    'text' => $request->text,
+                    'is_accepted' => $is_accepted
+                ]);
+                if ($request->media) {
+                    foreach ($request->media as $med) {
+                        //
+                        if (is_file($med)) {
+                            $mimes = ['jpg', 'png', 'jpeg', 'gif', 'svg', 'bmp', 'mp4', 'avi', 'mpeg', 'ogv', '3gp', 'm4v', 'wmv'];
+                            if (in_array($med->getClientOriginalExtension(), $mimes) && $med->getsize() <= 41943040) {
+                                $destination_path = 'public/images/users/';
+                                $media = $med;
+                                $randomString = Str::random(30);
+                                $media_name =  Auth::id() . '/posts/' . $post->id . '/' . $randomString . $media->getClientOriginalName();
+                                $path = $media->storeAs($destination_path, $media_name);
+                                PostMedia::create([
+                                    'post_id' => $post->id,
+                                    'url' => $media_name,
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+            return $this->success(__('messages.Post has been created successfully'));
         } catch (\Exception $e) {
-            return $this->fail(__("messages.somthing went wrong"), 500);
+            $post->delete();
+            // return $this->fail(__("messages.somthing went wrong"), 500);
+            return $this->fail($e->getMessage(), 500);
         }
     }
 
@@ -75,7 +201,9 @@ class PostsController extends Controller
 
             $post = Post::create([
                 'user_id' => Auth::id(),
-                'text' => $request->text
+                'text' => $request->text,
+                'type' => 2,
+                'is_accepted' => true
             ]);
             $post->votes()->createMany([
                 [
@@ -87,7 +215,7 @@ class PostsController extends Controller
                     'vote' => 'Disgree'
                 ],
             ]);
-            return $this->success();
+            return $this->success(__('messages.Post has been created successfully'));
         } catch (\Exception $e) {
             $post->delete();
             return $this->fail(__("messages.somthing went wrong"), 500);
@@ -98,18 +226,20 @@ class PostsController extends Controller
     public function storetype3(Request $request)
     {
         try {
-            // $request->votes = json_decode($request->votes);
+            $request->votes = json_decode($request->votes);
             $validator = Validator::make($request->only('text', 'votes'), [
                 'text' => ['max:100'],
-                'votes' => ['array', 'required', 'between:2,10'],
-                'votes.*' => ['string', 'between:1,36'],
+                // 'votes' => ['array', 'required', 'between:2,10'],
+                // 'votes.*' => ['string', 'between:1,36'],
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
 
             $post = Post::create([
                 'user_id' => Auth::id(),
-                'text' => $request->text
+                'text' => $request->text,
+                'type' => 3,
+                'is_accepted' => true
             ]);
             foreach ($request->votes as $vote) {
                 PostVote::create([
@@ -117,7 +247,7 @@ class PostsController extends Controller
                     'vote' => $vote
                 ]);
             }
-            return $this->success();
+            return $this->success(__('messages.Post has been created successfully'));
         } catch (\Exception $e) {
             $post->delete();
             return $this->fail(__("messages.somthing went wrong"), 500);
@@ -139,7 +269,7 @@ class PostsController extends Controller
                 if (Post::where(['id' => $id, 'user_id' => Auth::id()])->first()) {
                     $post->delete();
                     Storage::deleteDirectory('public/images/users/' . Auth::id() . '/posts/' . $id);
-                    return $this->success();
+                    return $this->success(__('messages.deleted'));
                 }
                 return $this->fail(__("messages.Access denied"), 401);
             }
@@ -174,22 +304,32 @@ class PostsController extends Controller
     public function getVotes($id)
     {
         try {
-            $votes = Post::find($id)->votes()->get('id');
+            $votes = Post::find($id)->votes()->get(['id', 'vote']);
             $allVotesCount = 0;
+            $data = [];
             foreach ($votes as $vote) {
                 $allVotesCount += $vote->votes()->count();
             }
             foreach ($votes as $vote) {
-                $thisVoteCount = $vote->votes()->count(); //How many users vote for this option
-                $data[] = [
-                    'vote_id' => $vote->id,
-                    'rate' => (string)((int)(100 * ($thisVoteCount / $allVotesCount)))
-                ];
+                if ($allVotesCount == 0) {
+                    $data[] = [
+                        'vote_id' => $vote->id,
+                        'vote' => $vote->vote,
+                        'rate' => (string)0
+                    ];
+                } else {
+                    $thisVoteCount = $vote->votes()->count(); //How many users vote for this option
+                    $data[] = [
+                        'vote_id' => $vote->id,
+                        'vote' => $vote->vote,
+                        'rate' => (string)((int)(100 * ($thisVoteCount / $allVotesCount)))
+                    ];
+                }
             }
             return $data;
-            return $data;
         } catch (\Exception $e) {
-            return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__('messages.somthing went wrong'), 500);
         }
     }
 

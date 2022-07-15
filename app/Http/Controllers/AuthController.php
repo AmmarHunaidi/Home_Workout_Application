@@ -320,6 +320,9 @@ class AuthController extends Controller
                 ]);
             }
             if ($request->hasFile('img')) {
+                if ($user->prof_img_url != "Default/RrmDmqreoLbR6dhjSVuFenDAii8uBWdqhi2fYSjK9pRISPykLSdefaultprofileimg.jpg") {
+                    Storage::delete('public/images/users/' . $user->prof_img_url);
+                }
                 $destination_path = 'public/images/users';
                 $image = $request->file('img');
                 $randomString = Str::random(30);

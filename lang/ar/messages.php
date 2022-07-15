@@ -20,6 +20,7 @@ return [
     'Welcome' => ' مرحبا ',
     'Not found' => 'غير موجود',
     'UnAccepted action' => 'فعل غير مقبول',
+    'deleted' => 'تم الحذف',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
     'Reset Password Notification' => ' تنبيه استعادة كلمة المرور ',
@@ -52,5 +53,7 @@ return [
     'You cannot follow your self' => 'لا يمكنك متابعة نفسك',
     'User not found' => 'لم يتم العثور على المستخدم',
     'You can only follow coaches or dietitians' => 'يمكنك فقط متابعة المدربين أو أخصائيي التغذية',
-    'You cannot unfollow your self' => 'لا يمكنك إلغاء متابعة نفسك'
+    'You cannot unfollow your self' => 'لا يمكنك إلغاء متابعة نفسك',
+    //Posts
+    'Post has been created successfully' => 'تم إنشاء المنشور بنجاح',
 ];
