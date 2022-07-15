@@ -15,7 +15,7 @@ class DiseasesController extends Controller
     use GeneralTrait;
     public function index()
     {
-        return $this->success('ok', Disease::all(['id', 'name']));
+        return $this->success('ok', Disease::query()->orderBy('name')->get(['id', 'name']));
     }
 
     public function store(Request $request)

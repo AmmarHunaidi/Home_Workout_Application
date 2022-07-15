@@ -89,6 +89,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/', 'index');
         Route::get('/vote/{id}/{vote_id}', 'vote')->middleware('block');
         Route::get('/report/{id}', 'report')->middleware('block');
+        Route::post('/', 'storeNormal');
         Route::post('/poll', 'storepoll');
         Route::put('/', 'update');
         Route::delete('/{id}', 'destroy');

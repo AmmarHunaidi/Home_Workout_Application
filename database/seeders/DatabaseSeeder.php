@@ -26,5 +26,14 @@ class DatabaseSeeder extends Seeder
         $this->call(OauthClientsTableSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(DiseasesTableSeeder::class);
+        $this->call(UsersDevicesTableSeeder::class);
+        $this->call(DailyTipsTableSeeder::class);
+        $this->call(PostsTableSeeder::class);
+        $this->call(FollowsTableSeeder::class);
+        $this->call(PostsMediaTableSeeder::class);
+        $this->call(PostsVotesTableSeeder::class);
+        $this->call(PostCommentsTableSeeder::class);
+        $this->call(PostLikesTableSeeder::class);
+        $this->call(UsersVotesTableSeeder::class);
     }
 }

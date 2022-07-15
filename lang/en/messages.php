@@ -21,6 +21,7 @@ return [
     'Welcome' => 'Welcome ',
     'Not found' => 'Not found',
     'UnAccepted action' => 'UnAccepted action',
+    'deleted' => 'deleted',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',
@@ -53,4 +54,6 @@ return [
     'You cannot follow your self' => 'You cannot follow your self',
     'User not found' => 'User not found',
     'You can only follow coaches or dietitians' => 'You can only follow coaches or dietitians',
+    //Posts
+    'Post has been created successfully' => 'The post has been created successfully',
 ];
