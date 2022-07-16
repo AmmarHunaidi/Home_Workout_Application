@@ -47,9 +47,12 @@ class AuthController extends Controller
         $input = $request->only('f_name', 'l_name', 'email', 'password');
         $input['password'] = Hash::make($request['password']);
         try {
-            // if (!User::first()) { //if users table is empty then make the first user the app owner
-            //     $input['role_id'] = 5;
-            // } //make him super admin
+            if (!User::first()) { //if users table is empty then make the first user the app owner
+                $input['f_name'] = 'Vigor';
+                $input['l_name'] = 'App';
+                $input['role_id'] = 5;
+                $input['prof_img_url'] = 'Default/Logo/ku76tfgyuytrewedr432qwsdfgtyhnLOGO.png';
+            } //make him super admin
 
             $user = User::create($input);
             if ($request->mac && $request->m_token)
@@ -218,12 +221,12 @@ class AuthController extends Controller
     {
         if ($request->user()->role_id == 2 || $request->user()->role_id == 3)
             return $this->success('ok', [
-                "user" => new UserProfileResource(Auth::user()),
+                "user" => new UserProfileResource($request->user()),
                 "followers" => $request->user()->followers()->count(),
                 "following" => $request->user()->follows()->count(),
             ]);
         return $this->success('ok', [
-            "user" => new UserProfileResource(Auth::user()),
+            "user" => new UserProfileResource($request->user()),
             "following" => $request->user()->follows()->count(),
         ]);
     }
@@ -275,7 +278,6 @@ class AuthController extends Controller
                 'weight_unit' => ['string', 'min:2', 'max:2', 'nullable'],
                 'img' => ['image', 'mimes:jpg,png,jpeg,gif,svg,bmp', 'max:4096', 'nullable']
             ]);
-            // return response()->json($request->bio);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
             $user = $request->user();
@@ -298,7 +300,7 @@ class AuthController extends Controller
             if ($request->birthdate && $request->birthdate != $user->birth_date) {
                 $user->birth_date = Carbon::parse($request->birthdate)->format('Y-m-d');
             }
-            if ($request->bio != $user->bio) {
+            if (!(is_null($request->bio) || $request->bio != $user->bio)) {
                 $user->bio = $request->bio;
             }
             if ((($request->height && $request->height != $info->height) ||
@@ -319,6 +321,16 @@ class AuthController extends Controller
                     'weight_unit' => $request->weight_unit,
                 ]);
             }
+            if ($user->role_id == 5) { // app Logo
+                if ($request->hasFile('img')) {
+                    $destination_path = 'public/images/users';
+                    $image = $request->file('img');
+                    $randomString = Str::random(30);
+                    $image_name =  "Default/Logo/" . $randomString . $image->getClientOriginalName();
+                    $path = $image->storeAs($destination_path, $image_name);
+                    $user->prof_img_url = $image_name;
+                }
+            } else
             if ($request->hasFile('img')) {
                 if ($user->prof_img_url != "Default/RrmDmqreoLbR6dhjSVuFenDAii8uBWdqhi2fYSjK9pRISPykLSdefaultprofileimg.jpg") {
                     Storage::delete('public/images/users/' . $user->prof_img_url);
