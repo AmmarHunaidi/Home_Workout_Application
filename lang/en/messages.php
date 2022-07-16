@@ -22,6 +22,8 @@ return [
     'Not found' => 'Not found',
     'UnAccepted action' => 'UnAccepted action',
     'deleted' => 'deleted',
+    'No changes occurred' => 'No changes occurred',
+    'Updated successfully' => 'Updated successfully',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',
@@ -56,4 +58,6 @@ return [
     'You can only follow coaches or dietitians' => 'You can only follow coaches or dietitians',
     //Posts
     'Post has been created successfully' => 'The post has been created successfully',
+    'Removed from your saved-posts list' => 'Removed from your saved-posts list',
+    'Added to your saved-posts list' => 'Added to your saved-posts list',
 ];

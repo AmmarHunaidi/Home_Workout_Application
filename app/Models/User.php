@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function savedPosts()
+    {
+        return $this->hasMany(SavedPost::class, 'user_id');
+    }
+
     public function postLikes()
     {
         return $this->hasMany(PostLikes::class);

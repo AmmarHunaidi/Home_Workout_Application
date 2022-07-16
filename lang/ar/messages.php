@@ -21,6 +21,8 @@ return [
     'Not found' => 'غير موجود',
     'UnAccepted action' => 'فعل غير مقبول',
     'deleted' => 'تم الحذف',
+    'No changes occurred' => 'لم يحدث أي تغيير',
+    'Updated successfully' => 'تم التحديث بنجاح',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
     'Reset Password Notification' => ' تنبيه استعادة كلمة المرور ',
@@ -56,4 +58,6 @@ return [
     'You cannot unfollow your self' => 'لا يمكنك إلغاء متابعة نفسك',
     //Posts
     'Post has been created successfully' => 'تم إنشاء المنشور بنجاح',
+    'Removed from your saved-posts list' => 'تمت إزلة المنشور من قائمة المنشورات المحفوظة',
+    'Added to your saved-posts list' => 'المنشور أضيف إلى قائمة المنشورات المحفوظة',
 ];

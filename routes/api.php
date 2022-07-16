@@ -85,14 +85,19 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::post('/', 'store');
         Route::delete('/', 'destroy');
     });
-    Route::prefix('posts')->middleware(['posts'])->controller(PostsController::class)->group(function () {
+    Route::prefix('posts')->controller(PostsController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('/vote/{id}/{vote_id}', 'vote')->middleware('block');
+        Route::get('/save/{id}', 'savePost')->middleware('block');
+        Route::get('/savedPosts', 'savePostList');
+        Route::get('/myPosts', 'showMyPosts')->middleware('posts');
+        Route::get('/showPosts/{user_id}', 'showOthersPosts')->middleware('block');
         Route::get('/report/{id}', 'report')->middleware('block');
-        Route::post('/', 'storeNormal');
-        Route::post('/poll', 'storepoll');
-        Route::put('/', 'update');
-        Route::delete('/{id}', 'destroy');
+        Route::post('/', 'storeNormal')->middleware('posts');
+        Route::post('/poll', 'storepoll')->middleware('posts');
+        Route::put('/update/{id}', 'updateNormal')->middleware('posts');
+        Route::put('/updatePoll/{id}', 'updatePoll')->middleware('posts');
+        Route::delete('/{id}', 'destroy')->middleware('posts');
     });
     Route::prefix('posts/like')->middleware(['block', 'likeable'])->controller(PostLikesController::class)->group(function () {
         Route::get('/list/{id}', 'likeList');
