@@ -48,7 +48,7 @@ class AuthController extends Controller
         $input['password'] = Hash::make($request['password']);
         try {
             // if (!User::first()) { //if users table is empty then make the first user the app owner
-            //     $input['role_id'] = 2;
+            //     $input['role_id'] = 5;
             // } //make him super admin
 
             $user = User::create($input);

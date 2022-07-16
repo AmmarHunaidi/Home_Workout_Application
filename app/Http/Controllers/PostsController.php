@@ -10,6 +10,7 @@ use App\Models\PostLike;
 use App\Models\PostReport;
 use App\Models\PostVote;
 use App\Models\Role;
+use App\Models\SavedPost;
 use App\Models\UserVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,9 +21,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\GeneralTrait;
 use Exception;
-use Throwable;
 
-use function PHPUnit\Framework\throwException;
+use function PHPUnit\Framework\isEmpty;
 
 class PostsController extends Controller
 {
@@ -53,7 +53,8 @@ class PostsController extends Controller
             }
             return $this->success('ok', $this->postData($posts));
         } catch (\Exception $e) {
-            return $this->fail(__("messages.somthing went wrong"), 500);
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__("messages.somthing went wrong"), 500);
         }
     }
 
@@ -67,6 +68,25 @@ class PostsController extends Controller
                 $url = 'storage/images/users/' . $url;
             }
 
+            $my_like = -1;
+            if ($like = PostLike::where(['post_id' => $post->id, 'user_id' => Auth::id()])->first('type')) {
+                $my_like = $like->type;
+            }
+
+            $my_vote = -1;
+            if ($vote = UserVote::where('user_id', Auth::id())
+                ->whereIn('vote_id', PostVote::where('post_id', $post->id)->get('id'))
+                ->first('vote_id')
+            ) {
+                $my_vote = $vote->vote_id;
+            }
+
+            $is_saved = false;
+            if (SavedPost::where(['post_id' => $post->id, 'user_id' => Auth::id()])->first())
+                $is_saved = true;
+            $on_hold = false;
+            if (Post::where('id', $post->id)->first('is_accepted')->is_accepted == 0)
+                $on_hold = true;
             $data[] = [
                 'post_main_data' => [
                     'id' => $post->id,
@@ -74,7 +94,11 @@ class PostsController extends Controller
                     'text' => $post->text,
                     'type' => $post->type,
                     'created_at' => (string)Carbon::parse($post->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
-                    'comments' => $post->comments()->count()
+                    'comments' => $post->comments()->count(),
+                    'my_like' => $my_like,
+                    'my_vote' => $my_vote,
+                    'on_hold' => $on_hold,
+                    'is_saved' => $is_saved
                 ],
                 'user_data' => [
                     'id' => $user->id,
@@ -122,10 +146,9 @@ class PostsController extends Controller
     public function storeNormal(Request $request)
     {
         try {
-            $request->media = json_decode($request->media);
             $validator = Validator::make($request->only('text', 'media'), [
                 'text' => ['string', 'max:10000', 'nullable'],
-                // 'media' => ['array', 'nullable']
+                'media' => ['array', 'nullable', 'max:99']
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
@@ -254,13 +277,183 @@ class PostsController extends Controller
         }
     }
 
-    public function show($id) //three types
+    public function showMyPosts(Request $request)
     {
+        try {
+            return $this->success(
+                'ok',
+                $this->postData(Post::where('user_id', Auth::id())
+                    ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']))
+            );
+        } catch (\Exception $e) {
+            return $this->fail(__('messages.somthing went wrong'), 500);
+        }
     }
 
-    public function update(Request $request, $id) //three types
+    //user_id
+    public function showOthersPosts($user_id, Request $request)
     {
+        try {
+            return $this->success(
+                'ok',
+                $this->postData(Post::where(['user_id' => $user_id, 'is_accepted' => true])
+                    ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']))
+            );
+        } catch (\Exception $e) {
+            return $this->fail(__('messages.somthing went wrong'), 500);
+        }
     }
+
+    //updates //three type
+    public function updateNormal(Request $request, $id)
+    {
+        try {
+            $request->deleteMedia = json_decode($request->deleteMedia);
+            $validator = Validator::make($request->only('text', 'deleteMedia', 'addMedia'), [
+                'text' => ['string', 'nullable'],
+                'addMedia' => ['array', 'nullable', 'max:99'],
+                // 'deleteMedia' => ['array', 'nullable'],
+                // 'deleteMedia.*' => ['nullable', 'integer', 'exists:posts_media,id'],
+            ]);
+            if ($validator->fails())
+                return $this->fail($validator->errors()->first(), 400);
+            if ($post = Post::where(['id' => $id, 'user_id' => Auth::id(), 'type' => 1])->first()) {
+                if ((is_null($request->text) && $post->media()->count() == 0 && isEmpty($request->addMedia)))
+                    return $this->success(__('messages.No changes occurred'));
+                //addMedia
+                if ($request->addMedia) {
+                    foreach ($request->addMedia as $am) {
+                        if (is_file($am)) {
+                            $mimes = ['jpg', 'png', 'jpeg', 'gif', 'svg', 'bmp', 'mp4', 'avi', 'mpeg', 'ogv', '3gp', 'm4v', 'wmv'];
+                            if (in_array($am->getClientOriginalExtension(), $mimes) && $am->getsize() <= 41943040) {
+                                $destination_path = 'public/images/users/';
+                                $media = $am;
+                                $randomString = Str::random(30);
+                                $media_name =  Auth::id() . '/posts/' . $post->id . '/' . $randomString . $media->getClientOriginalName();
+                                $path = $media->storeAs($destination_path, $media_name);
+                                PostMedia::create([
+                                    'post_id' => $post->id,
+                                    'url' => $media_name,
+                                ]);
+                            }
+                        }
+                    }
+                }
+                //deleteMedia
+                if (count($dMedia = collect($request->deleteMedia)->filter()) > 0) {
+                    if (
+                        PostMedia::where('post_id', $post->id)
+                        ->whereNotIn('id', $dMedia)
+                        ->count() == 0
+                        &&
+                        is_null($request->text)
+                    )
+                        return $this->success(__('messages.No changes occurred'));
+                    foreach ($dMedia as $dm) {
+                        $med = PostMedia::where(['post_id' => $id, 'id' => $dm])->first();
+                        if ($med) {
+                            Storage::delete('public/images/users/' . $med->url);
+                            $med->delete();
+                        }
+                    }
+                }
+                //editText
+                if ($request->text != $post->text)
+                    $post->update([
+                        'text' => (string)$request->text
+                    ]);
+                return $this->success(__('messages.Updated successfully'));
+            }
+            return $this->fail(__('messages.Not found'), 500);
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__("messages.somthing went wrong"), 500);
+        }
+    }
+
+    public function updatePoll(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->only('text', 'type'), [
+                'text' => ['string', 'nullable'],
+                'type' => ['required', 'integer', 'between:2,3'],
+            ]);
+            if ($validator->fails())
+                return $this->fail($validator->errors()->first(), 400);
+
+            if ($request->type == 2) {
+                return $this->updatePolltype2($request, $id);
+            }
+
+            if ($request->type == 3) {
+                return $this->updatePolltype3($request, $id);
+            }
+            return $this->fail(__("messages.somthing went wrong"), 500);
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__("messages.somthing went wrong"), 500);
+        }
+    }
+
+    public function updatePolltype2(Request $request, $id)
+    {
+        if ($post = Post::where(['id' => $id, 'user_id' => Auth::id(), 'type' => 2])->first()) {
+            if (!(is_null($request->text) || $request->text == $post->text)) {
+                $post->update([
+                    'text' => $request->text
+                ]);
+                return $this->success(__('messages.Updated successfully'));
+            }
+            return $this->success(__('messages.No changes occurred'));
+        }
+        return $this->fail(__('messages.Not found'));
+    }
+
+    public function updatePolltype3(Request $request, $id)
+    {
+        $request->deleteVote = json_decode($request->deleteVote);
+        $validator = Validator::make($request->only('deleteVote', 'addVote'), [
+            // 'deleteVote' => ['array', 'nullable', 'exists:posts_votes,id'],
+            // 'deleteVote.*' => ['nullable', 'integer', 'exists:posts_votes,id'],
+            'addVote' => ['array',  'nullable'],
+            'addVote.*' => ['string',  'nullable'],
+        ]);
+        if ($validator->fails())
+            return $this->fail($validator->errors()->first(), 400);
+        if ($post = Post::where(['id' => $id, 'user_id' => Auth::id(), 'type' => 3])->first()) {
+            if (!(is_null($request->text))) {
+                //add votes
+                if ($request->addVote)
+                    foreach ($request->addVote as $av) {
+                        PostVote::create([
+                            'post_id' => $post->id,
+                            'vote' => $av
+                        ]);
+                    }
+                //delete votes
+                if (count($dVotes = collect($request->deleteVote)->filter()) > 0) {
+                    if (
+                        PostVote::where('post_id', $post->id)
+                        ->whereNotIn('id', $dVotes)
+                        ->count() == 0
+                    )
+                        return $this->success(__('messages.No changes occurred'));
+                    foreach ($dVotes as $dv) {
+                        PostVote::where(['post_id' => $id, 'id' => $dv])->delete();
+                    }
+                }
+                //edit text
+                if ($request->text != $post->text)
+                    $post->update([
+                        'text' => $request->text
+                    ]);
+                return $this->success(__('messages.Updated successfully'));
+            }
+            return $this->success(__('messages.No changes occurred'));
+        }
+        return $this->fail(__('messages.Not found'));
+    }
+    //End updates
 
     public function destroy($id)
     {
@@ -347,6 +540,35 @@ class PostsController extends Controller
             return $this->fail(__("messages.Not found"));
         } catch (\Exception $e) {
             return $this->fail(__('messages.somthing went wrong'), 500);
+        }
+    }
+
+    public function savePost($id)
+    {
+        try {
+            if ($save = SavedPost::where(['user_id' => Auth::id(), 'post_id' => $id])->first()) {
+                $save->delete();
+                return $this->success(__('messages.Removed from your saved-posts list'));
+            }
+            SavedPost::create([
+                'user_id' => Auth::id(),
+                'post_id' => $id
+            ]);
+            return $this->success(__('messages.Added to your saved-posts list'));
+        } catch (\Exception $e) {
+            return $this->fail(__('messages.somthing went wrong'), 500);
+        }
+    }
+
+    public function savePostList(Request $request)
+    {
+        try {
+            $posts = Post::whereIn('id', $request->user()->savedPosts()->get('post_id'))
+                ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+            return $this->success('ok', $this->postData($posts));
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__('messages.somthing went wrong'), 500);
         }
     }
 }
