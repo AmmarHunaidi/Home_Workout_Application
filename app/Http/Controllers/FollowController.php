@@ -98,6 +98,9 @@ class FollowController extends Controller
         }
         if (Gate::allows('Coach-Dietitian-Protection')) {
             $toBeBlocked = User::find($id);
+            if ($toBeBlocked->role_id == 5) {
+                return $this->fail(__("messages.You cannot Block super Admin"));
+            }
             if ($toBeBlocked) {
                 Block::firstOrCreate([
                     "user_id" => $user->id,

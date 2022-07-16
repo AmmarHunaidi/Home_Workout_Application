@@ -14,19 +14,19 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-
+        
 
         \DB::table('users')->delete();
-
-        \DB::table('users')->insert(array(
-            0 =>
-            array(
+        
+        \DB::table('users')->insert(array (
+            0 => 
+            array (
                 'id' => 1,
-                'f_name' => 'omar',
+                'f_name' => 'philip',
                 'l_name' => 'za',
                 'email' => 'philipp565dro@gmail.com',
                 'password' => '$2y$10$a2HXUNyk8WxM0ni/zBJ5E.I7oGRVEMSUVcwmLipfF0.3yfGR.ob7.',
-                'prof_img_url' => 'Default/RrmDmqreoLbR6dhjSVuFenDAii8uBWdqhi2fYSjK9pRISPykLSdefaultprofileimg.jpg',
+                'prof_img_url' => '1/profilePic/HUoZKIs41mDwAl2IFHOw3V4P8jXzkSlap1.jpg',
                 'gender' => 'male',
                 'birth_date' => '2022-07-07',
                 'bio' => 'I\'m Omar and I am a King Kong',
@@ -36,10 +36,10 @@ class UsersTableSeeder extends Seeder
                 'role_id' => 3,
                 'remember_token' => NULL,
                 'created_at' => '2022-07-07 02:13:02',
-                'updated_at' => '2022-07-07 02:13:02',
+                'updated_at' => '2022-07-16 14:23:15',
             ),
-            1 =>
-            array(
+            1 => 
+            array (
                 'id' => 2,
                 'f_name' => 'shopy app',
                 'l_name' => '',
@@ -57,27 +57,27 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-07 02:13:02',
             ),
-            2 =>
-            array(
+            2 => 
+            array (
                 'id' => 5,
-                'f_name' => 'omar',
-                'l_name' => 'zozo',
+                'f_name' => 'Vigor',
+                'l_name' => 'App',
                 'email' => 'test@g.com222',
                 'password' => '$2y$10$GYa4DJFdRVsc1Qsj73yiguJyzqhI6xg/vl19ghT/JxREXZR8pZwNu',
-                'prof_img_url' => '5/profilePic/qCRsV4XmYKzQKVh8LRLctIIdiYf6vO2c57c584-b0bf-433a-adf6-b650ef9e693687718084.jpg',
+                'prof_img_url' => 'Default/Logo/ku76tfgyuytrewedr432qwsdfgtyhnLOGO.png',
                 'gender' => 'male',
                 'birth_date' => '2022-07-07',
-                'bio' => '',
+                'bio' => 'App Owner',
                 'country' => 'ZIZI',
                 'email_verified_at' => '2022-07-07 02:13:02',
                 'deleted_at' => NULL,
-                'role_id' => 2,
+                'role_id' => 5,
                 'remember_token' => NULL,
                 'created_at' => '2022-07-07 02:13:02',
-                'updated_at' => '2022-07-07 02:13:02',
+                'updated_at' => '2022-07-16 14:22:53',
             ),
-            3 =>
-            array(
+            3 => 
+            array (
                 'id' => 6,
                 'f_name' => 'fadi',
                 'l_name' => 'asfor',
@@ -95,8 +95,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-07 02:13:02',
             ),
-            4 =>
-            array(
+            4 => 
+            array (
                 'id' => 7,
                 'f_name' => 'fadi',
                 'l_name' => 'bsbose',
@@ -115,5 +115,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2022-07-07 02:13:02',
             ),
         ));
+        
+        
     }
 }

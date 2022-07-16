@@ -6,6 +6,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Models\UserInfo;
 
 class UserProfileResource extends JsonResource
 {
@@ -19,6 +20,7 @@ class UserProfileResource extends JsonResource
         if (!$birth_date == null) {
             $birth_date = Carbon::parse($birth_date)->format('Y-m-d');
         } else $birth_date = '';
+        $info = UserInfo::where('user_id', $this->id)->first();
         return [
             'id' =>  $this->id,
             'fname' => (string) $this->f_name,
@@ -32,6 +34,10 @@ class UserProfileResource extends JsonResource
             'country' => (string) $this->country,
             'created_at' =>  $this->created_at->format("Y-m-d"),
             'profile_img' => (string) $url,
+            'height' => $info->height,
+            'weight' => $info->weight,
+            'height_unit' => $info->height_unit,
+            'weight_unit' => $info->weight_unit,
         ];
     }
 }

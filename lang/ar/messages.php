@@ -51,6 +51,7 @@ return [
     'You cannot unBlock your self' => 'لا يمكنك إلغاء حظر نفسك',
     'Welcome back, Please check your email for verification code' => 'أهلاً بعودتك, الرجاء التحقق من البريد الالكتروني للحصول على الرمز',
     'Account already active' => 'الحساب فعال',
+    'You cannot Block super Admin' => 'لا تستطيع حظر مالك التطبيق',
     //User/Follow
     'You cannot follow your self' => 'لا يمكنك متابعة نفسك',
     'User not found' => 'لم يتم العثور على المستخدم',

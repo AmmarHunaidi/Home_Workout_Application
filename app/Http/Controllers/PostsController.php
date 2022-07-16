@@ -36,20 +36,51 @@ class PostsController extends Controller
                 ->whereNotIn('following', $blocks)
                 ->get('following'); //users I following without who blocked me
             $posts = [];
-            if ($request->user()->role_id == 2 || $request->user()->role_id == 3) {
+            if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
                 $posts = Post::query() //posts if I am a coach
                     ->whereIn('user_id', $coaches_ids)
                     ->orWhere('user_id', Auth::id())
                     ->where('is_accepted', true)
                     ->orderBy('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
-            } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3)) {
+            } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
                 $posts = Post::query() //posts if I am not a coach
                     ->whereIn('user_id', $coaches_ids)
                     ->whereNot('type', 2)
                     ->where('is_accepted', true)
                     ->orderBy('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+            }
+            // if there is too few posts
+            if ($posts->count() == 0) {
+                if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
+                    $moreposts = Post::query()
+                        ->whereIn('user_id', $coaches_ids)
+                        ->orWhere('user_id', Auth::id())
+                        ->where('is_accepted', true)
+                        ->inRandomOrder()
+                        ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
+                    $moreposts2 = Post::query()
+                        ->whereNotIn('user_id', $blocks)
+                        ->where('is_accepted', true)
+                        ->inRandomOrder()
+                        ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
+                } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
+                    $moreposts = Post::query()
+                        ->whereIn('user_id', $coaches_ids)
+                        ->whereNot('type', 2)
+                        ->where('is_accepted', true)
+                        ->inRandomOrder()
+                        ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
+                    $moreposts2 = Post::query()
+                        ->whereNotIn('user_id', $blocks)
+                        ->whereNot('type', 2)
+                        ->where('is_accepted', true)
+                        ->inRandomOrder()
+                        ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
+                }
+                $moreposts3 = ($moreposts->merge($moreposts2))->all();
+                return $posts = $posts->merge($moreposts3)->all();
             }
             return $this->success('ok', $this->postData($posts));
         } catch (\Exception $e) {
@@ -154,7 +185,7 @@ class PostsController extends Controller
                 return $this->fail($validator->errors()->first(), 400);
             if (!(is_null($request->text)) || !(is_null($request->media))) {
                 $is_accepted = false;
-                if ($request->user()->posts()->where(['is_accepted' => true, 'type' => 1])->count() >= 5)
+                if ($request->user()->posts()->where(['is_accepted' => true, 'type' => 1])->count() >= 5 || $request->user()->role_id == 5)
                     $is_accepted = true;
                 $post = Post::create([
                     'user_id' => Auth::id(),
@@ -572,3 +603,35 @@ class PostsController extends Controller
         }
     }
 }
+
+
+// if ($posts->count() < 5) {
+//     if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
+//         $moreposts = Post::query()
+//             ->whereIn('user_id', $coaches_ids)
+//             ->orWhere('user_id', Auth::id())
+//             ->where('is_accepted', true)
+//             ->inRandomOrder('created_at')
+//             ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
+//         $moreposts2 = Post::query()
+//             ->whereNotIn('user_id', $blocks)
+//             ->where('is_accepted', true)
+//             ->inRandomOrder('created_at')
+//             ->paginate(4, ['id', 'user_id', 'text', 'type', 'created_at']);
+//     } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
+//         $moreposts = Post::query()
+//             ->whereIn('user_id', $coaches_ids)
+//             ->whereNot('type', 2)
+//             ->where('is_accepted', true)
+//             ->orderBy('created_at')
+//             ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
+//         $moreposts2 = Post::query()
+//             ->whereNotIn('user_id', $blocks)
+//             ->whereNot('type', 2)
+//             ->where('is_accepted', true)
+//             ->inRandomOrder('created_at')
+//             ->paginate(4, ['id', 'user_id', 'text', 'type', 'created_at']);
+//     }
+//     $moreposts3 = $moreposts->merge($moreposts2);
+//     $posts = $posts->merge($moreposts3);
+// }

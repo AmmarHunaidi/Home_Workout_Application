@@ -71,7 +71,7 @@ class User extends Authenticatable
 
     public function providers()
     {
-        return $this->hasMany(Provider::class, 'id');
+        return $this->hasMany(Provider::class, 'user_id');
     }
 
     public function healthRecords()

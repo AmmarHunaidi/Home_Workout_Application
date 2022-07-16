@@ -52,6 +52,7 @@ return [
     'You cannot unBlock your self' => 'You cannot unBlock your self',
     'Welcome back, Please check your email for verification code' => 'Welcome back, Please check your email for verification code',
     'Account already active' => 'Account already active',
+    'You cannot Block super Admin' => 'You cannot Block super Admin',
     //User/Follow
     'You cannot follow your self' => 'You cannot follow your self',
     'User not found' => 'User not found',

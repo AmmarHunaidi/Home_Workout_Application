@@ -17,12 +17,7 @@ class ForgotPasswordController extends Controller
     use GeneralTrait, EmailTrait;
     public function submitForgetPasswordForm(Request $request)
     {
-        $validator = Validator::make($request->only('email'), [
-            'email' => ['required', 'email', 'exists:users,email'],
-        ]);
-        if ($validator->fails())
-            return $this->fail($validator->errors()->first(), 400);
-        if (User::where('email', $request->email)->first()->providers()) {
+        if (User::where('email', $request->email)->first()->providers()->first()) {
             return $this->fail(__("messages.You can login with your provider account"));
         }
         $token = Str::upper(Str::random(5));
