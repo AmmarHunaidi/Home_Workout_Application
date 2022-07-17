@@ -11,6 +11,7 @@ use App\Models\PostReport;
 use App\Models\PostVote;
 use App\Models\Role;
 use App\Models\SavedPost;
+use App\Models\User;
 use App\Models\UserVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,7 @@ class PostsController extends Controller
             $coaches_ids = Follow::query()
                 ->where('follower_id', Auth::id())
                 ->whereNotIn('following', $blocks)
+                ->whereNotIn('following', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->get('following'); //users I following without who blocked me
             $posts = [];
             if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
@@ -62,6 +64,7 @@ class PostsController extends Controller
                         ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                     $moreposts2 = Post::query()
                         ->whereNotIn('user_id', $blocks)
+                        ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                         ->where('is_accepted', true)
                         ->inRandomOrder()
                         ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
@@ -74,6 +77,7 @@ class PostsController extends Controller
                         ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                     $moreposts2 = Post::query()
                         ->whereNotIn('user_id', $blocks)
+                        ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                         ->whereNot('type', 2)
                         ->where('is_accepted', true)
                         ->inRandomOrder()
@@ -325,6 +329,8 @@ class PostsController extends Controller
     public function showOthersPosts($user_id, Request $request)
     {
         try {
+            if (User::find($user_id)->deleted_at != Null)
+                return $this->fail(__("messages.Not found"));
             return $this->success(
                 'ok',
                 $this->postData(Post::where(['user_id' => $user_id, 'is_accepted' => true])
@@ -506,6 +512,8 @@ class PostsController extends Controller
     public function vote($id, $vote_id)
     {
         try {
+            if (Post::where('id', $id)->first()->user()->first()->deleted_at != Null)
+                return $this->fail(__("messages.Not found"));
             if (!(($post = Post::find($id)) && ($postVote = PostVote::where(['psot_id' => $id, 'id' => $vote_id])))) {
                 return $this->fail(__("messages.Not found"), 404);
             }
@@ -528,6 +536,8 @@ class PostsController extends Controller
     public function getVotes($id)
     {
         try {
+            if (Post::where('id', $id)->first()->user()->first()->deleted_at != Null)
+                return $this->fail(__("messages.Not found"));
             $votes = Post::find($id)->votes()->get(['id', 'vote']);
             $allVotesCount = 0;
             $data = [];
@@ -560,6 +570,8 @@ class PostsController extends Controller
     public function report($id)
     {
         try {
+            if (Post::where('id', $id)->first()->user()->first()->deleted_at != Null)
+                return $this->fail(__("messages.Not found"));
             if ($post = Post::where('id', $id)->first()) {
                 if (PostReport::query()->where(['post_id' => $post->id, 'user_id' => Auth::id()])->count() < 2)
                     PostReport::create([
@@ -577,6 +589,8 @@ class PostsController extends Controller
     public function savePost($id)
     {
         try {
+            if (Post::where('id', $id)->first()->user()->first()->deleted_at != Null)
+                return $this->fail(__("messages.Not found"));
             if ($save = SavedPost::where(['user_id' => Auth::id(), 'post_id' => $id])->first()) {
                 $save->delete();
                 return $this->success(__('messages.Removed from your saved-posts list'));
@@ -595,6 +609,7 @@ class PostsController extends Controller
     {
         try {
             $posts = Post::whereIn('id', $request->user()->savedPosts()->get('post_id'))
+                ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             return $this->success('ok', $this->postData($posts));
         } catch (\Exception $e) {
@@ -603,35 +618,3 @@ class PostsController extends Controller
         }
     }
 }
-
-
-// if ($posts->count() < 5) {
-//     if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
-//         $moreposts = Post::query()
-//             ->whereIn('user_id', $coaches_ids)
-//             ->orWhere('user_id', Auth::id())
-//             ->where('is_accepted', true)
-//             ->inRandomOrder('created_at')
-//             ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
-//         $moreposts2 = Post::query()
-//             ->whereNotIn('user_id', $blocks)
-//             ->where('is_accepted', true)
-//             ->inRandomOrder('created_at')
-//             ->paginate(4, ['id', 'user_id', 'text', 'type', 'created_at']);
-//     } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
-//         $moreposts = Post::query()
-//             ->whereIn('user_id', $coaches_ids)
-//             ->whereNot('type', 2)
-//             ->where('is_accepted', true)
-//             ->orderBy('created_at')
-//             ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
-//         $moreposts2 = Post::query()
-//             ->whereNotIn('user_id', $blocks)
-//             ->whereNot('type', 2)
-//             ->where('is_accepted', true)
-//             ->inRandomOrder('created_at')
-//             ->paginate(4, ['id', 'user_id', 'text', 'type', 'created_at']);
-//     }
-//     $moreposts3 = $moreposts->merge($moreposts2);
-//     $posts = $posts->merge($moreposts3);
-// }

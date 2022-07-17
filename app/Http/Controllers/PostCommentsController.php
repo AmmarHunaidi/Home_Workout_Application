@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PostCommentReport;
 use App\Models\PostComments;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Traits\GeneralTrait;
@@ -19,7 +20,10 @@ class PostCommentsController extends Controller
     public function index($id)
     {
         try {
-            $comments = PostComments::query()->where('post_id', $id)->paginate(30, ['id', 'user_id', 'text', 'created_at']);
+            $comments = PostComments::query()
+                ->where('post_id', $id)
+                ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+                ->paginate(25, ['id', 'user_id', 'text', 'created_at']);
             foreach ($comments as $comment) {
                 $user = User::find($comment->user_id);
                 $url = $user->prof_img_url;
@@ -91,8 +95,10 @@ class PostCommentsController extends Controller
     {
         try {
             if ($comment = PostComments::where(['user_id' => Auth::id(), 'id' => $id])->first()) {
-                $comment->delete();
-                return $this->success();
+                if ($post = Post::where(['id' => $comment->post_id]) && is_null($comment->post()->first()->user()->first()->deleted_at)) {
+                    $comment->delete();
+                    return $this->success();
+                }
             }
             return $this->fail(__("messages.Not found"));
         } catch (\Exception $e) {
@@ -103,7 +109,10 @@ class PostCommentsController extends Controller
     public function report($id)
     {
         try {
-            if ($comment = PostComments::where('id', $id)->first()) {
+            if ($comment = PostComments::where('id', $id)
+                ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+                ->first()
+            ) {
                 if (PostCommentReport::query()->where(['comment_id' => $comment->id, 'user_id' => Auth::id()])->count() < 2)
                     PostCommentReport::create([
                         'user_id' => Auth::id(),

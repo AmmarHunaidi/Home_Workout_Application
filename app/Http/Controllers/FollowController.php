@@ -21,7 +21,7 @@ class FollowController extends Controller
             return $this->fail(__("messages.You cannot follow your self"));
         }
         $follow = User::find($id);
-        if ($follow && !is_null($follow->email_verified_at)) {
+        if ($follow && !is_null($follow->email_verified_at) && $follow->deleted_at == Null) {
             if (Gate::allows('Follow-Protection', $follow)) {
                 Follow::firstOrCreate([
                     "follower_id" => $user->id,
@@ -42,7 +42,7 @@ class FollowController extends Controller
             return $this->fail(__("messages.You cannot unfollow your self"));
         }
         $user = User::find($id);
-        if ($user && !is_null($user->email_verified_at)) {
+        if ($user && !is_null($user->email_verified_at) && $user->deleted_at == Null) {
             if (Gate::allows('Follow-Protection', $user)) {
                 $follow = Follow::where(['follower_id' => $follower->id, 'following' => $user->id])->first();
                 if ($follow) {
@@ -59,7 +59,10 @@ class FollowController extends Controller
     public function getFollowers($id)
     {
         $acc = User::find($id);
-        $followers = Follow::query()->where('following', $acc->id)->paginate(20, 'follower_id');
+        $followers = Follow::query()
+            ->where('following', $acc->id)
+            ->whereNotIn('follower_id', User::query()->whereNotNull('deleted_at')->get('id'))
+            ->paginate(20, 'follower_id');
         $data = [];
         foreach ($followers as $follower) {
             $user = User::find($follower->follower_id);
@@ -76,7 +79,10 @@ class FollowController extends Controller
     public function getFollowing($id)
     {
         $acc = User::find($id);
-        $following = Follow::query()->where('follower_id', $acc->id)->paginate(20, 'following');
+        $following = Follow::query()
+            ->where('follower_id', $acc->id)
+            ->whereNotIn('following', User::query()->whereNotNull('deleted_at')->get('id'))
+            ->paginate(20, 'following');
         $data = [];
         foreach ($following as $follow) {
             $user = User::find($follow->following);
@@ -101,7 +107,7 @@ class FollowController extends Controller
             if ($toBeBlocked->role_id == 5) {
                 return $this->fail(__("messages.You cannot Block super Admin"));
             }
-            if ($toBeBlocked) {
+            if ($toBeBlocked && $toBeBlocked->deleted_at == Null) {
                 Block::firstOrCreate([
                     "user_id" => $user->id,
                     "blocked" => $id,
@@ -120,7 +126,7 @@ class FollowController extends Controller
         }
         if (Gate::allows('Coach-Dietitian-Protection')) {
             $toBeBlocked = User::find($id);
-            if ($toBeBlocked) {
+            if ($toBeBlocked  && $toBeBlocked->deleted_at == Null) {
                 Block::where([
                     "user_id" => $user->id,
                     "blocked" => $id,
@@ -136,7 +142,10 @@ class FollowController extends Controller
         // $user = $request->user();
         if (Gate::allows('Coach-Dietitian-Protection')) {
             $data = [];
-            $blocks = Block::query()->where('user_id', Auth::id())->paginate(20, 'blocked');
+            $blocks = Block::query()
+                ->where('user_id', Auth::id())
+                ->whereNotIn('blocked', User::query()->whereNotNull('deleted_at')->get('id'))
+                ->paginate(20, 'blocked');
             foreach ($blocks as $block) {
                 $user = User::find($block->blocked);
                 $url = $user->prof_img_url;

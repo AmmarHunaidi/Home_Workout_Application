@@ -17,20 +17,16 @@ class IsEmailVerified
     public function handle(Request $request, Closure $next)
     {
         try {
-            $validator = Validator::make($request->only('email'), [
-                'email' => ['required', 'email', 'exists:users,email'],
-            ]);
-            if ($validator->fails())
-                return $this->fail($validator->errors()->first(), 400);
             $user = Auth::user();
             if (!$user) {
                 $user = User::where('email', $request->email)->first();
             }
-            if (is_null($user->email_verified_at)) {
-                $message = 'You need to confirm your email. We have sent you a Verification Code, please check your email.';
-                if (VerifyUserController::sendCode($user, $request))
-                    return $this->fail(__("messages." . $message), 450);
-            }
+            if ($user)
+                if (is_null($user->email_verified_at)) {
+                    $message = 'You need to confirm your email. We have sent you a Verification Code, please check your email.';
+                    if (VerifyUserController::sendCode($user, $request))
+                        return $this->fail(__("messages." . $message), 450);
+                }
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
             // return $this->fail(__("messages.somthing went wrong"), 500);
