@@ -16,15 +16,21 @@ class PostLikesController extends Controller
     public function like($id, $type)
     //$id is post id // $type is like type
     {
+        Post::find($id)->user()->first()->id;
+        if (Post::find($id)->user()->first()->deleted_at != Null) {
+            return $this->fail(__("messages.Not found"));
+        }
         $likeTypes = [1, 2, 3, 4, 5];
         if (in_array($type, $likeTypes)) {
-            if (!is_null($like = PostLike::where(['post_id' => $id, 'user_id' => Auth::id(), 'type' => $type])->first())) {
+            if (
+                !is_null($like = PostLike::where(['post_id' => $id, 'user_id' => Auth::id(), 'type' => $type])->first())
+            ) {
                 $like->delete();
                 return $this->success('ok', $this->likeNum($id));
             }
             PostLike::updateOrCreate([
                 "user_id" => Auth::id(),
-                "post_id" => Post::find($id)->first()->id
+                "post_id" => $id
             ], [
                 "type" => $type
             ]);
@@ -48,7 +54,12 @@ class PostLikesController extends Controller
     public function likeList($id)
     {
         $users = [];
-        foreach (PostLike::query()->where('post_id', $id)->paginate(30, ['user_id']) as $user_id) {
+        if (Post::find($id)->user()->first()->deleted_at != Null) {
+            return $this->fail(__("messages.Not found"));
+        }
+        foreach (PostLike::query()->where('post_id', $id)
+            ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+            ->paginate(30, ['user_id']) as $user_id) {
             $user = User::find($user_id->user_id);
             $url = $user->prof_img_url;
             if (!(Str::substr($url, 0, 4) == 'http')) {

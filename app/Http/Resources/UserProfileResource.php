@@ -34,10 +34,10 @@ class UserProfileResource extends JsonResource
             'country' => (string) $this->country,
             'created_at' =>  $this->created_at->format("Y-m-d"),
             'profile_img' => (string) $url,
-            'height' => $info->height,
-            'weight' => $info->weight,
-            'height_unit' => $info->height_unit,
-            'weight_unit' => $info->weight_unit,
+            'height' => (string) $info->height,
+            'weight' => (string) $info->weight,
+            'height_unit' => (string) $info->height_unit,
+            'weight_unit' => (string) $info->weight_unit,
         ];
     }
 }

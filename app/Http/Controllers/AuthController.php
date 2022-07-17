@@ -237,7 +237,8 @@ class AuthController extends Controller
         $following = false;
         $is_blocked = false;
         $I_blocke = false;
-        if ($user = User::find($id)) {
+        $user = User::find($id);
+        if ($user && $user->deleted_at == Null) {
             // if ($user->role_id == 2 || $user->role_id == 3) {
             if (!is_null(Follow::where(['follower_id' => $me->id, 'following' => $user->id])->first()))
                 $following = true;
