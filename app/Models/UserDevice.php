@@ -12,7 +12,6 @@ class UserDevice extends Model
     protected $primaryKey = "id";
     protected $fillable = [
         'user_id',
-        'mac',
         'mobile_token'
     ];
     public function user()

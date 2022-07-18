@@ -34,19 +34,18 @@ class AuthController extends Controller
     use GeneralTrait, EmailTrait;
     public function register(Request $request)
     {
-        $validator = Validator::make($request->only('f_name', 'l_name', 'email', 'password', 'password_confirmation', 'm_token', 'mac'), [
-            'f_name' => ['required', 'min:2', 'max:50', 'string'],
-            'l_name' => ['required', 'min:2', 'max:50', 'string'],
-            'email' => ['required', 'email', 'unique:users,email', 'min:7', 'max:255'],
-            'password' => ['required', 'min:6', 'max:255', 'confirmed', 'string'],
-            'm_token' => ['string', 'nullable', 'unique:users_devices,mobile_token'],
-            'mac' => ['string', 'nullable']
-        ]);
-        if ($validator->fails())
-            return $this->fail($validator->errors()->first(), 400);
-        $input = $request->only('f_name', 'l_name', 'email', 'password');
-        $input['password'] = Hash::make($request['password']);
         try {
+            $validator = Validator::make($request->only('f_name', 'l_name', 'email', 'password', 'password_confirmation', 'm_token'), [
+                'f_name' => ['required', 'min:2', 'max:50', 'string'],
+                'l_name' => ['required', 'min:2', 'max:50', 'string'],
+                'email' => ['required', 'email', 'unique:users,email', 'min:7', 'max:255'],
+                'password' => ['required', 'min:6', 'max:255', 'confirmed', 'string'],
+                'm_token' => ['string', 'nullable']
+            ]);
+            if ($validator->fails())
+                return $this->fail($validator->errors()->first(), 400);
+            $input = $request->only('f_name', 'l_name', 'email', 'password');
+            $input['password'] = Hash::make($request['password']);
             if (!User::first()) { //if users table is empty then make the first user the app owner
                 $input['f_name'] = 'Vigor';
                 $input['l_name'] = 'App';
@@ -55,18 +54,22 @@ class AuthController extends Controller
             } //make him super admin
 
             $user = User::create($input);
-            if ($request->mac && $request->m_token)
-                UserDevice::create([
-                    'user_id' => $user->id,
-                    'mobile_token' => $request->m_token,
-                    'mac' => $request->mac
-                ]);
+            if ($request->m_token)
+                UserDevice::updateOrCreate(
+                    [
+                        'mobile_token' => $request->m_token
+                    ],
+                    [
+                        'user_id' => $user->id
+                    ],
+                );
             $oClient = OClient::where('password_client', 1)->first();
             $collection = $this->getTokenAndRefreshToken($oClient, $user->email, $request->password);
-
             $data = [
                 "user" => new UserResource(User::find($user->id)),
                 "provider" => false,
+                'is_verified' => false,
+                'is_info' => false,
                 "token_type" => $collection->get('token_type'),
                 "access_token" => $collection->get('access_token'),
                 "refresh_token" => $collection->get('refresh_token'),
@@ -88,7 +91,6 @@ class AuthController extends Controller
         try {
             $oClient = OClient::where('password_client', 1)->first();
             $http = new Client;
-
             $response = $http->request('POST', 'http://localhost:8002/oauth/token', [
                 'form_params' => [
                     'grant_type' => 'password',
@@ -135,11 +137,10 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
-            $validator = Validator::make($request->only('email', 'password', 'm_token', 'mac'), [
+            $validator = Validator::make($request->only('email', 'password', 'm_token'), [
                 'email' => ['required', 'email', 'min:7', 'max:255', 'exists:users,email'],
                 'password' => ['required', 'min:6', 'max:255', 'string'],
-                'm_token' => ['string', 'nullable'],
-                'mac' => ['string', 'nullable']
+                'm_token' => ['string', 'nullable']
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
@@ -147,14 +148,16 @@ class AuthController extends Controller
                 $oClient = OClient::where('password_client', 1)->first();
                 $collection = $this->getTokenAndRefreshToken($oClient, request('email'), request('password'));
                 //Check if user logged in from different device
-                if ($request->mac && $request->m_token) {
-                    if (!UserDevice::where('mac', $request->mac)->first() && !UserDevice::where('mobile_token', $request->m_token)->first()) {
-                        UserDevice::create([
-                            'user_id' => $request->user()->id,
+                if ($request->m_token) {
+                    UserDevice::updateOrCreate(
+                        [
                             'mobile_token' => $request->m_token,
-                            'mac' => $request->mac
-                        ]);
-                    }
+                        ],
+                        [
+
+                            'user_id' => $request->user()->id,
+                        ],
+                    );
                 }
                 $is_verified = true;
                 if (!$request->user()->email_verified_at) {
@@ -192,7 +195,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $request->user()->devices()->where('mac', $request->header('mac'))->delete();
+            $request->user()->devices()->where('mobile_token', $request->header('m_token'))->delete();
             $id = $request->user()->token()->id;
             DB::table('oauth_refresh_tokens')->where('access_token_id', $id)->delete();
             $request->user()->token()->delete();
@@ -478,7 +481,7 @@ class AuthController extends Controller
     public function reGetRecoveryCode(Request $request)
     {
         try {
-            if ($request->user()->delete_at != NULL) {
+            if ($request->user()->deleted_at != NULL) {
                 app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
                 return $this->success(__("messages.we resent you new code"), [], 200);
             }
@@ -491,7 +494,7 @@ class AuthController extends Controller
     public function recoverVerify(Request $request)
     {
         try {
-            if ($request->user()->delete_at != NULL) {
+            if ($request->user()->deleted_at != NULL) {
                 $validator = Validator::make($request->only('code'), [
                     'code' => ['required', 'min:5', 'max:5', 'string']
                 ]);
@@ -555,26 +558,3 @@ class AuthController extends Controller
         }
     }
 }
-
-
-
-
-
-
-
-
-
-//
-// public function logout(Request $request)
-    // {
-    //     try {
-    //         $request->user()->devices()->where('mac', $request->header('mac'))->delete();
-    //         $request->user()->token()->revoke();
-
-    //         $refreshTokenRepository = app(\Laravel\Passport\RefreshTokenRepository::class);
-    //         $refreshTokenRepository->revokeRefreshTokensByAccessTokenId($request->user()->token()->id);
-    //         return $this->success(__("messages.Logged out"));
-    //     } catch (\Exception $e) {
-    //         return $this->fail(__("messages.somthing went wrong"), 500);
-    //     }
-    // }

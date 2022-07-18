@@ -11,17 +11,17 @@ trait EmailTrait
 {
     protected function sendForgetPassword($token, $name, $email)
     {
-        Mail::send('emails.' . App::currentLocale() . '.forgetPassword_Email', ['token' => $token, 'name' => $name], function ($msg) use ($email) {
-            $msg->to($email);
-            $msg->subject(__('messages.Reset Password Notification') . config('app.name'));
-        });
+        // Mail::send('emails.' . App::currentLocale() . '.forgetPassword_Email', ['token' => $token, 'name' => $name], function ($msg) use ($email) {
+        //     $msg->to($email);
+        //     $msg->subject(__('messages.Reset Password Notification') . config('app.name'));
+        // });
     }
     protected function sendResetPasswordConfirm($user)
     {
-        Mail::send('emails.' . App::currentLocale() . '.resetPasswordConfirm_Email', ['name' => $user->name, 'time' => Carbon::now(config('app.timezone'))->format('Y-m-d H:i:s')], function ($msg) use ($user) {
-            $msg->to($user->email);
-            $msg->subject(__('messages.Reset Password confirmation') . config('app.name'));
-        });
+        // Mail::send('emails.' . App::currentLocale() . '.resetPasswordConfirm_Email', ['name' => $user->name, 'time' => Carbon::now(config('app.timezone'))->format('Y-m-d H:i:s')], function ($msg) use ($user) {
+        //     $msg->to($user->email);
+        //     $msg->subject(__('messages.Reset Password confirmation') . config('app.name'));
+        // });
     }
     protected static function sendEmailVerifyCode($token, $name, $email)
     {

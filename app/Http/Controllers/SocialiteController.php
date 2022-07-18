@@ -62,12 +62,15 @@ class SocialiteController extends Controller
                     'user_id' => $user->id,
                 ]
             );
-            if ($request->mac && $request->m_token)
-                UserDevice::create([
-                    'user_id' => $user->id,
-                    'mobile_token' => $request->m_token,
-                    'mac' => $request->mac
-                ]);
+            if ($request->m_token)
+                UserDevice::updateOrCreate(
+                    [
+                        'mobile_token' => $request->m_token
+                    ],
+                    [
+                        'user_id' => $user->id
+                    ],
+                );
             $oClient = OClient::where('password_client', 1)->first();
             $info = false;
             if ($user->info()->get()->last()) {
@@ -77,6 +80,7 @@ class SocialiteController extends Controller
             $data = [
                 "user" => new UserResource($user),
                 'provider' => true,
+                'is_verified' => true,
                 "is_info" => $info,
                 "token_type" => $collection->get('token_type'),
                 "access_token" => $collection->get('access_token'),

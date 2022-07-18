@@ -48,11 +48,11 @@ class VerifyUserController extends Controller
                     $verifyUser->user->email_verified_at = Carbon::now();
                     $verifyUser->user->save();
                     $verifyUser->delete();
-                    return $this->success(__("messages.Your e-mail has been verified."), [], 201);
+                    return $this->success(__("messages.Your e-mail has been verified."), ['code' => ""], 201);
                 }
                 return $this->fail(__("messages.Wrong code."), 400);
             }
-            return $this->success(__("messages.Your e-mail has already been verified"), [], 201);
+            return $this->success(__("messages.Your e-mail has already been verified"), ['code' => ""], 201);
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
         }
