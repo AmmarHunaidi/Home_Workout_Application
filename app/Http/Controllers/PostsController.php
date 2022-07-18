@@ -83,8 +83,8 @@ class PostsController extends Controller
                         ->inRandomOrder()
                         ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                 }
-                $moreposts3 = ($moreposts->merge($moreposts2))->all();
-                return $posts = $posts->merge($moreposts3)->all();
+                $moreposts3 = ($moreposts->merge($moreposts2));
+                $posts = $posts->merge($moreposts3);
             }
             return $this->success('ok', $this->postData($posts));
         } catch (\Exception $e) {
@@ -449,11 +449,12 @@ class PostsController extends Controller
     public function updatePolltype3(Request $request, $id)
     {
         $request->deleteVote = json_decode($request->deleteVote);
+        $request->addVote = json_decode($request->addVote);
         $validator = Validator::make($request->only('deleteVote', 'addVote'), [
             // 'deleteVote' => ['array', 'nullable', 'exists:posts_votes,id'],
             // 'deleteVote.*' => ['nullable', 'integer', 'exists:posts_votes,id'],
-            'addVote' => ['array',  'nullable'],
-            'addVote.*' => ['string',  'nullable'],
+            // 'addVote' => ['array',  'nullable'],
+            // 'addVote.*' => ['string',  'nullable'],
         ]);
         if ($validator->fails())
             return $this->fail($validator->errors()->first(), 400);

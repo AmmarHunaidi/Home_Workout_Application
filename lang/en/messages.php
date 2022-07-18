@@ -24,6 +24,7 @@ return [
     'deleted' => 'deleted',
     'No changes occurred' => 'No changes occurred',
     'Updated successfully' => 'Updated successfully',
+    'You need to recover this account first' => 'You need to recover this account first',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',

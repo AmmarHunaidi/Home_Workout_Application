@@ -11,10 +11,7 @@ return new class extends Migration
         Schema::create('users_devices', function (Blueprint $table) {
             $table->id();
             $table->longText('mobile_token')->unique();
-            $table->longText('mac');
-
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-
             $table->timestamps();
         });
     }

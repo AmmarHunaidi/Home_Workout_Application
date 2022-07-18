@@ -23,6 +23,7 @@ return [
     'deleted' => 'تم الحذف',
     'No changes occurred' => 'لم يحدث أي تغيير',
     'Updated successfully' => 'تم التحديث بنجاح',
+    'You need to recover this account first' => 'عليك استعادة الحساب أولا',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
     'Reset Password Notification' => ' تنبيه استعادة كلمة المرور ',

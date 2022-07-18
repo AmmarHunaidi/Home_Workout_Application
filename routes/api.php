@@ -32,7 +32,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
     Route::post('/login/callback', [SocialiteController::class, 'handleProviderCallback']);
     //Forget Password
     Route::prefix('forgetpassword')->controller(ForgotPasswordController::class)->group(function () {
-        Route::post('/', 'submitForgetPasswordForm')->middleware('emailVerified');
+        Route::post('/', 'submitForgetPasswordForm')->middleware(['emailVerified']);
         Route::post('/verify', 'verifytoken');
         Route::post('/reset', 'resetpassword')->middleware('emailVerified');;
     });
@@ -55,7 +55,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::post('/info', 'info'); //add his info
         Route::get('/profile', 'useraccount'); //get his profile
         Route::get('/profile/{id}', 'show'); //get user->id profile
-        Route::get('/logout', 'logout');
+        Route::get('/logout', 'logout')->withoutMiddleware(['emailVerified', 'deltedAccount']);
         Route::get('/all_logout', 'allLogout');
         Route::put('/update', 'update');
         Route::post('/updateEmail', 'updateEmail')->middleware('provider');

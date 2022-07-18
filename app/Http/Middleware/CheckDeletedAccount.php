@@ -13,6 +13,6 @@ class CheckDeletedAccount
     {
         if ($request->user()->deleted_at === NULL)
             return $next($request);
-        return $this->fail('Unauthorised', 401);
+        return $this->fail(__('messages.You need to recover this account first'), 400);
     }
 }
