@@ -44,6 +44,22 @@ trait EmailTrait
         //     $msg->subject(__('messages.Account Recover Email') . config('app.name'));
         // });
     }
+
+    protected static function sendCVAccept($name, $role, $email)
+    {
+        Mail::send('emails.' . 'en' . '.AcceptCV_Email', ['name' => $name, 'role' => $role], function ($msg) use ($email) {
+            $msg->to($email);
+            $msg->subject("CV Accepted " . config('app.name'));
+        });
+    }
+
+    protected static function sendCVRefuse($name,  $email)
+    {
+        Mail::send('emails.' . 'en' . '.RefuseCV_Email', ['name' => $name], function ($msg) use ($email) {
+            $msg->to($email);
+            $msg->subject("CV Refused " . config('app.name'));
+        });
+    }
 }
 // use App\Traits\EmailTrait; befor the controller class
 // use EmailTrait; inside the controller class

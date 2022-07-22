@@ -43,14 +43,14 @@ class PostsController extends Controller
                     ->whereIn('user_id', $coaches_ids)
                     ->orWhere('user_id', Auth::id())
                     ->where('is_accepted', true)
-                    ->orderBy('created_at')
+                    ->orderByDesc('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
                 $posts = Post::query() //posts if I am not a coach
                     ->whereIn('user_id', $coaches_ids)
                     ->whereNot('type', 2)
                     ->where('is_accepted', true)
-                    ->orderBy('created_at')
+                    ->orderByDesc('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             }
             // if there is too few posts
@@ -122,6 +122,11 @@ class PostsController extends Controller
             $on_hold = false;
             if (Post::where('id', $post->id)->first('is_accepted')->is_accepted == 0)
                 $on_hold = true;
+            $role = '(💪)';
+            if ($user->role_id == 3) {
+                $role = '(☘️)';
+            } elseif ($user->role_id == 5)
+                $role = '(👑)';
             $data[] = [
                 'post_main_data' => [
                     'id' => $post->id,
@@ -139,7 +144,8 @@ class PostsController extends Controller
                     'id' => $user->id,
                     'name' => $user->f_name . ' ' . $user->l_name,
                     'img' => $url,
-                    'role' => Role::where('id', $user->role_id)->first()->name
+                    'role' => $role
+                    // 'role' => Role::where('id', $user->role_id)->first()->name
                 ],
                 'post_likes' => [
                     "type1" => PostLike::where(['post_id' => $post->id, 'type' => 1])->count(),

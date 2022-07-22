@@ -62,4 +62,11 @@ return [
     'Post has been created successfully' => 'تم إنشاء المنشور بنجاح',
     'Removed from your saved-posts list' => 'تمت إزلة المنشور من قائمة المنشورات المحفوظة',
     'Added to your saved-posts list' => 'المنشور أضيف إلى قائمة المنشورات المحفوظة',
+    'Comment added' => 'تم إضافة التعليق',
+    'Empty comments are not accepted' => 'لا يمكنك إضافة تعليق فارغ',
+    'Only users with no role can aplly' => 'فقط المستخدمين العاديين يمكنهم الارسال السيرة الذاتية',
+    'CV has been sent successfully' => 'تم إرسال السيرة الذاتية بنجاح',
+    'CV is required' => 'سيرتك الذاتية مطلوبة',
+    'You can not delete your cv' => 'لا يمكنك حذف سيرتك الذاتية',
+    'Your CV has been deleted' => 'تم حذف سيرتك الذاتية',
 ];
