@@ -38,5 +38,8 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('Posts-Protection', function (User $user) {
             return $user->role_id === 2 || $user->role_id === 3 || $user->role_id === 5;
         });
+        Gate::define('Managers-Super-Protection', function (User $user) {
+            return $user->role_id === 4 || $user->role_id === 5;
+        });
     }
 }

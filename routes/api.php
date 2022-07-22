@@ -13,6 +13,7 @@ use App\Http\Controllers\HealthRecordsController;
 use App\Http\Controllers\PostCommentsController;
 use App\Http\Controllers\PostLikesController;
 use App\Http\Controllers\PostsController;
+use App\Http\Controllers\ApllyToRoleController;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -109,6 +110,14 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::put('/{id}', 'update')->withoutMiddleware('block');
         Route::delete('/{id}', 'destroy')->withoutMiddleware('block');
         Route::get('/report/{id}', 'report')->withoutMiddleware('block');
+    });
+    Route::prefix('cv')->controller(ApllyToRoleController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::get('/{id}', 'showOthers');
+        Route::get('/acc/{id}', 'Accept')->middleware('ms');
+        Route::get('/ref/{id}', 'Refuse')->middleware('ms');
+        Route::post('/', 'store');
+        Route::delete('/', 'destroy');
     });
 });
 Route::get('/any', function (Request $request) {

@@ -452,7 +452,6 @@ class AuthController extends Controller
                 $user->devices()->delete();
                 $user->deleted_at = Carbon::now();
                 $user->save();
-                // Storage::deleteDirectory('public/images/users/' . Auth::id());
                 return $this->success(__("messages.account deleted"));
             }
             return $this->fail(__("messages.Invalid credentials"));

@@ -62,4 +62,12 @@ return [
     'Post has been created successfully' => 'The post has been created successfully',
     'Removed from your saved-posts list' => 'Removed from your saved-posts list',
     'Added to your saved-posts list' => 'Added to your saved-posts list',
+    'Empty comments are not accepted' => 'Empty comments are not accepted',
+    'Comment added' => 'Comment added',
+    //CV
+    'Only users with no role can aplly' => 'Only users with no role can aplly',
+    'CV has been sent successfully' => 'CV has been sent successfully',
+    'CV is required' => 'CV is required',
+    'You can not delete your cv' => 'You can not delete your CV',
+    'Your CV has been deleted' => 'Your CV has been deleted',
 ];

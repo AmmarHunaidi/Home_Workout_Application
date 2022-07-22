@@ -23,7 +23,9 @@ class PostCommentsController extends Controller
             $comments = PostComments::query()
                 ->where('post_id', $id)
                 ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+                ->orderByDesc('created_at')
                 ->paginate(25, ['id', 'user_id', 'text', 'created_at']);
+            $data = [];
             foreach ($comments as $comment) {
                 $user = User::find($comment->user_id);
                 $url = $user->prof_img_url;
@@ -54,14 +56,30 @@ class PostCommentsController extends Controller
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
+            $data = [];
             if ($request->text) {
-                PostComments::create([
+                $comment = PostComments::create([
                     'post_id' => $id,
                     'user_id' => $request->user()->id,
                     'text' => $request->text
                 ]);
+                $user = $request->user();
+                $url = $user->prof_img_url;
+                if (!(Str::substr($url, 0, 4) == 'http')) {
+                    $url = 'storage/images/users/' . $url;
+                }
+                $data[] = [
+                    "user_id" => Auth::id(),
+                    "name" => $user->f_name . ' ' . $user->l_name,
+                    "img" => $url,
+                    "comment_id" => $comment->id,
+                    "comment" => $comment->text,
+                    'created_at' => (string)Carbon::parse($comment->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                    'total' => Post::find($id)->comments()->count()
+                ];
+                return $this->success(__("messages.Comment added"), $data);
             }
-            return $this->success();
+            return $this->fail(__("messages.Empty comments are not accepted"), 400);
         } catch (\Exception $e) {
             return $this->fail(__("messages.somthing went wrong"), 500);
         }

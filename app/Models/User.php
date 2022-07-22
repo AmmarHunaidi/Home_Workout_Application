@@ -116,6 +116,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(PostMedia::class, 'user_id');
     }
+    public function CV()
+    {
+        return $this->hasOne(CV::class, 'user_id');
+    }
     //Accessor
     public function setFNameAttribute($f_name)
     {

@@ -97,9 +97,9 @@ class VerifyUserController extends Controller
             }
             return response()->json([
                 'success' => false,
-                'status' => 500,
-                'message' => __("messages.somthing went wrong"),
-            ], 500);
+                'status' => 400,
+                'message' => __("messages.Access denied"),
+            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

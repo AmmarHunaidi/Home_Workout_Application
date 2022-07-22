@@ -4,16 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use App\Traits\GeneralTrait;
 
-class CheckProvider
+class ManagersSuper
 {
     use GeneralTrait;
     public function handle(Request $request, Closure $next)
     {
-        if ($request->user()->providers()->first()) {
-            return $this->fail(__("messages.You canot do this change"));
+        if (Gate::allows('Managers-Super-Protection')) {
+            return $next($request);
         }
-        return $next($request);
+        return $this->fail(__("messages.Access denied"), 401);
     }
 }

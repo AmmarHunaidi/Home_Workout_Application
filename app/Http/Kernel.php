@@ -74,5 +74,6 @@ class Kernel extends HttpKernel
         'posts' => \App\Http\Middleware\CRUDPosts::class,
         'block' => \App\Http\Middleware\Blocked::class,
         'likeable' => \App\Http\Middleware\CheckLikeAble::class,
+        'ms' => \App\Http\Middleware\ManagersSuper::class,
     ];
 }
