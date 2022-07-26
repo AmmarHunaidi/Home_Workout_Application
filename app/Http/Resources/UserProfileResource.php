@@ -21,6 +21,9 @@ class UserProfileResource extends JsonResource
             $birth_date = Carbon::parse($birth_date)->format('Y-m-d');
         } else $birth_date = '';
         $info = UserInfo::where('user_id', $this->id)->first();
+        $cv = false;
+        if ($this->CV()->first())
+            $cv = true;
         return [
             'id' =>  $this->id,
             'fname' => (string) $this->f_name,
@@ -38,6 +41,7 @@ class UserProfileResource extends JsonResource
             'weight' => (string) $info->weight,
             'height_unit' => (string) $info->height_unit,
             'weight_unit' => (string) $info->weight_unit,
+            'cv' => $cv,
         ];
     }
 }

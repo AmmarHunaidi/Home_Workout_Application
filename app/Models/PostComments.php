@@ -23,6 +23,6 @@ class PostComments extends Model
     }
     public function reports()
     {
-        return $this->hasMany(PostCommentReport::class);
+        return $this->hasMany(PostCommentReport::class, 'comment_id');
     }
 }
