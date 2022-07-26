@@ -7,20 +7,43 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Traits\GeneralTrait;
-use App\Traits\EmailTrait;
+use Illuminate\Support\Facades\Hash;
 use App\Jobs\SendCVResponse;
-
+use Illuminate\Support\Facades\Gate;
 
 class ApllyToRoleController extends Controller
 {
     use GeneralTrait;
-    public function index()
+    public function DowngradeRole(Request $request)
     {
+        try {
+            if (Gate::allows('Coach-Dietitian-Protection')) {
+                $validator = Validator::make($request->only('password'), [
+                    'password' => ['required', 'min:6', 'max:255', 'string'],
+                ]);
+                if ($validator->fails())
+                    return $this->fail($validator->errors()->first(), 400);
+                $user = $request->user();
+                if (Hash::check($request->password, $user->password)) {
+                    $user->posts()->delete();
+                    $user->CV()->delete();
+                    Storage::deleteDirectory('public/images/users/' . Auth::id() . '/CV');
+                    Storage::deleteDirectory('public/images/users/' . Auth::id() . '/posts');
+                    $user->role_id = 1;
+                    $user->save();
+                    return $this->success(__("messages.You are now a normal user"));
+                }
+                return $this->fail(__("messages.Access denied"));
+            }
+            return $this->fail(__("messages.Access denied"));
+        } catch (\Exception $e) {
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+        }
     }
 
     public function store(Request $request)
@@ -73,6 +96,8 @@ class ApllyToRoleController extends Controller
             if ($cv = $user->CV()->first(['id', 'user_id', 'cv_path', 'description', 'role_id', 'acception'])) {
                 $cv = collect($cv);
                 $cv['role'] = Role::where('id', $cv['role_id'])->first()->name;
+                $cv['role_id'] = (int)$cv['role_id'];
+                $cv['cv_path'] = (string)'storage/images/users/' . $cv['cv_path'];
                 $data = [
                     $cv
                 ];
@@ -94,6 +119,8 @@ class ApllyToRoleController extends Controller
             if ($cv = CV::where('user_id', $id)->first(['id', 'user_id', 'cv_path', 'description', 'role_id'])) {
                 $cv = collect($cv);
                 $cv['role'] = Role::where('id', $cv['role_id'])->first()->name;
+                $cv['role_id'] = (int)$cv['role_id'];
+                $cv['cv_path'] = (string)'storage/images/users/' . $cv['cv_path'];
                 $data = [
                     $cv
                 ];

@@ -195,12 +195,16 @@ class PostsController extends Controller
                 return $this->fail($validator->errors()->first(), 400);
             if (!(is_null($request->text)) || !(is_null($request->media))) {
                 $is_accepted = false;
-                if ($request->user()->posts()->where(['is_accepted' => true, 'type' => 1])->count() >= 5 || $request->user()->role_id == 5)
+                $is_reviewed = false;
+                if ($request->user()->posts()->where(['is_accepted' => true, 'type' => 1])->count() >= 5 || $request->user()->role_id == 5) {
                     $is_accepted = true;
+                    $is_reviewed = true;
+                }
                 $post = Post::create([
                     'user_id' => Auth::id(),
                     'text' => $request->text,
-                    'is_accepted' => $is_accepted
+                    'is_accepted' => $is_accepted,
+                    'is_reviewed' => $is_reviewed
                 ]);
                 if ($request->media) {
                     foreach ($request->media as $med) {
@@ -267,7 +271,8 @@ class PostsController extends Controller
                 'user_id' => Auth::id(),
                 'text' => $request->text,
                 'type' => 2,
-                'is_accepted' => true
+                'is_accepted' => true,
+                'is_reviewed' => true
             ]);
             $post->votes()->createMany([
                 [
@@ -303,7 +308,8 @@ class PostsController extends Controller
                 'user_id' => Auth::id(),
                 'text' => $request->text,
                 'type' => 3,
-                'is_accepted' => true
+                'is_accepted' => true,
+                'is_reviewed' => true
             ]);
             foreach ($request->votes as $vote) {
                 PostVote::create([

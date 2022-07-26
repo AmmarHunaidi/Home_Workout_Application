@@ -70,4 +70,5 @@ return [
     'CV is required' => 'CV is required',
     'You can not delete your cv' => 'You can not delete your CV',
     'Your CV has been deleted' => 'Your CV has been deleted',
+    'You are now a normal user' => 'You are now a normal user',
 ];
