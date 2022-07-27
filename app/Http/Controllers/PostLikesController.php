@@ -16,7 +16,6 @@ class PostLikesController extends Controller
     public function like($id, $type)
     //$id is post id // $type is like type
     {
-        Post::find($id)->user()->first()->id;
         if (Post::find($id)->user()->first()->deleted_at != Null) {
             return $this->fail(__("messages.Not found"));
         }

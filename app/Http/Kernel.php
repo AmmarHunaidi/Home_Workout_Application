@@ -75,5 +75,6 @@ class Kernel extends HttpKernel
         'block' => \App\Http\Middleware\Blocked::class,
         'likeable' => \App\Http\Middleware\CheckLikeAble::class,
         'ms' => \App\Http\Middleware\ManagersSuper::class,
+        'coach' => \App\Http\Middleware\IsCoach::class,
     ];
 }

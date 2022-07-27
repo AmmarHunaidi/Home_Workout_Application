@@ -71,4 +71,9 @@ return [
     'You can not delete your cv' => 'لا يمكنك حذف سيرتك الذاتية',
     'Your CV has been deleted' => 'تم حذف سيرتك الذاتية',
     'You are now a normal user' => 'لقد أصبحت مستخدم عادي الآن',
+    //Challenges
+    'Unsubscribed' => 'إلغاء اشتراك',
+    'Subscribed' => 'تم الاشتراك',
+    'End time should be greater than ' => ' وقت الانتهاء يجب ان يكون أكبر من ',
+    'Challeng created' => 'تم إنشاء التحدي',
 ];

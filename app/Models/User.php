@@ -120,6 +120,23 @@ class User extends Authenticatable
     {
         return $this->hasOne(CV::class, 'user_id');
     }
+    public function challenges()
+    {
+        return $this->hasMany(Challenge::class, 'user_id');
+    }
+    public function chReviews()
+    {
+        return $this->hasMany(ChallengeReview::class, 'user_id');
+    }
+    public function chSubs()
+    {
+        return $this->hasMany(ChallengeSub::class, 'user_id');
+    }
+    public function chReports()
+    {
+        return $this->hasMany(ChallengeReport::class, 'user_id');
+    }
+
     //Accessor
     public function setFNameAttribute($f_name)
     {

@@ -32,6 +32,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('Coach-Dietitian-Protection', function (User $user) {
             return $user->role_id === 2 || $user->role_id === 3;
         });
+        Gate::define('Coach-Protection', function (User $user) {
+            return $user->role_id === 2;
+        });
         Gate::define('Add-Diseseas-Protection', function (User $user) {
             return $user->role_id === 4 || $user->role_id === 5;
         });
