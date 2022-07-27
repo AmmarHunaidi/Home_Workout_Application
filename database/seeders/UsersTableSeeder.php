@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class UsersTableSeeder extends Seeder
 {
@@ -14,12 +15,12 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
-        \DB::table('users')->delete();
-        
-        \DB::table('users')->insert(array (
-            0 => 
+
+        DB::table('users')->delete();
+
+        DB::table('users')->insert(array (
+            0 =>
             array (
                 'id' => 1,
                 'f_name' => 'philip',
@@ -38,7 +39,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-16 14:23:15',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'f_name' => 'shopy app',
@@ -57,7 +58,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-07 02:13:02',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 5,
                 'f_name' => 'Vigor',
@@ -76,7 +77,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-16 14:22:53',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 6,
                 'f_name' => 'fadi',
@@ -95,7 +96,7 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-07 02:13:02',
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 7,
                 'f_name' => 'fadi',
@@ -115,7 +116,7 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2022-07-07 02:13:02',
             ),
         ));
-        
-        
+
+
     }
 }
