@@ -16,7 +16,7 @@ use Database\Seeders\WorkoutExcersisesSeeder;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,GeneralTrait;
+    use HasApiTokens, HasFactory, Notifiable, GeneralTrait;
     protected $primaryKey = "id";
     protected $fillable = [
         'f_name',
@@ -145,8 +145,7 @@ class User extends Authenticatable
 
     public function trainees()
     {
-        if($this->role->id == 2)
-        {
+        if ($this->role->id == 2) {
             return $this->hasMany(CoachTrainees::class);
         }
     }
@@ -187,12 +186,11 @@ class User extends Authenticatable
     }
     public function practice()
     {
-        if($this->role_id == 1)
-        {
+        if ($this->role_id == 1) {
             return $this->hasMany(Practice::class);
         }
         $message = "Not a trainer";
-        return $this->fail($message,401);
+        return $this->fail($message, 401);
     }
 
     //Accessor
