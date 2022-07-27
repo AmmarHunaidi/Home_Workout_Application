@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class OauthClientsTableSeeder extends Seeder
 {
@@ -14,12 +15,12 @@ class OauthClientsTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
-        \DB::table('oauth_clients')->delete();
-        
-        \DB::table('oauth_clients')->insert(array (
-            0 => 
+
+        DB::table('oauth_clients')->delete();
+
+        DB::table('oauth_clients')->insert(array (
+            0 =>
             array (
                 'id' => 1,
                 'user_id' => NULL,
@@ -33,7 +34,7 @@ class OauthClientsTableSeeder extends Seeder
                 'created_at' => '2022-07-02 17:09:29',
                 'updated_at' => '2022-07-02 17:09:29',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'user_id' => NULL,
@@ -48,7 +49,7 @@ class OauthClientsTableSeeder extends Seeder
                 'updated_at' => '2022-07-02 17:09:29',
             ),
         ));
-        
-        
+
+
     }
 }

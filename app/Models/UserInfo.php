@@ -14,6 +14,7 @@ class UserInfo extends Model
         'user_id',
         'height',
         'weight',
+        'country',
         'height_unit',
         'weight_unit',
         'changed_at',
