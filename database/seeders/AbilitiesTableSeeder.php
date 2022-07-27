@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AbilitiesTableSeeder extends Seeder
 {
@@ -14,12 +15,12 @@ class AbilitiesTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
-        \DB::table('abilities')->delete();
-        
-        \DB::table('abilities')->insert(array (
-            0 => 
+
+        DB::table('abilities')->delete();
+
+        DB::table('abilities')->insert(array (
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'user',
@@ -28,7 +29,7 @@ class AbilitiesTableSeeder extends Seeder
                 'updated_at' => NULL,
             ),
         ));
-        
-        
+
+
     }
 }

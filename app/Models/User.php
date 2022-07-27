@@ -11,10 +11,12 @@ use App\Models\UserDevice;
 use App\Models\UserInfo;
 use App\Models\Follow;
 use App\Models\Post;
+use App\Traits\GeneralTrait;
+use Database\Seeders\WorkoutExcersisesSeeder;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable,GeneralTrait;
     protected $primaryKey = "id";
     protected $fillable = [
         'f_name',
@@ -27,7 +29,8 @@ class User extends Authenticatable
         'bio',
         'role_id',
         'email_verified_at',
-        'deleted_at'
+        'deleted_at',
+        'lang_country'
     ];
 
     protected $hidden = [
@@ -120,6 +123,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(CV::class, 'user_id');
     }
+
     public function challenges()
     {
         return $this->hasMany(Challenge::class, 'user_id');
@@ -135,6 +139,60 @@ class User extends Authenticatable
     public function chReports()
     {
         return $this->hasMany(ChallengeReport::class, 'user_id');
+    }
+
+
+
+    public function trainees()
+    {
+        if($this->role->id == 2)
+        {
+            return $this->hasMany(CoachTrainees::class);
+        }
+    }
+
+    public function workouts()
+    {
+        return $this->hasMany(Workout::class);
+    }
+
+    public function workout_review()
+    {
+        return $this->hasMany(WorkoutReview::class);
+    }
+
+    public function excersise_media()
+    {
+        return $this->hasMany(ExcersiseMedia::class);
+    }
+
+    public function excersise()
+    {
+        return $this->hasMany(Excersise::class);
+    }
+
+    public function workout()
+    {
+        return $this->hasMany(Workout::class);
+    }
+
+    public function categorie()
+    {
+        return $this->hasMany(WorkoutCategorie::class);
+    }
+
+    public function workout_excersise()
+    {
+        return $this->hasMany(WorkoutExcersisesSeeder::class);
+    }
+    public function practice()
+    {
+        if($this->role_id == 1)
+        {
+            return $this->hasMany(Practice::class);
+        }
+        $message = "Not a trainer";
+        return $this->fail($message,401);
     }
 
     //Accessor

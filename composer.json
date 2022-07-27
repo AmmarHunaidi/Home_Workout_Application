@@ -7,11 +7,13 @@
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.4",
+        "involved-group/laravel-lang-country": "^2.5",
         "laravel/framework": "^9.11",
         "laravel/passport": "^10.4",
         "laravel/sanctum": "^2.14.1",
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.7",
+        "nnjeim/world": "^1.1",
         "orangehill/iseed": "^3.0"
     },
     "require-dev": {

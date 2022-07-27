@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Follow;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Workout;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -43,6 +44,30 @@ class AuthServiceProvider extends ServiceProvider
         });
         Gate::define('Managers-Super-Protection', function (User $user) {
             return $user->role_id === 4 || $user->role_id === 5;
+        });
+        Gate::define('Edit-Workout',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Delete-Workout',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Edit-Food',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Delete-Food',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Edit-Meal',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Delete-Workout',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Edit-Diet',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
+        });
+        Gate::define('Delete-Diet',function (User $user , Workout $workout) {
+            return $user->id == $workout->user_id;
         });
     }
 }

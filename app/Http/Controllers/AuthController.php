@@ -28,6 +28,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\App;
 use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
+use InvolvedGroup\LaravelLangCountry\LangCountry;
 
 class AuthController extends Controller
 {
@@ -46,13 +47,13 @@ class AuthController extends Controller
                 return $this->fail($validator->errors()->first(), 400);
             $input = $request->only('f_name', 'l_name', 'email', 'password');
             $input['password'] = Hash::make($request['password']);
+
             if (!User::first()) { //if users table is empty then make the first user the app owner
                 $input['f_name'] = 'Vigor';
                 $input['l_name'] = 'App';
                 $input['role_id'] = 5;
                 $input['prof_img_url'] = 'Default/Logo/ku76tfgyuytrewedr432qwsdfgtyhnLOGO.png';
             } //make him super admin
-
             $user = User::create($input);
             if ($request->m_token)
                 UserDevice::updateOrCreate(
@@ -73,8 +74,9 @@ class AuthController extends Controller
                 "token_type" => $collection->get('token_type'),
                 "access_token" => $collection->get('access_token'),
                 "refresh_token" => $collection->get('refresh_token'),
-                "expire_at" => Carbon::now()->utcOffset(config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
+                "expire_at" => Carbon::now()->utcOffset((int)config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
             ];
+
             $message = 'You need to confirm your email. We have sent you a Verification Code, please check your email.';
             Storage::makeDirectory('public/images/users/' . $user->id);
             if (VerifyUserController::sendCode($user, $request))
@@ -175,7 +177,7 @@ class AuthController extends Controller
                     "token_type" => $collection->get('token_type'),
                     "access_token" => $collection->get('access_token'),
                     "refresh_token" => $collection->get('refresh_token'),
-                    "expire_at" => Carbon::now()->utcOffset(config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
+                    "expire_at" => Carbon::now()->utcOffset((int)config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
                 ];
                 if (!($request->user()->deleted_at == NULL)) {
                     app('App\Http\Controllers\AuthController')->recoveryMail($request->user()->id, $request->user()->f_name, $request->user()->email);
