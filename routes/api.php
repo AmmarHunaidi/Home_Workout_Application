@@ -14,6 +14,13 @@ use App\Http\Controllers\PostCommentsController;
 use App\Http\Controllers\PostLikesController;
 use App\Http\Controllers\PostsController;
 use App\Http\Controllers\ApllyToRoleController;
+use App\Http\Controllers\ExcersiseController;
+use App\Http\Controllers\ExcersiseMediaController;
+use App\Http\Controllers\WorkoutCategorieController;
+use App\Http\Controllers\WorkoutController;
+use App\Http\Controllers\WorkoutExcersisesController;
+use App\Http\Controllers\WorkoutReviewController;
+use App\Models\Excersise;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -25,7 +32,7 @@ use App\Http\Controllers\ApllyToRoleController;
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
-        Route::post('/', 'register');
+        Route::post('/register', 'register');
         Route::post('/gettoken', 'getTokenfromRefreshToken');
         Route::post('/login', 'login');
     });
@@ -123,4 +130,67 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
 Route::get('/any', function (Request $request) {
     $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiOWRhZWRhMmRmZDA0YzVmNTEzN2I1MmZjZDkxZDg2MTVhNzE2Njk3YWY0Y2UyZTViMzExYTU5MzQ3MzhlM2U1NzU1YWU0OWI2NGEyOTUzNjUiLCJpYXQiOjE2NTcxODY4MTUuNDM1MjI3LCJuYmYiOjE2NTcxODY4MTUuNDM1MjMxLCJleHAiOjE2NTc3OTE2MTUuNDI1NzM1LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.gF-j4I9Hlh94NOTv__UyUTO-XSf4uVsyu0C607diV7RdiVv4qxU_-MJEhfEOBu1zfzSLncK_ys47DPa7dOZAnZGfUSzZuoJuV5_K7UTGUHX42GI341kxsB-Tbs7IxOneRy-tB2ng63ll4lIZYZGiP9TIlsZhUHgY7WOl7xN6e8VADsTelxOKjMfyjFQScuOaOrjZJXDLD8zCzjctA2Deb7lcIegJPVSQsiVQeCR2nu8CDPK7R_7Vpg_C-lmuGuw7AQJcu06f8LWMEVrwBsgSQ3EnCqZDnXz3YUCGVVisb5C_nYmRVyyiRfewAAsmrcpXdNw24G2bwE-uy2JyMUytsga65G7NLzc5x5NQRf1Pkka6yDoIBcF_WfS3GyurAKTvQzApDdA129ZHNdjFTc9lTLDqzSWF3rcVamYsYwb-FGa86I1eJAESeyNGHbaYenhb64sShKK8HFt7YKFvPv8lNjwt6E3-RGvm8DhOSvEDrD6mUPRuzAdTqBrAs6v44WIZC2UZJ6ZhubZYcFmCGyJhWIAJwHM8sp1nBcuAjx5soWzeevlWU6flT0vinPzJGL25bUCJ29N7Yoq1V0Fzx8wBYfjri-7xulKWq70cZompEjNqKRAJm9ckOYxCuhxrEqxEKAw5yngvLnStPHHU4oPeiopfk9p7pcTJDOIwqen9lcg';
     return ($token);
+});
+
+//Workout + Excersise Routes
+//Add MiddleWares
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+    Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('workout')->controller(WorkoutController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('excersise')->controller(ExcersiseController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+    });
 });
