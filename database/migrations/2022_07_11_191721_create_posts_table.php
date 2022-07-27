@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->longText('text')->default('');
             $table->boolean('is_accepted')->default(false);
+            $table->boolean('is_reviewed')->default(false);
             $table->integer('type')->default(1);
             $table->timestamps();
         });

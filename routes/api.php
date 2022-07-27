@@ -21,6 +21,8 @@ use App\Http\Controllers\WorkoutController;
 use App\Http\Controllers\WorkoutExcersisesController;
 use App\Http\Controllers\WorkoutReviewController;
 use App\Models\Excersise;
+use App\Http\Controllers\DashboardsController;
+use App\Http\Controllers\SearchController;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -120,11 +122,25 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     });
     Route::prefix('cv')->controller(ApllyToRoleController::class)->group(function () {
         Route::get('/', 'show');
+        Route::Post('/deleteRole', 'DowngradeRole');
         Route::get('/{id}', 'showOthers');
         Route::get('/acc/{id}', 'Accept')->middleware('ms');
         Route::get('/ref/{id}', 'Refuse')->middleware('ms');
         Route::post('/', 'store');
         Route::delete('/', 'destroy');
+    });
+    Route::prefix('dash')->middleware('ms')->controller(DashboardsController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/cvs', 'CVsDashboard');
+        Route::get('/posts', 'PostsDashboard');
+        Route::get('/repPosts', 'ReportedPosts');
+        Route::get('/RPComments', 'ReportedComments');
+        Route::get('/ARPosts/{id}', 'AcceptPost');
+        Route::get('/ARComments/{id}', 'AcceptCommentReport');
+    });
+    Route::prefix('search')->controller(SearchController::class)->group(function () {
+        Route::post('/', 'search');
+        Route::post('/sug', 'searchSug');
     });
 });
 Route::get('/any', function (Request $request) {
