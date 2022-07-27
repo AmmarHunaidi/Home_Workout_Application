@@ -23,6 +23,8 @@ use App\Http\Controllers\WorkoutReviewController;
 use App\Models\Excersise;
 use App\Http\Controllers\DashboardsController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ChallengesExcercisesController;
+use App\Http\Controllers\ChallengeController;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -141,6 +143,25 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     Route::prefix('search')->controller(SearchController::class)->group(function () {
         Route::post('/', 'search');
         Route::post('/sug', 'searchSug');
+    });
+    Route::prefix('chEx')->middleware('ms')->controller(ChallengesExcercisesController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::put('/{id}', 'update');
+        Route::get('/{id}', 'show');
+        Route::delete('/{id}', 'destroy');
+    });
+    Route::prefix('ch')->controller(ChallengeController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/list', 'exList');
+        Route::get('/rep/{id}', 'report');
+        Route::get('/rev/{id}/{num}', 'review');
+        Route::get('/sub/{id}', 'sub');
+        Route::post('/done/{id}', 'done');
+        Route::post('/', 'store')->middleware('coach');
+        Route::put('/{id}', 'update')->middleware('coach');
+        Route::get('/{id}', 'show')->middleware('block');
+        Route::delete('/{id}', 'destroy')->middleware('coach');
     });
 });
 Route::get('/any', function (Request $request) {

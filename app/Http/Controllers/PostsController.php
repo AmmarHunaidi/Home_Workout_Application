@@ -41,15 +41,15 @@ class PostsController extends Controller
             if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
                 $posts = Post::query() //posts if I am a coach
                     ->whereIn('user_id', $coaches_ids)
-                    ->orWhere('user_id', Auth::id())
                     ->where('is_accepted', true)
+                    ->orWhere('user_id', Auth::id())
                     ->orderByDesc('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
                 $posts = Post::query() //posts if I am not a coach
                     ->whereIn('user_id', $coaches_ids)
-                    ->whereNot('type', 2)
                     ->where('is_accepted', true)
+                    ->whereNot('type', 2)
                     ->orderByDesc('created_at')
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             }
@@ -57,29 +57,29 @@ class PostsController extends Controller
             if ($posts->count() == 0) {
                 if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
                     $moreposts = Post::query()
+                        ->where('is_accepted', true)
                         ->whereIn('user_id', $coaches_ids)
                         ->orWhere('user_id', Auth::id())
-                        ->where('is_accepted', true)
                         ->inRandomOrder()
                         ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                     $moreposts2 = Post::query()
                         ->whereNotIn('user_id', $blocks)
-                        ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                         ->where('is_accepted', true)
+                        ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                         ->inRandomOrder()
                         ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                 } elseif (!($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5)) {
                     $moreposts = Post::query()
                         ->whereIn('user_id', $coaches_ids)
-                        ->whereNot('type', 2)
                         ->where('is_accepted', true)
+                        ->whereNot('type', 2)
                         ->inRandomOrder()
                         ->limit(2)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                     $moreposts2 = Post::query()
                         ->whereNotIn('user_id', $blocks)
+                        ->where('is_accepted', true)
                         ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                         ->whereNot('type', 2)
-                        ->where('is_accepted', true)
                         ->inRandomOrder()
                         ->limit(4)->get(['id', 'user_id', 'text', 'type', 'created_at']);
                 }
@@ -622,6 +622,7 @@ class PostsController extends Controller
     {
         try {
             $posts = Post::whereIn('id', $request->user()->savedPosts()->get('post_id'))
+                ->where('is_accepted', true)
                 ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             return $this->success('ok', $this->postData($posts));

@@ -56,7 +56,7 @@ class DashboardsController extends Controller
     {
         try {
             $data = [];
-            $CVs = CV::query()->where('acception', false)->paginate(30);
+            $CVs = CV::query()->where('acception', false)->paginate(4);
             foreach ($CVs as $cv) {
                 $user = $cv->user;
                 $url = $user->prof_img_url;
@@ -65,7 +65,7 @@ class DashboardsController extends Controller
                 }
                 $data[] = [
                     'id' => $cv->id,
-                    'user_id' => (string)$cv->user_id,
+                    'user_id' => $cv->user_id,
                     'user_name' => (string)$user->f_name . ' ' . $user->l_name,
                     'user_img' => (string)$url,
                     'country' => (string)$user->country,
@@ -87,7 +87,12 @@ class DashboardsController extends Controller
         try {
             $data = [];
             $posts = Post::query()->where('is_reviewed', false)->paginate(10);
-            $data = app('App\Http\Controllers\PostsController')->postData($posts);
+            foreach ($posts as $post) {
+                $data[] = [
+                    'dash' => true,
+                    'post' => app('App\Http\Controllers\PostsController')->postData([$post])
+                ];
+            }
             return $this->success('ok', $data);
         } catch (\Exception $e) {
             // return $this->fail(__('messages.somthing went wrong'), 500);
@@ -108,6 +113,7 @@ class DashboardsController extends Controller
             foreach ($posts as $post) {
                 $data[] = [
                     'reports' => PostReport::query()->where('post_id', $post->id)->count(),
+                    'dash' => true,
                     'post' => app('App\Http\Controllers\PostsController')->postData([$post])
                 ];
             }
