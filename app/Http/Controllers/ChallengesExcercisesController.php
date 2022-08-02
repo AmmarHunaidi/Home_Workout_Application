@@ -38,10 +38,10 @@ class ChallengesExcercisesController extends Controller
     {
         try {
             $validator = Validator::make($request->only('name', 'desc', 'img', 'ca'), [
-                'name' => ['string', 'min:2', 'max:100', 'required'],
+                'name' => ['string', 'min:2', 'max:100', 'required',],
                 'desc' => ['string', 'min:2', 'max:1000', 'required'],
                 'img' => ['image', 'mimes:jpg,png,jpeg,gif,svg,bmp', 'max:4096', 'required'],
-                'ca' => ['required', 'integer'],
+                'ca' => ['required', 'numeric'],
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);

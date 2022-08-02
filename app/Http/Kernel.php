@@ -77,5 +77,6 @@ class Kernel extends HttpKernel
         'likeable' => \App\Http\Middleware\CheckLikeAble::class,
         'ms' => \App\Http\Middleware\ManagersSuper::class,
         'coach' => \App\Http\Middleware\IsCoach::class,
+        'seen' => \App\Http\Middleware\UpdateUserLastSeen::class,
     ];
 }

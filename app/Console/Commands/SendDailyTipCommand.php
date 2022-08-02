@@ -18,7 +18,7 @@ class SendDailyTipCommand extends Command
     {
         $tokens = UserDevice::all('mobile_token');
         $tip = DailyTip::query()->inRandomOrder()->limit(1)->get();
-        $this->sendNotification($tokens, 'Daily Tip', $tip->first()->tip, 'Home Screen');
+        $this->sendNotification($tokens, 'Daily Tip 💡', $tip->first()->tip, 'Home Screen');
         // $this->sendNotification($tokens, 'Daily Tip', $tip->first()->tip, 'Home Screen');
     }
 }

@@ -16,8 +16,11 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendPostAcceptionNotiJob;
+use App\Models\Challenge;
+use App\Models\ChallengeReport;
 use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
+use App\Models\UserDevice;
 
 class DashboardsController extends Controller
 {
@@ -25,6 +28,9 @@ class DashboardsController extends Controller
     public function index()
     {
         try {
+            $users = User::query()->where('last_seen', '<', Carbon::now()->subDays(15))->get(['id']);
+            $m_tokens = UserDevice::query()->whereIn('user_id', $users)->get(['mobile_token']);
+            return $m_tokens;
             $UnReviewdPosts = Post::query()->where('is_reviewed', false)->count();
             if ($UnReviewdPosts > 100)
                 $UnReviewdPosts = '+100';
@@ -37,12 +43,15 @@ class DashboardsController extends Controller
             $ReportedPostComments = PostCommentReport::query()->distinct('comment_id')->count();
             if ($ReportedPostComments > 100)
                 $ReportedPostComments = '+100';
-
+            $ReportedChallengess = ChallengeReport::query()->distinct('ch_id')->count();
+            if ($ReportedChallengess > 100)
+                $ReportedChallengess = '+100';
             $data = [
                 'posts' => (string)$UnReviewdPosts,
                 'Reported_Posts' => (string)$ReportedPosts,
                 'Reported_Comments' => (string)$ReportedPostComments,
                 'CVs' => (string)$UnReviewdCVs,
+                'Reported_Challenges' => (string)$ReportedChallengess,
             ];
 
             return $this->success('ok', $data);
@@ -156,7 +165,7 @@ class DashboardsController extends Controller
         }
     }
 
-    public function AcceptPost(Request $request, $id) //accept refuse post and delete reported one
+    public function AcceptPost(Request $request, $id)
     {
         try {
             $acc = $request->header('acc');
@@ -194,6 +203,51 @@ class DashboardsController extends Controller
                     $comments->comment()->delete();
                 } elseif ($acc == 'false') {
                     $comments->delete();
+                }
+                return $this->success();
+            }
+            return $this->fail(__("messages.Not found"));
+        } catch (\Exception $e) {
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+        }
+    }
+
+    public function ReportedChallenges(Request $request)
+    {
+        try {
+            $data = [];
+            $chs = Challenge::query()
+                ->whereHas('reports')
+                ->withCount('reports')
+                ->orderBy('reports_count', 'desc')
+                ->paginate(10);
+
+            foreach ($chs as $ch) {
+                $data[] = [
+                    'reports' => PostReport::query()->where('post_id', $ch->id)->count(),
+                    'dash' => true,
+                    'ch' => app('App\Http\Controllers\ChallengeController')->chData([$ch], $request)
+                ];
+            }
+            return $this->success('ok', $data);
+        } catch (\Exception $e) {
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+        }
+    }
+
+    public function AcceptChallengeReport(Request $request, $id)
+    {
+        try {
+            $acc = $request->header('acc');
+            if ($chR = ChallengeReport::where(['ch_id' => $id])->first()) {
+                if ($acc == 'true') {
+                    if ($chR->ch()->first()->img_path != 'Default/35mnhgfrewqw34rfvbhy65r4edfgnhgr4e3sxcwtgr4htyuChallenge.PNG')
+                        Storage::deleteDirectory('public/images/users/' . $chR->ch()->first()->user_id . '/Challenges/' . $chR->ch()->first()->id);
+                    $chR->ch()->delete();
+                } elseif ($acc == 'false') {
+                    $chR->delete();
                 }
                 return $this->success();
             }

@@ -36,7 +36,7 @@ use App\Http\Controllers\ChallengeController;
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
-        Route::post('/register', 'register');
+        Route::post('/', 'register');
         Route::post('/gettoken', 'getTokenfromRefreshToken');
         Route::post('/login', 'login');
     });
@@ -62,7 +62,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
 });
 
 //Token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'deltedAccount', 'auth:api']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'seen', 'deltedAccount', 'auth:api']], function () {
     Route::prefix('user')->controller(AuthController::class)->group(function () {
         Route::post('/info', 'info'); //add his info
         Route::get('/profile', 'useraccount'); //get his profile
@@ -139,6 +139,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/RPComments', 'ReportedComments');
         Route::get('/ARPosts/{id}', 'AcceptPost');
         Route::get('/ARComments/{id}', 'AcceptCommentReport');
+        Route::get('/repChallenges', 'ReportedChallenges');
+        Route::get('/ARChallenges/{id}', 'AcceptChallengeReport');
     });
     Route::prefix('search')->controller(SearchController::class)->group(function () {
         Route::post('/', 'search');
@@ -154,13 +156,16 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
     Route::prefix('ch')->controller(ChallengeController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('/list', 'exList');
-        Route::get('/rep/{id}', 'report');
-        Route::get('/rev/{id}/{num}', 'review');
-        Route::get('/sub/{id}', 'sub');
-        Route::post('/done/{id}', 'done');
+        Route::get('/rep/{id}', 'report'); //add Block
+        Route::get('/rev/{id}/{num}', 'review'); //add Block
+        Route::get('/sub/{id}', 'sub'); //add Block
+        Route::post('/done/{id}', 'done'); //add Block
         Route::post('/', 'store')->middleware('coach');
         Route::put('/{id}', 'update')->middleware('coach');
-        Route::get('/{id}', 'show')->middleware('block');
+        Route::put('/{id}', 'update')->middleware('coach');
+        Route::get('/my', 'showMy')->middleware('coach');
+        Route::get('/show/{id}', 'show'); //add block protect
+        Route::get('/mySub', 'showMySubs');
         Route::delete('/{id}', 'destroy')->middleware('coach');
     });
 });
@@ -172,62 +177,51 @@ Route::get('/any', function (Request $request) {
 //Workout + Excersise Routes
 //Add MiddleWares
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
-    Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+    Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 
-    Route::prefix('workout')->controller(WorkoutController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+    Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 
-    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 
-    Route::prefix('excersise')->controller(ExcersiseController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+    Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 
-    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 
-    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
+    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
     });
 });
