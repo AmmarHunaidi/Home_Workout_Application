@@ -52,7 +52,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'se
 });
 
 //verify Email
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('emailVerfiy')->controller(VerifyUserController::class)->group(function () {
             Route::post('/', 'verifyAccount');
