@@ -17,6 +17,7 @@ class Diet extends Model
     public $timestamps = true;
 
 
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -27,29 +28,30 @@ class Diet extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-     public function creator()
-     {
-        return $this->belongsTo(User::class,'created_by');
-     }
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-     public function dietmeal()
-     {
+    public function dietmeal()
+    {
         return $this->hasMany(DietMeal::class);
-     }
+    }
 
-     public function subscribers()
-     {
+    public function subscribers()
+    {
         return $this->hasMany(DietSubscribe::class);
-     }
+    }
 
-     public function favorites()
-     {
+    public function favorites()
+    {
         return $this->hasMany(FavoriteDiet::class);
-     }
+    }
 
-     public function reviews()
-     {
+    public function reviews()
+    {
         return $this->hasMany(DietReview::class);
+    }
      }
 
 }
