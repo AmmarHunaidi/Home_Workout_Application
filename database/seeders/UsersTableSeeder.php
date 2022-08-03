@@ -115,6 +115,25 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2022-07-07 02:13:02',
                 'updated_at' => '2022-07-07 02:13:02',
             ),
+            5 =>
+            array (
+                'id' => 8,
+                'f_name' => 'Ammar',
+                'l_name' => 'Hunaidi',
+                'email' => 'ammar.hunaidi.01@gmail.com',
+                'password' => '$2a$12$.drxlrWVNgmzqnVX.n.Jjec5zceJQJKw3JuPUIybsbknjK2dQXmVO',
+                'prof_img_url' => 'Default/RrmDmqreoLbR6dhjSVuFenDAii8uBWdqhi2fYSjK9pRISPykLSdefaultprofileimg.jpg',
+                'gender' => 'male',
+                'birth_date' => '1990-05-05',
+                'bio' => '',
+                'country' => 'Syria',
+                'email_verified_at' => '2022-07-07 02:13:02',
+                'deleted_at' => NULL,
+                'role_id' => 3,
+                'remember_token' => NULL,
+                'created_at' => '2022-07-07 02:13:02',
+                'updated_at' => '2022-07-07 02:13:02',
+            ),
         ));
 
 

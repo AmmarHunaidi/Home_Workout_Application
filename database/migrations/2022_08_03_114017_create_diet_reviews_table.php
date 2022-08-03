@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('food', function (Blueprint $table) {
+        Schema::create('diet_reviews', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('calories');
-            $table->string('description')->nullable();
-            $table->text('food_image_url')->default('default');
-            $table->foreignId('user_id')->constrained('users');
-            $table->boolean('approval')->default(0);
+            $table->text('description');
+            $table->float('stars');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('diet_id')->constrained('diets')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('food');
+        Schema::dropIfExists('diet_reviews');
     }
 };

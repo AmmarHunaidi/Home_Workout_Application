@@ -5,29 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Food extends Model
+class FavoriteDiet extends Model
 {
     use HasFactory;
-    public $table = 'food';
+    public $table = 'favorite_diets';
     public $primarykey = 'id';
-    //Food Image
     public $fillable = [
-        'name',
-        'calories',
-        'description',
         'user_id',
-        'food_image_url'
+        'diet_id'
     ];
     public $timestamps = true;
 
-    public function meal_food()
+    public function workout()
     {
-        return $this->hasMany(MealFood::class);
+        return $this->belongsTo(Diet::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class);
     }
-
 }

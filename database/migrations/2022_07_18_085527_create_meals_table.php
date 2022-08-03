@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('meals', function (Blueprint $table) {
             $table->id();
             $table->string('type');
+            $table->string('description')->nullable();
             $table->integer('calorie_count')->default(0);
-            $table->foreignId('diet_id')->constrained('diets');
             $table->foreignId('user_id')->constrained('users');
+            $table->boolean('approval')->default(0);
             $table->timestamps();
         });
     }
