@@ -331,8 +331,8 @@ class DashboardsController extends Controller
         }
         else
         {
-            $diet->approval = 1;
-            $diet->update();
+            $food->approval = 1;
+            $food->update();
             return $this->success("Food Accepted" , [] ,200);
         }
     }
@@ -341,6 +341,7 @@ class DashboardsController extends Controller
     {
         $food = Food::all(['id', 'name' , 'user_id'])->where('approval' ,0);
         return $this->success("Pending Diets" , $food ,200);
+    }
 
     public function ReportedChallenges(Request $request)
     {

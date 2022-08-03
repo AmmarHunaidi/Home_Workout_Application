@@ -258,7 +258,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     Route::prefix('home')->controller(HomePageController::class)->group(function()
     {
         Route::get('/summary' , 'summary');
-    }
+    });
+    
     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');
