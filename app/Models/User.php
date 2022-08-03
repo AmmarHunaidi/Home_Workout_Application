@@ -201,15 +201,14 @@ class User extends Authenticatable
     }
 
     public function subscribed_diet()
-     {
+    {
         return $this->hasMany(DietSubscribe::class);
-     }
+    }
 
-     public function diet_review()
-     {
+    public function diet_review()
+    {
         return $this->hasMany(DietReview::class);
-     }
-     
+    }
     //Accessor
     public function setFNameAttribute($f_name)
     {

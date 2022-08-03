@@ -61,4 +61,5 @@ class Workout extends Model
     }
 
 
+
 }
