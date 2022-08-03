@@ -22,7 +22,13 @@ use App\Http\Controllers\WorkoutExcersisesController;
 use App\Http\Controllers\WorkoutReviewController;
 use App\Models\Excersise;
 use App\Http\Controllers\DashboardsController;
+use App\Http\Controllers\DietController;
+use App\Http\Controllers\FoodController;
+use App\Http\Controllers\HomePageController;
+use App\Http\Controllers\MealController;
+use App\Http\Controllers\MealFoodController;
 use App\Http\Controllers\SearchController;
+use App\Models\MealFood;
 
 // Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
 //     Route::get('/testlang', function () {
@@ -168,17 +174,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::post('/delete','destroy');
         Route::post('/update','edit');
         Route::get('/all','index');
-
-    });
-
-    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function()
-    {
-        Route::get('/show' , 'show');
-        Route::post('/create','create');
-        Route::post('/delete','destroy');
-        Route::post('/update','edit');
-        Route::get('/all','index');
-
+        Route::post('/review' , 'review');
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function()
@@ -190,10 +186,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::get('/all','index');
 
     });
+});
 
-    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function()
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+    Route::prefix('food')->controller(FoodController::class)->group(function()
     {
-        Route::get('/show' , 'show');
+        Route::post('/show' , 'show');
         Route::post('/create','create');
         Route::post('/delete','destroy');
         Route::post('/update','edit');
@@ -201,12 +199,38 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
 
     });
 
-    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function()
+    Route::prefix('mealfood')->controller(MealFoodController::class)->group(function()
     {
-        Route::get('/show' , 'show');
+        Route::post('/show' , 'show');
         Route::post('/create','create');
         Route::post('/delete','destroy');
         Route::post('/update','edit');
         Route::get('/all','index');
+
+    });
+
+    Route::prefix('meal')->controller(MealController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('diet')->controller(DietController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('home')->controller(HomePageController::class)->group(function()
+    {
+        Route::get('/summary' , 'summary');
     });
 });

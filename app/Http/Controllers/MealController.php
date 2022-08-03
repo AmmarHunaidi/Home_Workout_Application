@@ -14,80 +14,60 @@ use Illuminate\Support\Facades\Validator;
 class MealController extends Controller
 {
     use GeneralTrait;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        return Meal::all(['id','type']);
+        return Meal::all(['id','type','description','calorie_count']);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(Request $request)
     {
         if($request->user()->role_id == 3)
         {
-            $fields = Validator::make($request->only('type','diet_id'), [
-                'type' => 'required|string:breakfast,lunch,dinner,snack',
-                'diet_id' => 'required|integer',
-                'food_ids' => 'array|required',
-                'day' => 'requried|integer'
+            $fields = Validator::make($request->only(['type','description','food_ids','day']), [
+                'type' => 'required|string',
+                'description' => 'required|string',
+                'food_ids' => 'string|required'
             ]);
             if($fields->fails())
             {
-                return $this->fail($fields->errors()->first(),400);
+                return $this->fail($fields->errors()->first(),401);
             }
+            $fields = $fields->safe()->all();
             $fields['user_id'] = $request->user()->id;
             $meal = Meal::create($fields);
-            foreach($fields['food_ids'] as $food_id)
+            $food_list = json_decode($fields['food_ids']);
+            foreach($food_list as $food_id)
             {
-                $food = Food::where('id',$food_id);
+                $food = Food::find($food_id);
                 $data = [
                     'meal_id' => $meal->id,
                     'food_id' => $food->id,
-                    'user_id' => $request->user()->primarykey
+                    'user_id' => $request->user()->id
                 ];
                 MealFood::create($data);
+                $meal->calorie_count += $food->calories;
             }
-            $message = 'Food Created Successfully';
-            return $this->success(_("messages." . $message), $meal, 201);
+            $meal->update();
+            $message = 'Meal Created Successfully. Awaiting Approval';
+            return $this->success(_($message), $meal, 201);
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreMealRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreMealRequest $request)
+    public function show(Request $request)
     {
-        //
+        $fields = Validator::make($request->only(['meal_id']) , [
+            'meal_id' => 'required|integer'
+        ]);
+        if($fields->fails())
+        {
+            return $this->fail($fields->errors()->first(),401);
+        }
+        $fields = $fields->safe()->all();
+        $meal = Meal::find($fields['meal_id']);
+        return $this->success("Success" , $meal , 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Meal  $meal
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Meal $meal)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Meal  $meal
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request)
     {
         if($request->user()->role_id == 3)
@@ -100,55 +80,41 @@ class MealController extends Controller
             {
                 return $this->fail($fields->errors()->first(),400);
             }
-            $meal = Meal::find($fields->meal_id);
+            $fields = $fields->safe()->all();
+            $meal = Meal::find($fields['meal_id']);
             if($request->user()->id == $meal->user_id){
                 if($fields['type']!=null) $meal->name = $fields['type'];
                 $meal->update();
                 $message = 'Meal Edited Successfully';
-                return $this->success(_("message." . $message),$meal,201);
+                return $this->success(_($message),$meal,201);
             }
             $message = 'Permission Denied. Not the owner';
-            return $this->fail(_('message.' . $message),400);
+            return $this->fail(_($message),400);
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateMealRequest  $request
-     * @param  \App\Models\Meal  $meal
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateMealRequest $request, Meal $meal)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Meal  $meal
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request)
     {
         if($request->user()->role_id == 3)
         {
-            $fields = Validator::make($request->only('meal_id'),[
+            $fields = Validator::make($request->only(['meal_id']),[
                 'meal_id' => 'required|integer'
             ]);
             if($fields->fails())
             {
                 return $this->fail($fields->errors()->first(),400);
             }
-            $meal = Meal::find($fields->meal_id);
+            $fields = $fields->safe()->all();
+            $meal = Meal::find($fields['meal_id']);
             if($request->user()->id == $meal->user_id){
+                $meal->mealfood()->delete();
                 $meal->delete();
-                $message = 'Food Deleted Successfully';
-                return $this->success(_("message." . $message),$meal,201);
+                $message = 'Meal Deleted Successfully';
+                return $this->success(_($message),$meal,201);
             }
             $message = 'Permission Denied. Not the owner';
-            return $this->fail(_('message.' . $message),400);
+            return $this->fail(_($message),400);
         }
     }
 }

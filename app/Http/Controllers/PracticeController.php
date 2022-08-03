@@ -15,104 +15,60 @@ use Illuminate\Support\Facades\Validator;
 class PracticeController extends Controller
 {
     use GeneralTrait;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create(Request $request)
+    public function initiate(Request $request)
     {
         $fields = Validator::make($request->only('workout_id','excersises_played'),[
-            'workout_id' => 'required|integer',
-            'excersises_played' => 'required|array',
-            'time_practiced' => 'required|integer'
+            'workout_id' => 'required|integer'
         ]);
-        if(count($fields['excersises_played']) == 0)
+        if($fields->fails())
         {
-            return $this->fail(_('Not Played any excersise.'),401);
+            return $this->fail($fields->errors()->first(),401);
         }
-        $practice_calories = 0;
-        foreach($fields['excersises_played'] as $excersise_id)
+        $fields['user_id'] = $request->user()->id;
+        $practice = Practice::create($fields);
+        return $this->success("Start Practicing!",$practice,201);
+    }
+    public function practice(Request $request)
+    {
+        $fields = Validator::make($request->only('excersise_id','practice_id','length'),[
+            'excersise_id' => 'required|integer',
+            'length' => 'requried|integer',
+            'practice_id' => 'required|integer'
+        ]);
+        if($fields->fails())
         {
-            $excersise = Excersise::find($excersise_id);
-            $practice_calories += $excersise->burn_calories;
+            return $this->fail($fields->errors()->first(),401);
         }
-        $workout = Workout::find($fields['workout_id']);
-        $excersises_count = $workout->excersise->count();
-
-        $data = [
-            'workout_id' => $workout->id,
-            'summary_calories' => $practice_calories,
-            'summary_time' => $fields['time_practiced'],
-            'user_id' => $request->user()->primarykey
-        ];
-        $practice = Practice::create($data);
-        return $this->success('Practice Done!',$practice,201);
+        $fields = $fields->safe()->all();
+        $practice = Practice::find($fields['practice_id']);
+        $excersise = Excersise::find($fields['excersise_id']);
+        $practice->summary_calories += $excersise->burn_calories;
+        $practice->summary_time += $fields['length'];
+        $excersises_played = json_decode($practice->excersises_played);
+        $excersises_played[] = $fields['excersise_id'];
+        $practice->excersises_played = json_encode($excersises_played);
+        $practice->update();
+        return $this->success("Next Excersise!" , $practice , 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StorePracticeRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StorePracticeRequest $request)
+    public function summary(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Practice  $practice
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Practice $practice)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Practice  $practice
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Practice $practice)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdatePracticeRequest  $request
-     * @param  \App\Models\Practice  $practice
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdatePracticeRequest $request, Practice $practice)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Practice  $practice
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Practice $practice)
-    {
-        //
+        $fields = Validator::make($request->only('practice_id'),[
+            'practice_id' => 'required|integer'
+        ]);
+        if($fields->fails())
+        {
+            return $this->fail($fields->errors()->first(),401);
+        }
+        $fields = $fields->safe()->all();
+        $practice = Practice::find($fields['practice_id']);
+        if(count(json_decode($practice->excersises_played)) == 0)
+        {
+            $practice->query()
+                     ->where('id',$fields['practice_id'])
+                     ->delete();
+            return $this->success("Not Practiced!", [] , 200);
+        }
+        return $this->success('Workout Summary' , $practice , 200);
     }
 }

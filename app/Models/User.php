@@ -166,15 +166,31 @@ class User extends Authenticatable
     {
         return $this->hasMany(WorkoutExcersisesSeeder::class);
     }
+
     public function practice()
     {
-        if($this->role_id == 1)
-        {
-            return $this->hasMany(Practice::class);
-        }
-        $message = "Not a trainer";
-        return $this->fail($message,401);
+        return $this->hasMany(Practice::class);
     }
+
+    public function favoriteworkouts()
+    {
+        return $this->hasMany(FavoriteWorkout::class);
+    }
+
+    public function favoritediets()
+    {
+        return $this->hasMany(FavoriteDiet::class);
+    }
+
+    public function subscribed_diet()
+     {
+        return $this->hasMany(DietSubscribe::class);
+     }
+
+     public function diet_review()
+     {
+        return $this->hasMany(DietReview::class);
+     }
     //Accessor
     public function setFNameAttribute($f_name)
     {
