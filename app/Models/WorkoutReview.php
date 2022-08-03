@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class WorkoutReview extends Model
 {
     use HasFactory;
-    public $table = 'reviews';
+    public $table = 'workout_reviews';
     public $primarykey = 'id';
     public $fillable = [
         'description',
