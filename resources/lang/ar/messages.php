@@ -76,4 +76,9 @@ return [
     'Subscribed' => 'تم الاشتراك',
     'End time should be greater than ' => ' وقت الانتهاء يجب ان يكون أكبر من ',
     'Challeng created' => 'تم إنشاء التحدي',
+    //App Control
+    'App is temporarily down' => 'تم إيقاف التطبيق مؤقتاً',
+    'Posts feature is temporarily down' => 'ميزة المنشورات متوقفة مؤقتاً',
+    'Creating posts is temporarily off' => 'إنشاء منشورات جديدة متوقف مؤقتاً',
+    'Creating new account is temporarily off' => ' تسجيل حساب جديد بالتطبيق متوقف مؤقتاً, لا تزال قادر على تسجيل الدخول باستخدام حساب آخر',
 ];

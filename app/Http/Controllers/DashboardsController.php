@@ -28,9 +28,6 @@ class DashboardsController extends Controller
     public function index()
     {
         try {
-            $users = User::query()->where('last_seen', '<', Carbon::now()->subDays(15))->get(['id']);
-            $m_tokens = UserDevice::query()->whereIn('user_id', $users)->get(['mobile_token']);
-            return $m_tokens;
             $UnReviewdPosts = Post::query()->where('is_reviewed', false)->count();
             if ($UnReviewdPosts > 100)
                 $UnReviewdPosts = '+100';

@@ -26,7 +26,7 @@ class Workout extends Model
     ];
     public $timestamps = true;
 
-    public function review()
+    public function reviews()
     {
         return $this->hasMany(WorkoutReview::class);
     }
@@ -38,7 +38,7 @@ class Workout extends Model
 
     public function coach()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function categorie()
@@ -50,5 +50,4 @@ class Workout extends Model
     {
         return $this->hasMany(Practice::class);
     }
-
 }

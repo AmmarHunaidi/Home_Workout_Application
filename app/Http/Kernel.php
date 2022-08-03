@@ -78,5 +78,6 @@ class Kernel extends HttpKernel
         'ms' => \App\Http\Middleware\ManagersSuper::class,
         'coach' => \App\Http\Middleware\IsCoach::class,
         'seen' => \App\Http\Middleware\UpdateUserLastSeen::class,
+        'appcontrol' => \App\Http\Middleware\CheckAppFeature::class,
     ];
 }

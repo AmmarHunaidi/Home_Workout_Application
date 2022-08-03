@@ -75,5 +75,10 @@ return [
     'Unsubscribed' => 'Unsubscribed',
     'Subscribed' => 'Subscribed',
     'End time should be greater than ' => 'End time should be greater than ',
-    'Challeng created' => 'Challeng created',
+    'Challeng created' => 'Challenge created',
+    //App Control
+    'App is temporarily down' => 'App is temporarily down',
+    'Posts feature is temporarily down' => 'Posts feature is temporarily down',
+    'Creating posts is temporarily off' => 'Creating posts is temporarily off',
+    'Creating new account is temporarily off' => 'Creating new account is temporarily off, if you have an old account you can login using it'
 ];

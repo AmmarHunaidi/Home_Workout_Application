@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "beyondcode/laravel-websockets": "^1.13",
         "guzzlehttp/guzzle": "^7.4",
         "involved-group/laravel-lang-country": "^2.5",
         "laravel/framework": "^9.11",
@@ -14,7 +15,8 @@
         "laravel/socialite": "^5.5",
         "laravel/tinker": "^2.7",
         "nnjeim/world": "^1.1",
-        "orangehill/iseed": "^3.0"
+        "orangehill/iseed": "^3.0",
+        "pusher/pusher-php-server": "^7.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.12",
