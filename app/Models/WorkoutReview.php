@@ -20,11 +20,11 @@ class WorkoutReview extends Model
 
     public function workout()
     {
-        return $this->belongsTo(Workout::class,'workout_id');
+        return $this->belongsTo(Workout::class, 'workout_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

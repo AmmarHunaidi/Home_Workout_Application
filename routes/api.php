@@ -31,16 +31,11 @@ use App\Http\Controllers\SearchController;
 use App\Models\MealFood;
 use App\Http\Controllers\ChallengesExcercisesController;
 use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\AppControlController;
 
-
-// Route::group(['middleware' => ['apikey', 'json', 'lang']], function () {
-//     Route::get('/testlang', function () {
-//         return response()->json(['message' => __('messages.somthing went wrong'), 'local' => App::currentLocale()], 200);
-//     });
-// });
 
 //No token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
         Route::post('/', 'register');
@@ -50,7 +45,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
     //Google + Facebook
     Route::post('/login/callback', [SocialiteController::class, 'handleProviderCallback']);
     //Forget Password
-    Route::prefix('forgetpassword')->controller(ForgotPasswordController::class)->group(function () {
+    Route::prefix('forgetpassword')->middleware('appcontrol')->controller(ForgotPasswordController::class)->group(function () {
         Route::post('/', 'submitForgetPasswordForm')->middleware(['emailVerified']);
         Route::post('/verify', 'verifytoken');
         Route::post('/reset', 'resetpassword')->middleware('emailVerified');;
@@ -58,7 +53,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
 });
 
 //verify Email
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('emailVerfiy')->controller(VerifyUserController::class)->group(function () {
             Route::post('/', 'verifyAccount');
@@ -69,7 +64,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone']], f
 });
 
 //Token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'seen', 'deltedAccount', 'auth:api']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'seen', 'deltedAccount', 'auth:api', 'appcontrol']], function () {
     Route::prefix('user')->controller(AuthController::class)->group(function () {
         Route::post('/info', 'info'); //add his info
         Route::get('/profile', 'useraccount'); //get his profile
@@ -174,6 +169,10 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/show/{id}', 'show'); //add block protect
         Route::get('/mySub', 'showMySubs');
         Route::delete('/{id}', 'destroy')->middleware('coach');
+    });
+    Route::prefix('App')->controller(AppControlController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('/edit', 'update');
     });
 });
 Route::get('/any', function (Request $request) {

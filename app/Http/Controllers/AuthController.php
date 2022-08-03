@@ -224,48 +224,53 @@ class AuthController extends Controller
 
     public function useraccount(Request $request)
     {
-        if ($request->user()->role_id == 2 || $request->user()->role_id == 3)
+        try {
+            if ($request->user()->role_id == 2 || $request->user()->role_id == 3)
+                return $this->success('ok', [
+                    "user" => new UserProfileResource($request->user()),
+                    "followers" => $request->user()->followers()->count(),
+                    "following" => $request->user()->follows()->count(),
+                ]);
             return $this->success('ok', [
                 "user" => new UserProfileResource($request->user()),
-                "followers" => $request->user()->followers()->count(),
                 "following" => $request->user()->follows()->count(),
             ]);
-        return $this->success('ok', [
-            "user" => new UserProfileResource($request->user()),
-            "following" => $request->user()->follows()->count(),
-        ]);
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__("messages.somthing went wrong"), 500);
+        }
     }
     // following = أنا أتابعهم // Followers = الناس يلي بتابعني
     public function show($id)
     {
-        $me = Auth::user();
-        $following = false;
-        $is_blocked = false;
-        $I_blocke = false;
-        $user = User::find($id);
-        if ($user && $user->deleted_at == Null) {
-            // if ($user->role_id == 2 || $user->role_id == 3) {
-            if (!is_null(Follow::where(['follower_id' => $me->id, 'following' => $user->id])->first()))
-                $following = true;
-            if (!is_null(Block::where(['user_id' => $user->id, 'blocked' => $me->id])->first()))
-                $is_blocked = true;
-            if (!is_null(Block::where(['user_id' => $me->id, 'blocked' => $user->id])->first()))
-                $I_blocke = true;
-            return $this->success('ok', [
-                "user" => new UserProfileResource($user),
-                "followers" => $user->followers()->count(),
-                "following" => $user->follows()->count(),
-                "is_following" => $following,
-                "is_blocked" => $is_blocked,
-                "I_block" => $I_blocke,
-            ]);
-            // }
-            // return $this->success('ok', [
-            //     "user" => new UserProfileResource($user),
-            //     "following" => $user->follows()->count()
-            // ]);
+        try {
+            $me = Auth::user();
+            $following = false;
+            $is_blocked = false;
+            $I_blocke = false;
+            $user = User::find($id);
+            if ($user && $user->deleted_at == Null) {
+                // if ($user->role_id == 2 || $user->role_id == 3) {
+                if (!is_null(Follow::where(['follower_id' => $me->id, 'following' => $user->id])->first()))
+                    $following = true;
+                if (!is_null(Block::where(['user_id' => $user->id, 'blocked' => $me->id])->first()))
+                    $is_blocked = true;
+                if (!is_null(Block::where(['user_id' => $me->id, 'blocked' => $user->id])->first()))
+                    $I_blocke = true;
+                return $this->success('ok', [
+                    "user" => new UserProfileResource($user),
+                    "followers" => $user->followers()->count(),
+                    "following" => $user->follows()->count(),
+                    "is_following" => $following,
+                    "is_blocked" => $is_blocked,
+                    "I_block" => $I_blocke,
+                ]);
+            }
+            return $this->fail(__("messages.User not found"));
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), 500);
+            // return $this->fail(__("messages.somthing went wrong"), 500);
         }
-        return $this->fail(__("messages.User not found"));
     }
 
     public function update(Request $request)
