@@ -174,26 +174,4 @@ class WorkoutController extends Controller
         $favorites = User::find($user_id)->favorites->workout;
         return $this->success("Success" , $favorites , 200);
     }
-
-    public function review(Request $request)
-    {
-        $fields = Validator::make($request->only('workout_id','description','stars') , [
-            'workout_id' => 'required|integer',
-            'description' => 'required|string',
-            'stars' => 'required|integer:1,2,3,4,5'
-        ]);
-        if($fields->fails())
-        {
-            return $this->fail($fields->errors()->first(),400);
-        }
-        $fields = $fields->safe()->all();
-        $fields['user_id'] = $request->user()->id;
-        $review = WorkoutReview::create($fields);
-        $workout = Workout::find($fields['workout_id']);
-        $review_count = $workout->review->count();
-        $review_rating = (float)(($workout->review_count * ($review_count-1)) + $fields['stars'] )/($review_count);
-        $workout->review_count = $review_rating;
-        $workout->update();
-        return $this->success("Done" , $workout , 200);
-    }
 }

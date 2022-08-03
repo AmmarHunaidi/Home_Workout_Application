@@ -35,6 +35,9 @@ use App\Http\Controllers\AppControlController;
 
 //No token needed routes
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
+
+//No token needed routes
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
         Route::post('/', 'register');
@@ -191,6 +194,17 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
 
     Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
+    });
+
+    Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
+    });
+
+    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');
         Route::post('/delete', 'destroy');
@@ -200,6 +214,22 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
+    });
+
+    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function () {
+        Route::get('/show', 'show');
+        Route::post('/create', 'create');
+        Route::post('/delete', 'destroy');
+        Route::post('/update', 'edit');
+        Route::get('/all', 'index');
+    });
+
+    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');
         Route::post('/delete', 'destroy');
@@ -240,6 +270,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::post('/update', 'edit');
         Route::get('/all', 'index');
     });
+});
+
 
     // Route::prefix('home')->controller(HomePageController::class)->group(function()
     // {
@@ -251,45 +283,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::post('/delete', 'destroy');
         Route::post('/update', 'edit');
         Route::get('/all', 'index');
+Route::prefix('home')->controller(HomePageController::class)->group(function()
+    {
+        Route::get('/summary' , 'summary');
     });
-
-    Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-});
