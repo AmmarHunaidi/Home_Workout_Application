@@ -304,7 +304,7 @@ class DashboardsController extends Controller
         }
     }
 
-    public function PendingMeals ()
+    public function PendingMeals()
     {
         $meals = Meal::all(['id', 'name' , 'user_id'])->where('approval' ,0);
         return $this->success("Pending Diets" , $meals ,200);
