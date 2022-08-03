@@ -65,7 +65,7 @@ return [
     'Empty comments are not accepted' => 'Empty comments are not accepted',
     'Comment added' => 'Comment added',
     //CV
-    'Only users with no role can apply' => 'Only users with no role can aplly',
+    'Only users with no role can aplly' => 'Only users with no role can aplly',
     'CV has been sent successfully' => 'CV has been sent successfully',
     'CV is required' => 'CV is required',
     'You can not delete your cv' => 'You can not delete your CV',

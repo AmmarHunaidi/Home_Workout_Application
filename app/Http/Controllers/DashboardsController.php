@@ -20,8 +20,11 @@ use App\Models\Diet;
 use App\Models\Food;
 use App\Models\Meal;
 use App\Models\Workout;
+use App\Models\Challenge;
+use App\Models\ChallengeReport;
 use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
+use App\Models\UserDevice;
 
 class DashboardsController extends Controller
 {
@@ -29,6 +32,9 @@ class DashboardsController extends Controller
     public function index()
     {
         try {
+            $users = User::query()->where('last_seen', '<', Carbon::now()->subDays(15))->get(['id']);
+            $m_tokens = UserDevice::query()->whereIn('user_id', $users)->get(['mobile_token']);
+            return $m_tokens;
             $UnReviewdPosts = Post::query()->where('is_reviewed', false)->count();
             if ($UnReviewdPosts > 100)
                 $UnReviewdPosts = '+100';
@@ -41,12 +47,15 @@ class DashboardsController extends Controller
             $ReportedPostComments = PostCommentReport::query()->distinct('comment_id')->count();
             if ($ReportedPostComments > 100)
                 $ReportedPostComments = '+100';
-
+            $ReportedChallengess = ChallengeReport::query()->distinct('ch_id')->count();
+            if ($ReportedChallengess > 100)
+                $ReportedChallengess = '+100';
             $data = [
                 'posts' => (string)$UnReviewdPosts,
                 'Reported_Posts' => (string)$ReportedPosts,
                 'Reported_Comments' => (string)$ReportedPostComments,
                 'CVs' => (string)$UnReviewdCVs,
+                'Reported_Challenges' => (string)$ReportedChallengess,
             ];
 
             return $this->success('ok', $data);
@@ -60,7 +69,7 @@ class DashboardsController extends Controller
     {
         try {
             $data = [];
-            $CVs = CV::query()->where('acception', false)->paginate(30);
+            $CVs = CV::query()->where('acception', false)->paginate(4);
             foreach ($CVs as $cv) {
                 $user = $cv->user;
                 $url = $user->prof_img_url;
@@ -69,7 +78,7 @@ class DashboardsController extends Controller
                 }
                 $data[] = [
                     'id' => $cv->id,
-                    'user_id' => (string)$cv->user_id,
+                    'user_id' => $cv->user_id,
                     'user_name' => (string)$user->f_name . ' ' . $user->l_name,
                     'user_img' => (string)$url,
                     'country' => (string)$user->country,
@@ -91,7 +100,12 @@ class DashboardsController extends Controller
         try {
             $data = [];
             $posts = Post::query()->where('is_reviewed', false)->paginate(10);
-            $data = app('App\Http\Controllers\PostsController')->postData($posts);
+            foreach ($posts as $post) {
+                $data[] = [
+                    'dash' => true,
+                    'post' => app('App\Http\Controllers\PostsController')->postData([$post])
+                ];
+            }
             return $this->success('ok', $data);
         } catch (\Exception $e) {
             // return $this->fail(__('messages.somthing went wrong'), 500);
@@ -112,6 +126,7 @@ class DashboardsController extends Controller
             foreach ($posts as $post) {
                 $data[] = [
                     'reports' => PostReport::query()->where('post_id', $post->id)->count(),
+                    'dash' => true,
                     'post' => app('App\Http\Controllers\PostsController')->postData([$post])
                 ];
             }
@@ -154,7 +169,7 @@ class DashboardsController extends Controller
         }
     }
 
-    public function AcceptPost(Request $request, $id) //accept refuse post and delete reported one
+    public function AcceptPost(Request $request, $id)
     {
         try {
             $acc = $request->header('acc');
@@ -201,6 +216,7 @@ class DashboardsController extends Controller
             return $this->fail($e->getMessage(), 500);
         }
     }
+
 
     public function ApproveDeclineWorkout(Request $request)
     {
@@ -329,5 +345,48 @@ class DashboardsController extends Controller
         $food = Food::all(['id', 'name' , 'user_id'])->where('approval' ,0);
         return $this->success("Pending Diets" , $food ,200);
 
+    public function ReportedChallenges(Request $request)
+    {
+        try {
+            $data = [];
+            $chs = Challenge::query()
+                ->whereHas('reports')
+                ->withCount('reports')
+                ->orderBy('reports_count', 'desc')
+                ->paginate(10);
+
+            foreach ($chs as $ch) {
+                $data[] = [
+                    'reports' => PostReport::query()->where('post_id', $ch->id)->count(),
+                    'dash' => true,
+                    'ch' => app('App\Http\Controllers\ChallengeController')->chData([$ch], $request)
+                ];
+            }
+            return $this->success('ok', $data);
+        } catch (\Exception $e) {
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+        }
+    }
+
+    public function AcceptChallengeReport(Request $request, $id)
+    {
+        try {
+            $acc = $request->header('acc');
+            if ($chR = ChallengeReport::where(['ch_id' => $id])->first()) {
+                if ($acc == 'true') {
+                    if ($chR->ch()->first()->img_path != 'Default/35mnhgfrewqw34rfvbhy65r4edfgnhgr4e3sxcwtgr4htyuChallenge.PNG')
+                        Storage::deleteDirectory('public/images/users/' . $chR->ch()->first()->user_id . '/Challenges/' . $chR->ch()->first()->id);
+                    $chR->ch()->delete();
+                } elseif ($acc == 'false') {
+                    $chR->delete();
+                }
+                return $this->success();
+            }
+            return $this->fail(__("messages.Not found"));
+        } catch (\Exception $e) {
+            // return $this->fail(__('messages.somthing went wrong'), 500);
+            return $this->fail($e->getMessage(), 500);
+        }
     }
 }

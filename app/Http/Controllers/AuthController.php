@@ -28,11 +28,12 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\App;
 use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
+use App\Traits\NotificationTrait;
 use InvolvedGroup\LaravelLangCountry\LangCountry;
 
 class AuthController extends Controller
 {
-    use GeneralTrait, EmailTrait;
+    use GeneralTrait, EmailTrait, NotificationTrait;
     public function register(Request $request)
     {
         try {
@@ -76,7 +77,6 @@ class AuthController extends Controller
                 "refresh_token" => $collection->get('refresh_token'),
                 "expire_at" => Carbon::now()->utcOffset((int)config('app.timeoffset'))->addDays(7)->format("Y-m-d H-i-s")
             ];
-
             $message = 'You need to confirm your email. We have sent you a Verification Code, please check your email.';
             Storage::makeDirectory('public/images/users/' . $user->id);
             if (VerifyUserController::sendCode($user, $request))
@@ -210,7 +210,7 @@ class AuthController extends Controller
     public function allLogout(Request $request)
     {
         try {
-            foreach ($request->user()->token()->get() as $token) {
+            foreach ($request->user()->tokens()->get() as $token) {
                 $id = $token->id;
                 DB::table('oauth_refresh_tokens')->where('access_token_id', $id)->delete();
                 $token->delete();

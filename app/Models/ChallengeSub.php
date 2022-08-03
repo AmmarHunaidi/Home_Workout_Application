@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserInfo extends Model
+class ChallengeSub extends Model
 {
     use HasFactory;
-    public $table = "users_info";
+    protected $table = "challenges_subs";
     protected $primaryKey = "id";
-    protected $fillable = [
-        'user_id',
-        'height',
-        'weight',
-        'height_unit',
-        'weight_unit',
-        'changed_at',
-    ];
+    protected $fillable = ['user_id', 'ch_id', 'stars'];
+    protected $timestamp = true;
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function ch()
+    {
+        return $this->belongsTo(Challenge::class);
     }
 }

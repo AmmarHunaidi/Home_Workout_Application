@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->text('bio')->default('');
             $table->text('country')->nullable();
+            $table->timestamp('last_seen')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('deleted_at')->nullable();
             //foreignKeys

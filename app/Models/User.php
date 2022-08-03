@@ -16,7 +16,7 @@ use Database\Seeders\WorkoutExcersisesSeeder;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable,GeneralTrait;
+    use HasApiTokens, HasFactory, Notifiable, GeneralTrait;
     protected $primaryKey = "id";
     protected $fillable = [
         'f_name',
@@ -124,10 +124,28 @@ class User extends Authenticatable
         return $this->hasOne(CV::class, 'user_id');
     }
 
+    public function challenges()
+    {
+        return $this->hasMany(Challenge::class, 'user_id');
+    }
+    public function chReviews()
+    {
+        return $this->hasMany(ChallengeReview::class, 'user_id');
+    }
+    public function chSubs()
+    {
+        return $this->hasMany(ChallengeSub::class, 'user_id');
+    }
+    public function chReports()
+    {
+        return $this->hasMany(ChallengeReport::class, 'user_id');
+    }
+
+
+
     public function trainees()
     {
-        if($this->role->id == 2)
-        {
+        if ($this->role->id == 2) {
             return $this->hasMany(CoachTrainees::class);
         }
     }
@@ -190,7 +208,7 @@ class User extends Authenticatable
      public function diet_review()
      {
         return $this->hasMany(DietReview::class);
-     }
+
     //Accessor
     public function setFNameAttribute($f_name)
     {
