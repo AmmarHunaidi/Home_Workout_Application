@@ -12,8 +12,8 @@ class Meal extends Model
     public $primarykey = 'id';
     public $fillable = [
         'type',
-        'user_id',
-        'diet_id'
+        'description',
+        'user_id'
     ];
 
     public $timestamps = true;
@@ -23,8 +23,13 @@ class Meal extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function diet()
+    public function dietmeal()
     {
-        return $this->belongsTo(Diet::class);
+        return $this->hasMany(DietMeal::class);
+    }
+
+    public function mealfood()
+    {
+        return $this->hasMany(MealFood::class);
     }
 }

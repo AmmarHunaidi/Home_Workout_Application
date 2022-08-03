@@ -22,10 +22,17 @@ use App\Http\Controllers\WorkoutExcersisesController;
 use App\Http\Controllers\WorkoutReviewController;
 use App\Models\Excersise;
 use App\Http\Controllers\DashboardsController;
+use App\Http\Controllers\DietController;
+use App\Http\Controllers\FoodController;
+use App\Http\Controllers\HomePageController;
+use App\Http\Controllers\MealController;
+use App\Http\Controllers\MealFoodController;
 use App\Http\Controllers\SearchController;
+use App\Models\MealFood;
 use App\Http\Controllers\ChallengesExcercisesController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\AppControlController;
+
 
 //No token needed routes
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
@@ -176,6 +183,82 @@ Route::get('/any', function (Request $request) {
 //Workout + Excersise Routes
 //Add MiddleWares
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+    Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('workout')->controller(WorkoutController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+        Route::post('/review' , 'review');
+    });
+
+    Route::prefix('excersise')->controller(ExcersiseController::class)->group(function()
+    {
+        Route::get('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+});
+
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+    Route::prefix('food')->controller(FoodController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('mealfood')->controller(MealFoodController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('meal')->controller(MealController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('diet')->controller(DietController::class)->group(function()
+    {
+        Route::post('/show' , 'show');
+        Route::post('/create','create');
+        Route::post('/delete','destroy');
+        Route::post('/update','edit');
+        Route::get('/all','index');
+
+    });
+
+    Route::prefix('home')->controller(HomePageController::class)->group(function()
+    {
+        Route::get('/summary' , 'summary');
+    }
     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');

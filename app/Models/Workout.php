@@ -22,7 +22,9 @@ class Workout extends Model
         'user_id',
         'categorie_id',
         'equipment',
-        'workout_image_url'
+        'difficulty',
+        'workout_image_url',
+        'approval'
     ];
     public $timestamps = true;
 
@@ -50,4 +52,13 @@ class Workout extends Model
     {
         return $this->hasMany(Practice::class);
     }
+
+
+
+    public function favorites()
+    {
+        return $this->hasMany(FavoriteWorkout::class);
+    }
+
+
 }
