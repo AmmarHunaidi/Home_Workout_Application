@@ -310,11 +310,21 @@ class DashboardsController extends Controller
         $food = Food::find($fields['food_id']);
         if ($fields['approval'] == 0) {
             $food->delete();
+
             return $this->success("Food declined and deleted", [], 200);
         } else {
             $diet->approval = 1;
             $diet->update();
             return $this->success("Food Accepted", [], 200);
+
+            return $this->success("Food declined and deleted", [] , 200);
+        }
+        else
+        {
+            $food->approval = 1;
+            $food->update();
+            return $this->success("Food Accepted" , [] ,200);
+
         }
     }
 
@@ -323,6 +333,11 @@ class DashboardsController extends Controller
         $food = Food::all(['id', 'name', 'user_id'])->where('approval', 0);
         return $this->success("Pending Diets", $food, 200);
     }
+
+        $food = Food::all(['id', 'name' , 'user_id'])->where('approval' ,0);
+        return $this->success("Pending Diets" , $food ,200);
+    }
+
     public function ReportedChallenges(Request $request)
     {
         try {

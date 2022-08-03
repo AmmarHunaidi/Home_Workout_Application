@@ -53,8 +53,13 @@ class Workout extends Model
         return $this->hasMany(Practice::class);
     }
 
+
+
     public function favorites()
     {
         return $this->hasMany(FavoriteWorkout::class);
     }
+
+
+
 }
