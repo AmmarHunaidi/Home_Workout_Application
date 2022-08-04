@@ -70,7 +70,7 @@ class MealController extends Controller
 
     public function edit(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
             $fields = Validator::make($request->only('type','meal_id'),[
                 'type' => 'string|nullable',
@@ -96,7 +96,7 @@ class MealController extends Controller
 
     public function destroy(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
             $fields = Validator::make($request->only(['meal_id']),[
                 'meal_id' => 'required|integer'
