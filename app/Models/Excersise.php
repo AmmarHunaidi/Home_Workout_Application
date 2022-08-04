@@ -14,7 +14,6 @@ class Excersise extends Model
         'name',
         'description',
         'burn_calories',
-        'length',
         'user_id'
     ];
     public $timestamps = true;

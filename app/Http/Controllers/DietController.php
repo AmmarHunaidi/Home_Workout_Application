@@ -8,7 +8,9 @@ use App\Http\Requests\UpdateDietRequest;
 use App\Models\DietMeal;
 use App\Models\DietReview;
 use App\Models\FavoriteDiet;
+use App\Models\Meal;
 use App\Models\User;
+use App\Policies\DietMealPolicy;
 use App\Traits\GeneralTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +37,7 @@ class DietController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 3 || $request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
             $fields = Validator::make($request->only('name','meals'), [
                 'name' => 'required|string',
@@ -111,8 +113,8 @@ class DietController extends Controller
         {
             $fields = Validator::make($request->only('diet_id','name','user_id'),[
                 'diet_id' => 'required|integer',
-                'user_id' => 'integer|nullable',
-                'name' => 'nullable|string'
+                'name' => 'nullable|string',
+                'meals' => 'required|string'
             ]);
             if($fields->fails())
             {
@@ -120,16 +122,39 @@ class DietController extends Controller
             }
             $diet = Diet::find($fields->diet_id);
             if($request->user()->id == $diet->user_id){
-                if($fields['name']!=null) $diet->name = $fields['name'];
-                if($fields['user_id']!=null)
-                {
-                    if(User::find($fields['user_id'])!=null)
+                if($fields['name']!=$diet->name) $diet->name = $fields['name'];
+            $meal_list = json_decode($fields['meals']);
+            $pre_food = [];
+            $dietmeal = $diet->dietmeal;
+            foreach($meal_list as $meal_id)
+            {
+                $meal = Meal::find($meal_id);
+                $meal_result[] = $meal;
+                $dm = DietMeal::query()
+                        ->where('meal_id' , $meal->id)
+                        ->where('diet_id',$diet->id)
+                        ->exists();
+                    if($dm == 0)
                     {
-                        $diet->user_id = $fields['user_id'];
+                        DietMeal::create([
+                            'user_id' => Auth::id(),
+                            'diet_id' => $diet->id,
+                            'meal_id' => $meal->id
+                        ]);
                     }
-                    $message = "Deignated User doesn't exist";
-                    return $this->fail(_('message.' . $message),401);
-                }
+            }
+            foreach($dietmeal as $meal)
+            {
+                $pre_meal[] = $meal->meal_id;
+            }
+            $delete_meal = array_diff($pre_meal , $meal_list);
+            foreach($delete_meal as $meal_id)
+            {
+                $dietmeal = DietMeal::query()
+                                    ->where('diet_id' , $diet->id)
+                                    ->where('meal_id' , $meal_id);
+                $dietmeal->delete();
+            }
                 $diet->update();
                 $message = 'Diet Edited Successfully';
                 return $this->success(_("message." . $message),$diet,201);

@@ -30,7 +30,8 @@ class User extends Authenticatable
         'role_id',
         'email_verified_at',
         'deleted_at',
-        'lang_country'
+        'lang_country',
+        'last_seen'
     ];
 
     protected $hidden = [

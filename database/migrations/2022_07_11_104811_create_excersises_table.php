@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description')->nullable();
             $table->integer('burn_calories');
-            $table->integer('length');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });

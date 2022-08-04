@@ -6,6 +6,7 @@ use App\Models\Excersise;
 use App\Http\Requests\StoreExcersiseRequest;
 use App\Http\Requests\UpdateExcersiseRequest;
 use App\Models\ExcersiseMedia;
+use App\Traits\GeneralTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -13,9 +14,10 @@ use PhpParser\JsonDecoder;
 
 class ExcersiseController extends Controller
 {
+    use GeneralTrait;
     function index()
     {
-        return Excersise::all();
+        return $this->success("Success",Excersise::all(['id' , 'name']) , 200);
     }
 
     public function show(Request $request)
@@ -28,14 +30,14 @@ class ExcersiseController extends Controller
 
     public function create(Request $request)
     {
-        if($request->user()->role_id == 2)
+        if($request->user()->role_id == 4)
         {
             $fields = $request->validate([
             'name'=>'required|string',
-            'burn_calories' => 'required|integer',
-            'length' => 'required|integer',
+            'burn_calories' => 'required|string',
             'excersise_media' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
         ]);
+        $fields['burn_calories'] = (int) $fields['burn_calories'];
         $fields['user_id'] = $request->user()->id;
         $excersise = Excersise::create($fields);
         $original_path = 'public/images/excersises/' . $excersise->id;
@@ -50,7 +52,7 @@ class ExcersiseController extends Controller
             'user_id' => $request->user()->id
         ];
         $excersise_media = ExcersiseMedia::create($data);
-        return response($excersise);
+        return $this->success("Created Successfully" , $excersise , 201);
         }
         else
         {
@@ -64,7 +66,9 @@ class ExcersiseController extends Controller
         {
             $fields = $request->validate([
                 'excersise_id' => 'integer|required',
-                'name' => 'string'
+                'name' => 'string',
+                'burn_calories',
+
             ]);
             $excersise = Excersise::find($fields['excersise_id']);
             if($excersise->user->id == $request->user()->id)
