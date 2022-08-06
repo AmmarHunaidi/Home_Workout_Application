@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\App;
 use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
 use App\Traits\NotificationTrait;
-use InvolvedGroup\LaravelLangCountry\LangCountry;
 
 class AuthController extends Controller
 {
