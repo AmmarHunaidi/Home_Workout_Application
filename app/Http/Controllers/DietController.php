@@ -107,7 +107,7 @@ class DietController extends Controller
     //check if user exists
     public function edit(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 4 || $request->user()->role_id == 5 || $request->user()->id == 3)
         {
             $fields = Validator::make($request->only('diet_id','name','user_id'),[
                 'diet_id' => 'required|integer',
@@ -141,7 +141,7 @@ class DietController extends Controller
 
     public function destroy(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
             $fields = Validator::make($request->only(['diet_id']),[
                 'diet_id' => 'required|integer'

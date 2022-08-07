@@ -61,6 +61,35 @@ class WorkoutController extends Controller
             return $this->success("Workout Created Successfully. Awaiting Approval", $workout, 201);
         } else {
             return $this->fail(_("Not a Coach!"), 400);
+            if ($request->user()->role_id == 2) {
+                $fields = Validator::make($request->only('name', 'categorie_id', 'equipment', 'difficulty', 'workout_image'), [
+                    'name' => 'required|string|min:5|max:50',
+                    'categorie_id' => 'required|integer',
+                    'equipment' => 'required|string|in:required,not required,recommended',
+                    'difficulty' => 'required|integer|in:1,2,3',
+                    'workout_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
+                ]);
+                if ($fields->fails()) {
+                    return $this->fail($fields->errors()->first(), 400);
+                }
+                $fields = $fields->safe()->all();
+                $predicted_calories_burn = 0;
+                $fields['user_id'] = $request->user()->id;
+                $workout = Workout::create($fields);
+                if ($request->hasFile('workout_image')) {
+                    $original_path = 'public/images/workouts/' . $workout->id;
+                    $storage = Storage::makeDirectory($original_path);
+                    $image = $request->file('workout_image');
+                    $randomString = Str::random(30);
+                    $image_name = $randomString . $image->getClientOriginalName();
+                    $path = $image->storeAs($original_path, $image_name);
+                    $workout->workout_image_url = $image_name;
+                    $workout->update();
+                }
+                return $this->success("Workout Created Successfully. Awaiting Approval", $workout, 201);
+            } else {
+                return $this->fail(_("Not a Coach!"), 400);
+            }
         }
     }
 
@@ -70,18 +99,15 @@ class WorkoutController extends Controller
             $fields = $request->validate([
                 'workout_id' => 'integer|required',
                 'name' => 'string',
-                'equipment' => 'string',
+                'equipment' => 'string|in:required,not required,recommended',
                 'difficulty' => 'integer',
-                'workout_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096|nullable'
+                'workout_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
             ]);
             $workout = Workout::find($fields['workout_id']);
-            if (!Gate::allows('Edit_Workout', $workout)) {
-                abort(403);
-            }
             if ($workout->coach->id == $request->user()->id) {
                 if ($fields['name'] != null)
                     $workout->name = $fields['name'];
-                if ($fields['workout_image'] != null) {
+                if ($request->hasFile('workout_image')) {
                     $original_path = 'public/images/workouts' . $workout->id;
                     if (!file_exists($original_path)) {
                         Storage::makeDirectory($original_path);
@@ -101,8 +127,8 @@ class WorkoutController extends Controller
                         $path = $image->storeAs($original_path, $image_name);
                         $workout->workout_image_url = $image_name;
                     }
-                    $workout->update();
                 }
+                $workout->update();
                 return response($workout);
             }
             return response('fail');
@@ -124,33 +150,18 @@ class WorkoutController extends Controller
         }
     }
 
-    public function favorite(Request $request)
+    public function favorite($id)
     {
-        $fields = Validator::make($request->only('workout_id'), [
-            'workout_id' => 'required|integer'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
+        if ($favorite = FavoriteWorkout::where('user_id', Auth::id())->exists()) {
+            $favorite->delete;
+            return $this->success("Deleted form favorites", [], 200);
+        } else {
+            $favorite = FavoriteWorkout::create([
+                'user_id' => Auth::id(),
+                'workout_id' => $id
+            ]);
+            return $this->success("Added to favorites!", $favorite, 200);
         }
-        $fields = $fields->safe()->all();
-        $fields['user_id'] = $request->user()->id;
-        $favorite = FavoriteWorkout::create($fields);
-        return $this->success("Added to favorites!", $favorite, 200);
-    }
-
-    public function unfavorite(Request $request)
-    {
-        $fields = Validator::make($request->only('workout_id'), [
-            'workout_id' => 'required|integer'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
-        }
-        $fields = $fields->safe()->all();
-        $favorite = FavoriteWorkout::where('user_id', $request->user()->id)
-            ->where('workout_id', $fields['workout_id']);
-        $favorite->delete();
-        return $this->success("Deleted from favorites!", $favorite, 200);
     }
 
     public function favorites()

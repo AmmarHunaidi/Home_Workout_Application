@@ -35,10 +35,7 @@ use App\Http\Controllers\AppControlController;
 use App\Http\Controllers\MessageController;
 
 //No token needed routes
-// Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
-
-//     //No token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
         Route::post('/', 'register');
@@ -280,18 +277,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
 });
 
 
-    // Route::prefix('home')->controller(HomePageController::class)->group(function()
-    // {
-    //     Route::get('/summary' , 'summary');
-    // }
-    //     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
-    //         Route::get('/show', 'show');
-    //         Route::post('/create', 'create');
-    //         Route::post('/delete', 'destroy');
-    //         Route::post('/update', 'edit');
-    //         Route::get('/all', 'index');
-    // Route::prefix('home')->controller(HomePageController::class)->group(function()
-    //     {
-    //         Route::get('/summary' , 'summary');
-    //     });
-// });
+// Route::prefix('home')->controller(HomePageController::class)->group(function()
+//     {
+//         Route::get('/summary' , 'summary');
+//     });
