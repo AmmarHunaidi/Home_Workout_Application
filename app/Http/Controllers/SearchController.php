@@ -23,22 +23,25 @@ class SearchController extends Controller
         try {
             $text = $request->text;
             $filter = $request->filter;
-            if ($filter == 'users') {
-                return $this->success('ok', $this->searchUsers($text));
+            if (!is_null($request->text)) {
+                if ($filter == 'Users') {
+                    return $this->success('ok', $this->searchUsers($text));
+                }
+                if ($filter == 'Posts') {
+                    return $this->success('ok', $this->searchPosts($text, $request));
+                }
+                if ($filter == 'Challenges') {
+                    return $this->success('ok', $this->searchCh($text));
+                }
+                if ($filter == 'Diets') {
+                    return $this->success('ok', $this->searchDiets($text));
+                }
+                if ($filter == 'Workouts') {
+                    return $this->success('ok', $this->searchWo($text));
+                }
+                return $this->fail(__("messages.somthing went wrong"));
             }
-            if ($filter == 'posts') {
-                return $this->success('ok', $this->searchPosts($text, $request));
-            }
-            if ($filter == 'challenges') {
-                return $this->success('ok', $this->searchCh($text));
-            }
-            if ($filter == 'diet') {
-                return $this->success('ok', $this->searchDiets($text));
-            }
-            if ($filter == 'workout') {
-                return $this->success('ok', $this->searchWo($text));
-            }
-            return $this->fail(__("messages.somthing went wrong"));
+            return $this->success();
         } catch (\Exception $e) {
             // return $this->fail(__('messages.somthing went wrong'), 500);
             return $this->fail($e->getMessage(), 500);
@@ -50,20 +53,23 @@ class SearchController extends Controller
         try {
             $text = $request->text;
             $filter = $request->filter;
-            if ($filter == 'users') {
-                return $this->success('ok', $this->searchUsersSug($text));
-            }
-            if ($filter == 'posts') {
-                return $this->success('ok', $this->searchPostsSug($request, $text));
-            }
-            if ($filter == 'challenges') {
-                return $this->success('ok', $this->searchChSug($text));
-            }
-            if ($filter == 'diet') {
-                return $this->success('ok', $this->searchDietsSug($text));
-            }
-            if ($filter == 'workout') {
-                return $this->success('ok', $this->searchWoSug($text));
+            if (!is_null($request->text)) {
+                if ($filter == 'Users') {
+                    return $this->success('ok', $this->searchUsersSug($text));
+                }
+                if ($filter == 'Posts') {
+                    return $this->success('ok', $this->searchPostsSug($request, $text));
+                }
+                if ($filter == 'Challenges') {
+                    return $this->success('ok', $this->searchChSug($text));
+                }
+                if ($filter == 'Diets') {
+                    return $this->success('ok', $this->searchDietsSug($text));
+                }
+                if ($filter == 'Workouts') {
+                    return $this->success('ok', $this->searchWoSug($text));
+                }
+                return $this->fail(__("messages.somthing went wrong"));
             }
             return $this->success();
         } catch (\Exception $e) {
@@ -78,7 +84,7 @@ class SearchController extends Controller
         $users = User::query()->where(function ($query) use ($text) {
             $query->where('f_name', 'like', '%' . strtolower($text) . '%')
                 ->orWhere('l_name', 'like', '%' . strtolower($text) . '%')
-                ->orWhere('bio', 'like', '%' . strtolower($text) . '%');
+                ->orWhereRaw("concat(f_name, ' ', l_name) like '%$text%' ");
         })
             ->whereKeyNot(Auth::id())
             ->whereNotIn('id', Block::where('blocked', Auth::id())->get('user_id'))
@@ -94,13 +100,19 @@ class SearchController extends Controller
             if (!(Str::substr($url, 0, 4) == 'http')) {
                 $url = 'storage/images/users/' . $url;
             }
+            $role = '(💪)';
+            if ($user->role_id == 3) {
+                $role = '(☘️)';
+            } elseif ($user->role_id == 5)
+                $role = '(👑)';
             $data[] = [
                 'id' => $user->id,
-                'name' => $user->f_name . ' ' . $user->l_name,
+                'fname' => $user->f_name,
+                'lname' => $user->l_name,
                 'role_id' => $user->role_id,
-                'role' => Role::find($user->role_id)->name,
-                'country' => $user->country,
-                'age' => (string)Carbon::parse($user->birth_date)->age,
+                'role' => $role,
+                // 'country' => $user->country,
+                // 'age' => (string)Carbon::parse($user->birth_date)->age,
                 'img' => $url
             ];
         }
@@ -112,7 +124,8 @@ class SearchController extends Controller
         // return Auth::user();
         $sugs = User::query()->where(function ($query) use ($text) {
             $query->where('f_name', 'like', '%' . strtolower($text) . '%')
-                ->orWhere('l_name', 'like', '%' . strtolower($text) . '%');
+                ->orWhere('l_name', 'like', '%' . strtolower($text) . '%')
+                ->orWhereRaw("concat(f_name, ' ', l_name) like '%$text%' ");
         })
             ->whereKeyNot(Auth::id())
             ->whereNotIn('id', Block::where('blocked', Auth::id())->get('user_id'))
@@ -144,7 +157,7 @@ class SearchController extends Controller
                 ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->withCount('Likes')
                 ->orderBy('Likes_count', 'desc')
-                ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+                ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
         elseif ($request->user()->role_id == 1)
             $posts = Post::query()
                 ->where('text', 'like', '%' . strtolower($text) . '%')
@@ -154,7 +167,7 @@ class SearchController extends Controller
                 ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->withCount('Likes')
                 ->orderBy('Likes_count', 'desc')
-                ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
+                ->paginate(2, ['id', 'user_id', 'text', 'type', 'created_at']);
         return app('App\Http\Controllers\PostsController')->postData($posts);
     }
 

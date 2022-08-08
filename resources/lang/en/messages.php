@@ -80,5 +80,12 @@ return [
     'App is temporarily down' => 'App is temporarily down',
     'Posts feature is temporarily down' => 'Posts feature is temporarily down',
     'Creating posts is temporarily off' => 'Creating posts is temporarily off',
-    'Creating new account is temporarily off' => 'Creating new account is temporarily off, if you have an old account you can login using it'
+    'Creating new account is temporarily off' => 'Creating new account is temporarily off, if you have an old account you can login using it',
+    'All features' => 'All features',
+    'Posts' => 'Posts',
+    'Post creation' => 'Post creation',
+    'Regist' => 'Regist',
+    'Workouts Creation' => 'Workouts Creation',
+    'Diets Creation' => 'Diets Creation',
+
 ];
