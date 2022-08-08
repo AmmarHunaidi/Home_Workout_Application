@@ -12,6 +12,7 @@ class Diet extends Model
     public $primarykey = 'id';
     public $fillable = [
         'name',
+        'review_count',
         'created_by'
     ];
     public $timestamps = true;

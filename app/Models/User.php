@@ -30,7 +30,8 @@ class User extends Authenticatable
         'role_id',
         'email_verified_at',
         'deleted_at',
-        'lang_country'
+        'lang_country',
+        'last_seen'
     ];
 
     protected $hidden = [
@@ -219,7 +220,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chat::class, 'user_id') && $this->hasMany(Chat::class, 'to_user_id');
     }
-
     //Accessor
     public function setFNameAttribute($f_name)
     {

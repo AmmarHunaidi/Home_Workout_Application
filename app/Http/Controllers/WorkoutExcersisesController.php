@@ -25,7 +25,7 @@ class WorkoutExcersisesController extends Controller
         return WorkoutExcersises::find($fields['id']);
     }
 
-    public function create(Request $request)
+    public function create($data)
     {
         if($request->user()->role_id == 2)
         {
@@ -33,7 +33,8 @@ class WorkoutExcersisesController extends Controller
             'workout_id'=>'required|integer',
             'excersise_id' => 'required|integer',
             'count' => 'integer',
-            'length' => 'integer'
+            'length' => 'integer',
+            'position' => ' required|integer'
         ]);
         if(!array_key_exists('count',$fields)  && !array_key_exists('length',$fields))
         {

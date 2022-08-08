@@ -13,7 +13,7 @@ class Practice extends Model
     public $fillable = [
         'user_id',
         'workout_id',
-        'summar_calories',
+        'summary_calories',
         'excersises_played',
         'summary_time'
     ];

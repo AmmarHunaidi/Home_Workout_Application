@@ -190,94 +190,80 @@ Route::get('/anyc', function (Request $request) {
 //Add MiddleWares
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
-        Route::get('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 
     Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
-    });
-
-    Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
-        Route::get('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
-    });
-
-    Route::prefix('workout_excersise')->controller(WorkoutExcersisesController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-        Route::post('/review', 'review');
+        Route::get('/favorite','favorites');
+        Route::post('favorite/{id}' , 'favorite');
+        Route::get('/my_workouts' , 'my_workouts');
+        Route::get('/user/{id}' , 'user_workouts');
+        Route::post('/review/{id}' , 'review');
+        Route::get('/review/{id}' , 'reviews');
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
-        Route::get('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('excersise_media')->controller(ExcersiseMediaController::class)->group(function () {
-        Route::get('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 
     Route::prefix('workout_review')->controller(WorkoutReviewController::class)->group(function () {
-        Route::get('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 });
 
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
     Route::prefix('food')->controller(FoodController::class)->group(function () {
-        Route::post('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
-        Route::get('/all', 'index');
-    });
-
-    Route::prefix('mealfood')->controller(MealFoodController::class)->group(function () {
-        Route::post('/show', 'show');
-        Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 
     Route::prefix('meal')->controller(MealController::class)->group(function () {
-        Route::post('/show', 'show');
+        Route::get('/show', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete', 'destroy');
+        Route::put('/update', 'edit');
         Route::get('/all', 'index');
     });
 
     Route::prefix('diet')->controller(DietController::class)->group(function () {
-        Route::post('/show', 'show');
+        Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
-        Route::post('/delete', 'destroy');
-        Route::post('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
+        Route::get('/favorites','favorites');
+        Route::get('favorite/{id}' , 'favorite');
+        Route::get('/my_diets' , 'my_diets');
+        Route::get('/user/{id}' , 'user_diets');
+        Route::post('/review/{id}' , 'review');
+        Route::get('/review/{id}' , 'reviews');
     });
 });
 
 
-// Route::prefix('home')->controller(HomePageController::class)->group(function()
-//     {
-//         Route::get('/summary' , 'summary');
-//     });
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+    Route::prefix('home')->controller(HomePageController::class)->group(function()
+    {
+        Route::get('/summary' , 'summary');
+    });
+});
