@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description')->nullable();
             $table->integer('burn_calories');
+            $table->string('excersise_media_url')->default('Default/1.jpg');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });

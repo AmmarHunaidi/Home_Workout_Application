@@ -14,14 +14,10 @@ class Excersise extends Model
         'name',
         'description',
         'burn_calories',
-        'user_id'
+        'user_id',
+        'excersise_media_url'
     ];
     public $timestamps = true;
-
-    public function media()
-    {
-        return $this->hasMany(ExcersiseMedia::class);
-    }
 
     public function workout()
     {

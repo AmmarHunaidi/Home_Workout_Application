@@ -12,7 +12,7 @@ class Diet extends Model
     public $primarykey = 'id';
     public $fillable = [
         'name',
-        'meals',
+        'review_count',
         'created_by'
     ];
     public $timestamps = true;
@@ -22,11 +22,6 @@ class Diet extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function creator()
@@ -53,6 +48,4 @@ class Diet extends Model
     {
         return $this->hasMany(DietReview::class);
     }
-     }
-
 }
