@@ -209,7 +209,7 @@ class User extends Authenticatable
     public function diet_review()
     {
         return $this->hasMany(DietReview::class);
-    }
+     }
     //Accessor
     public function setFNameAttribute($f_name)
     {
