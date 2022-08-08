@@ -209,7 +209,17 @@ class User extends Authenticatable
     public function diet_review()
     {
         return $this->hasMany(DietReview::class);
-     }
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'chat_id');
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'user_id') && $this->hasMany(Chat::class, 'to_user_id');
+    }
     //Accessor
     public function setFNameAttribute($f_name)
     {
