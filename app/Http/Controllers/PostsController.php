@@ -357,7 +357,7 @@ class PostsController extends Controller
     public function updateNormal(Request $request, $id)
     {
         try {
-            $request->deleteMedia = json_decode($request->deleteMedia);
+            // $request->deleteMedia = json_decode($request->deleteMedia);
             $validator = Validator::make($request->only('text', 'deleteMedia', 'addMedia'), [
                 'text' => ['string', 'nullable'],
                 'addMedia' => ['array', 'nullable', 'max:99'],
@@ -413,7 +413,7 @@ class PostsController extends Controller
                     ]);
                 return $this->success(__('messages.Updated successfully'));
             }
-            return $this->fail(__('messages.Not found'), 500);
+            return $this->fail(__('messages.Not found'), 400);
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
             // return $this->fail(__("messages.somthing went wrong"), 500);
