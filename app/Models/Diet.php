@@ -28,11 +28,6 @@ class Diet extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
     public function dietmeal()
     {
         return $this->hasMany(DietMeal::class);
@@ -52,6 +47,4 @@ class Diet extends Model
     {
         return $this->hasMany(DietReview::class);
     }
-     }
-
 }
