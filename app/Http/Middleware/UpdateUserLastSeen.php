@@ -11,8 +11,9 @@ class UpdateUserLastSeen
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        $user->last_seen = Carbon::now();
-        $user->save();
+        //error_log($user->id);
+        //$user->last_seen = Carbon::now();
+        //$user->save();
         return $next($request);
     }
 }

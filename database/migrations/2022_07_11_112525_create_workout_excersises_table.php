@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('excersise_id')->constrained('excersises');
             $table->foreignId('workout_id')->constrained('workouts');
+            $table->integer('position');
             $table->integer('count')->nullable();
             $table->integer('length')->nullable();
             $table->foreignId('user_id')->constrained('users');

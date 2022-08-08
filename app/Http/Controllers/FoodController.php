@@ -20,15 +20,14 @@ class FoodController extends Controller
      */
     public function index()
     {
-        return $this->success("Success",Food::all(['id','name','description','calories','food_image_url'])->where('approval' ,1)->map(function($data) {
+        return $this->success("Success",Food::where('approval',1)->get(['id','name','description','calories','food_image_url'])->map(function($data) {
             if(!$data->description)
             {
                 $data->description = '';
             }
-            $data->food_image_url = 'public/food/' . $data->id .'/' .$data->food_image_url;
+            $data->food_image_url = 'storage/images/food/' .$data->food_image_url;
             return $data;
         }),200);
-
     }
     /**
      * Show the form for creating a new resource.
@@ -37,13 +36,13 @@ class FoodController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->user()->role_id == 3)
+        if($request->user()->role_id == 3 || $request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
             $fields = Validator::make($request->only(['name','calories','description','food_image']), [
                 'name' => 'required|string',
                 'calories' => 'required|integer',
                 'description' => 'nullable|string',
-                'food_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
+                'food_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
             ]);
             if($fields->fails())
             {
@@ -52,17 +51,21 @@ class FoodController extends Controller
             $fields = $fields->safe()->all();
             $fields['user_id'] = $request->user()->id;
             $food = Food::create($fields);
-            if($request->hasFile('food_image'))
-            {
-                $original_path = 'public/images/food/' . $food->id;
-                Storage::makeDirectory($original_path);
+            if ($request->hasFile('food_image')) {
+                $destination_path = 'public/images/food';
                 $image = $request->file('food_image');
                 $randomString = Str::random(30);
-                $image_name =$randomString . $image->getClientOriginalName();
-                $path = $image->storeAs($original_path,$image_name);
-                $food->food_image_url =$image_name;
-                $food->update();
+                $image_name = $food->id . '/' . $randomString . $image->getClientOriginalName();
+                $path = $image->storeAs($destination_path, $image_name);
+                $food->food_image_url = $image_name;
             }
+            if($request->user()->role_id == 4 || $request->user()->role_id == 5)
+            {
+                $food->approval = 1;
+                $food->update();
+                return $this->success(_("Created Successfully"), $food, 201);
+            }
+            $food->update();
             $message = 'Food Created Successfully . Awaiting Approval';
             return $this->success(_("messages." . $message), $food, 201);
         }
@@ -111,7 +114,7 @@ class FoodController extends Controller
     {
         if($request->user()->role_id == 4 || $request->user()->role_id == 5)
         {
-            $fields = Validator::make($request->only(['name','calories','food_id','food_image']),[
+            $fields = Validator::make($request->only('name','calories','food_id','food_image','description'),[
                 'name' => 'string|nullable',
                 'calories' => 'integer|nullable',
                 'description' => 'string|nullable',
@@ -127,25 +130,22 @@ class FoodController extends Controller
             if($request->user()->id == $food->user_id){
                 if($fields['name']!=null) $food->name = $fields['name'];
                 if($fields['calories']!=null) $food->calories = $fields['calories'];
-                if($fields['description']!=null) $food->calories = $fields['description'];
-                $original_path = 'public/images/food/' . $food->id;
-                if(!file_exists($original_path))
-                {
-                    Storage::makeDirectory($original_path);
-                }
-                if($request->hasFile('food_image'))
-                {
-                    $old_image = $food->food_image_url;
-                    Storage::delete($original_path . '/' . $old_image);
+                if($fields['description']!=null) $food->description = $fields['description'];
+                if ($request->hasFile('food_image')) {
+                    if($food->food_image_url != "Default/2560px-Pipeline_OpenGL.svg.png")
+                    {
+                        Storage::delete('public/images/food/' . $food->food_image_url);
+                    }
+                    $destination_path = 'public/images/food';
                     $image = $request->file('food_image');
                     $randomString = Str::random(30);
-                    $image_name = $randomString . $image->getClientOriginalName();
-                    $path = $image->storeAs($original_path,$image_name);
+                    $image_name = $food->id . '/' . $randomString . $image->getClientOriginalName();
+                    $path = $image->storeAs($destination_path, $image_name);
                     $food->food_image_url = $image_name;
                 }
                 $food->update();
                 $message = 'Food Edited Successfully';
-                return $this->success(_("message." . $message),$food,201);
+                return $this->success(_("message." . $message),$food,200);
             }
             $message = 'Permission Denied. Not the owner';
             return $this->fail(_('message.' . $message),401);
@@ -190,7 +190,7 @@ class FoodController extends Controller
             if($request->user()->id == $food->user_id){
                 $food->delete();
                 $message = 'Food Deleted Successfully';
-                return $this->success(_("message." . $message),$food,201);
+                return $this->success(_("message." . $message),$food,200);
             }
             $message = 'Permission Denied. Not the owner';
             return $this->fail(_('message.' . $message),400);
