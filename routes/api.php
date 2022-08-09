@@ -35,7 +35,7 @@ use App\Http\Controllers\AppControlController;
 use App\Http\Controllers\MessageController;
 
 //No token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone',  'appcontrol']], function () {
     //user Registration
     Route::controller(AuthController::class)->group(function () {
         Route::post('/', 'register');
@@ -188,7 +188,7 @@ Route::get('/anyc', function (Request $request) {
 
 //Workout + Excersise Routes
 //Add MiddleWares
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
         Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
@@ -203,12 +203,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
-        Route::get('/favorite','favorites');
-        Route::post('favorite/{id}' , 'favorite');
-        Route::get('/my_workouts' , 'my_workouts');
-        Route::get('/user/{id}' , 'user_workouts');
-        Route::post('/review/{id}' , 'review');
-        Route::get('/review/{id}' , 'reviews');
+        Route::get('/favorite', 'favorites');
+        Route::post('favorite/{id}', 'favorite');
+        Route::get('/my_workouts', 'my_workouts');
+        Route::get('/user/{id}', 'user_workouts');
+        Route::post('/review/{id}', 'review');
+        Route::get('/review/{id}', 'reviews');
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
@@ -228,7 +228,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
 });
 
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
     Route::prefix('food')->controller(FoodController::class)->group(function () {
         Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
@@ -251,19 +251,18 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
-        Route::get('/favorites','favorites');
-        Route::get('favorite/{id}' , 'favorite');
-        Route::get('/my_diets' , 'my_diets');
-        Route::get('/user/{id}' , 'user_diets');
-        Route::post('/review/{id}' , 'review');
-        Route::get('/review/{id}' , 'reviews');
+        Route::get('/favorites', 'favorites');
+        Route::get('favorite/{id}', 'favorite');
+        Route::get('/my_diets', 'my_diets');
+        Route::get('/user/{id}', 'user_diets');
+        Route::post('/review/{id}', 'review');
+        Route::get('/review/{id}', 'reviews');
     });
 });
 
 
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
-    Route::prefix('home')->controller(HomePageController::class)->group(function()
-    {
-        Route::get('/summary' , 'summary');
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
+    Route::prefix('home')->controller(HomePageController::class)->group(function () {
+        Route::get('/summary', 'summary');
     });
 });
