@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\Block;
 use App\Models\Challenge;
 use App\Models\Diet;
+use App\Models\DietMeal;
+use App\Models\DietReview;
+use App\Models\FavoriteDiet;
 use App\Models\Post;
 use App\Models\Role;
 use App\Models\Workout;
@@ -13,11 +16,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Traits\GeneralTrait;
+use App\Traits\CaloriesTrait;
 use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
-    use GeneralTrait;
+    use GeneralTrait, CaloriesTrait;
     public function search(Request $request)
     {
         try {
@@ -268,6 +272,40 @@ class SearchController extends Controller
 
     public function searchDiets($text)
     {
+        $diets = Diet::query()->where('name', 'like', '%' . strtolower($text) . '%')
+            ->whereNotIn('user_id', Block::where('blocked', Auth::id())->get('user_id'))
+            ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+            ->withCount('reviews')
+            ->orderBy('reviews_count', 'desc')
+            ->paginate(15);
+        $data = [];
+        foreach ($diets as $diet) {
+            $save = false;
+            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists())
+                $save = true;
+            DietReview::where(['diet_id' => $diet->id, 'user_id' => Auth::id()])->exists() == true ? $rev = true : $rev = false;
+            $user = User::where('id', $diet->created_by)->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+            $url = $user->prof_img_url;
+            if (!(Str::substr($url, 0, 4) == 'http')) {
+                $url = 'storage/images/users/' . $url;
+            }
+            $created_by = [
+                'id' => $user->id,
+                'f_name' => $user->f_name,
+                'l_name' => $user->l_name,
+                'prof_img_url' => $url
+            ];
+            $data[] = [
+                'id' => $diet->id,
+                'name' => $diet->name,
+                'created_by' => $created_by,
+                'created_at' => (string)Carbon::parse($diet->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                'meal_count' => DietMeal::where('diet_id', $diet->id)->count(),
+                'saved' => $save,
+                'is_reviewed' => $rev
+            ];
+        }
+        return $data;
     }
 
     //Workouts

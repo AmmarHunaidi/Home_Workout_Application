@@ -26,13 +26,11 @@ class DietController extends Controller
     function getFoodList($food_ids)
     {
         $food_list = [];
-        foreach($food_ids as $food_id)
-        {
+        foreach ($food_ids as $food_id) {
             $food = Food::find($food_id)->first();
             //return response($food);
             $food->food_image_url = 'storage/images/food/' . $food->food_image_url;
-            if($food->description == null)
-            {
+            if ($food->description == null) {
                 $food->description = "";
             }
             $food_list[] = $food;
@@ -42,53 +40,50 @@ class DietController extends Controller
     public function index()
     {
         $result = [];
-        $diets = Diet::all(['id','name','created_by','created_at']);
-        foreach($diets as $diet)
-        {
+        $diets = Diet::all(['id', 'name', 'created_by', 'created_at']);
+        foreach ($diets as $diet) {
             $food = [];
-            $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
+            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
             $diet['meal_count'] = $mealcount;
-            $diet['created_by'] = User::find($diet->created_by)->only(['id','f_name','l_name','prof_img_url']);
+            $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $diet['saved'] = false;
-            DietReview::where(['diet_id' => $diet->id , 'user_id' => Auth::id()])->exists() == true ? $diet['is_reviewed'] = true : $diet['is_reviewed'] = false;
-            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
+            DietReview::where(['diet_id' => $diet->id, 'user_id' => Auth::id()])->exists() == true ? $diet['is_reviewed'] = true : $diet['is_reviewed'] = false;
+            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             $result[] = $diet;
         }
-        return $this->success("Success" , $result , 200);
+        return $this->success("Success", $result, 200);
     }
 
     public function my_diets()
     {
         $result = [];
-        $diets = Diet::where('created_by' , Auth::id())->get(['id','name','created_by','created_at']);
-        foreach($diets as $diet)
-        {
+        $diets = Diet::where('created_by', Auth::id())->get(['id', 'name', 'created_by', 'created_at']);
+        foreach ($diets as $diet) {
             $food = [];
-            $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
+            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
             $diet['meal_count'] = $mealcount;
-            $diet['created_by'] = User::find($diet->created_by)->only(['id','f_name','l_name','prof_img_url']);
+            $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $diet['saved'] = false;
-            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
+            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             $result[] = $diet;
         }
-        return $this->success("Success" , $result , 200);
+        return $this->success("Success", $result, 200);
     }
 
     public function user_diets($id)
     {
         $result = [];
-        $diets = Diet::where('created_by' , $id)->get(['id','name','created_by','created_at']);
-        foreach($diets as $diet)
-        {
+        $diets = Diet::where('created_by', $id)->get(['id', 'name', 'created_by', 'created_at']);
+        foreach ($diets as $diet) {
             $food = [];
-            $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
+            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
             $diet['meal_count'] = $mealcount;
-            $diet['created_by'] = User::find($diet->created_by)->only(['id','f_name','l_name','prof_img_url']);
+            $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $diet['saved'] = false;
-            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
+            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             $result[] = $diet;
         }
-        return $this->success("Success" , $result , 200);
+        return $this->success("Success", $result, 200);
     }
     /**
      * Show the form for creating a new resource.
@@ -98,7 +93,7 @@ class DietController extends Controller
     public function create(Request $request)
     {
         try {
-            if (in_array($request->user()->role_id , [2,4,5])) {
+            if (in_array($request->user()->role_id, [2, 4, 5])) {
                 $fields = Validator::make($request->only('name', 'meals'), [
                     'name' => 'required|string',
                     'meals' => 'required|string'
@@ -149,111 +144,97 @@ class DietController extends Controller
 
     public function show($id)
     {
-        try{
+        try {
             $diet = Diet::find($id);
-        $dietdays = DietMeal::where('diet_id',$diet->id)->orderBy('day')->orderBy('meal_id')->get(['meal_id','day'])->groupBy('day');
-        //return response($dietdays);
-        $result = array();
-        $day_count=1;
-        foreach($dietdays as $day)
-        {
-            $day_meals = [];
-            //$day = $day->sort();
-            foreach($day as $day_meal)
-            {
-                $meal = Meal::find($day_meal->meal_id);
-                $meal_food = MealFood::where('meal_id',$meal->id)->get();
-                $meal['food_list'] = $this->getFoodList($meal_food);
-                $day_meals[] = $meal;
+            $dietdays = DietMeal::where('diet_id', $diet->id)->orderBy('day')->orderBy('meal_id')->get(['meal_id', 'day'])->groupBy('day');
+            //return response($dietdays);
+            $result = array();
+            $day_count = 1;
+            foreach ($dietdays as $day) {
+                $day_meals = [];
+                //$day = $day->sort();
+                foreach ($day as $day_meal) {
+                    $meal = Meal::find($day_meal->meal_id);
+                    $meal_food = MealFood::where('meal_id', $meal->id)->get();
+                    $meal['food_list'] = $this->getFoodList($meal_food);
+                    $day_meals[] = $meal;
+                }
+                $result[] = [
+                    'day' => $day_count,
+                    'meal_list' => $day_meals
+                ];
+                $day_count++;
             }
-            $result[] = [
-                'day' => $day_count,
-                'meal_list' => $day_meals
-            ];
-            $day_count++;
-        }
-        $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
-        $diet['meal_count'] = $mealcount;
-        $diet['schedule'] = $result;
-        $diet['created_by'] = User::find($diet['created_by'])->only(['id','f_name','l_name', 'prof_img_url']);
-        return $this->success("Success" , $diet , 200);
-        }catch(Exception $exception)
-        {
+            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
+            $diet['meal_count'] = $mealcount;
+            $diet['schedule'] = $result;
+            $diet['created_by'] = User::find($diet['created_by'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
+            return $this->success("Success", $diet, 200);
+        } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
     }
 
     function get_daymeals($days)
     {
-        try{
+        try {
             $old_meals = [];
-            foreach($days as $day)
-            {
+            foreach ($days as $day) {
                 $meals = [];
-                foreach($day as $meal)
-                {
+                foreach ($day as $meal) {
                     $meals[] = $meal->meal_id;
                 }
                 $old_meals[] = $meals;
             }
-        return $old_meals;
-        }catch(Exception $exception)
-        {
-            return $this->fail($exception->getMessage() , 500);
+            return $old_meals;
+        } catch (Exception $exception) {
+            return $this->fail($exception->getMessage(), 500);
         }
     }
 
-    public function edit(Request $request,$id)
+    public function edit(Request $request, $id)
     {
-        if($request->user()->role_id == 4 || $request->user()->role_id == 5 || $request->user()->id == 3)
-        {
-            $fields = Validator::make($request->only('name','meals'),[
+        if ($request->user()->role_id == 4 || $request->user()->role_id == 5 || $request->user()->id == 3) {
+            $fields = Validator::make($request->only('name', 'meals'), [
                 'name' => 'required|string',
                 'meals' => 'required|string'
             ]);
-            if($fields->fails())
-            {
-                return $this->fail($fields->errors()->first(),400);
+            if ($fields->fails()) {
+                return $this->fail($fields->errors()->first(), 400);
             }
             $fields = $fields->safe()->all();
             $diet = Diet::find($id);
-            if($fields['name']!=$diet->name) $diet->name = $fields['name'];
+            if ($fields['name'] != $diet->name) $diet->name = $fields['name'];
             $meal_list = json_decode($fields['meals']);
-            $dietdays = DietMeal::where('diet_id',$diet->id)->orderBy('day')->orderBy('meal_id')->get(['meal_id','day'])->groupBy('day');
+            $dietdays = DietMeal::where('diet_id', $diet->id)->orderBy('day')->orderBy('meal_id')->get(['meal_id', 'day'])->groupBy('day');
             $old_meals = $this->get_daymeals($dietdays);
             //return response($meal_list);
             // return response($dietdays);
             //return response($old_meals);
             $day = 0;
             //return response($meal_list);
-            foreach($meal_list as $day_meals)
-            {
+            foreach ($meal_list as $day_meals) {
                 $delete_meals = [];
-                $new_meals =[];
-                if(array_key_exists($day , $old_meals))
-                {
-                    $new_meals = array_diff($day_meals,$old_meals[$day]);
-                    $delete_meals = array_diff($old_meals[$day],$day_meals);
-                }
-                else
-                {
+                $new_meals = [];
+                if (array_key_exists($day, $old_meals)) {
+                    $new_meals = array_diff($day_meals, $old_meals[$day]);
+                    $delete_meals = array_diff($old_meals[$day], $day_meals);
+                } else {
                     $new_meals = $day_meals;
                 }
                 //return response($new_meals);
                 $day++;
                 //error_log(json_encode($delete_meals));
-                foreach($delete_meals as $meal)
-                    {
-                        //return response($meal);
-                        $dietmeal = DietMeal::where(['diet_id' => $diet->id , 'meal_id' => $meal , 'day' => $day])->first()->delete();
-                    }
-                foreach($new_meals as $meal)
-                    {
-                        $dietmeal = DietMeal::create(['user_id' => Auth::id() , 'meal_id' => $meal , 'diet_id' => $diet->id , 'day' => $day]);
-                    }
+                foreach ($delete_meals as $meal) {
+                    //return response($meal);
+                    $dietmeal = DietMeal::where(['diet_id' => $diet->id, 'meal_id' => $meal, 'day' => $day])->first()->delete();
+                }
+                foreach ($new_meals as $meal) {
+                    $dietmeal = DietMeal::create(['user_id' => Auth::id(), 'meal_id' => $meal, 'diet_id' => $diet->id, 'day' => $day]);
+                }
             }
             $diet->update();
-            return $this->success(_("Edited Successfully"),$this->show($diet->id),200);
+            return $this->success(_("Edited Successfully"), $this->show($diet->id), 200);
         }
     }
 
@@ -261,22 +242,21 @@ class DietController extends Controller
     {
         $user = User::find(Auth::id());
         $diet = Diet::find($id);
-        if(in_array($user->id , [4,5]) || $user->id = $diet->created_by)
-        {
-                $diet->dietmeal()->delete();
-                $diet->favorites()->delete();
-                $diet->delete();
-                $message = 'Diet Deleted Successfully';
-                return $this->success(_($message),$diet,200);
-            return $this->fail(_("Permission Denied. Not the owner"),400);
+        if (in_array($user->id, [4, 5]) || $user->id = $diet->created_by) {
+            $diet->dietmeal()->delete();
+            $diet->favorites()->delete();
+            $diet->delete();
+            $message = 'Diet Deleted Successfully';
+            return $this->success(_($message), $diet, 200);
+            return $this->fail(_("Permission Denied. Not the owner"), 400);
         }
     }
 
     public function favorite($id)
     {
-        $favorite = FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $id])->exists();
+        $favorite = FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $id])->exists();
         if ($favorite) {
-            $favorite = FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $id])->delete();
+            $favorite = FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $id])->delete();
             return $this->success("Deleted form favorites", [], 200);
         } else {
             $favorite = FavoriteDiet::create([
@@ -292,31 +272,28 @@ class DietController extends Controller
         $user_id = Auth::id();
         $favorites = User::find($user_id)->favoritediets;
         $result = [];
-        foreach($favorites as $favorite)
-        {
-            $diet = Diet::find($favorite->diet_id)->only(['id','name','created_by','created_at']);
-            $mealcount = DietMeal::where('diet_id'  ,$diet['id'])->count();
+        foreach ($favorites as $favorite) {
+            $diet = Diet::find($favorite->diet_id)->only(['id', 'name', 'created_by', 'created_at']);
+            $mealcount = DietMeal::where('diet_id', $diet['id'])->count();
             $diet['meal_count'] = $mealcount;
-            $diet['created_by'] = User::find($diet['created_by'])->only(['id','f_name','l_name','prof_img_url']);
+            $diet['created_by'] = User::find($diet['created_by'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $result[] = $diet;
         }
-        return $this->success("Favorites" , $result , 200);
+        return $this->success("Favorites", $result, 200);
     }
 
-    public function review(Request $request , $id)
+    public function review(Request $request, $id)
     {
-        $fields = Validator::make($request->only('diet_id','description','stars') , [
+        $fields = Validator::make($request->only('diet_id', 'description', 'stars'), [
             'description' => 'required|string',
             'stars' => 'required|integer|between:1,5'
         ]);
-        if($fields->fails())
-        {
-            return $this->fail($fields->errors()->first(),400);
+        if ($fields->fails()) {
+            return $this->fail($fields->errors()->first(), 400);
         }
         $fields = $fields->safe()->all();
-        if(DietReview::where(['diet_id' => $id , 'user_id' => Auth::id()])->exists())
-        {
-            return $this->fail("You can't add more than one review!!" , 400);
+        if (DietReview::where(['diet_id' => $id, 'user_id' => Auth::id()])->exists()) {
+            return $this->fail("You can't add more than one review!!", 400);
         }
         $fields['user_id'] = $request->user()->id;
         $fields['diet_id'] = $id;
@@ -324,19 +301,19 @@ class DietController extends Controller
         $diet = Diet::find($fields['diet_id']);
         $review_rate = $diet->review_count;
         $review_count = $diet->reviews->count();
-        $review_rating = (double) ((($review_count - 1) * $review_rate) + $fields['stars']) / ($review_count);
+        $review_rating = (float) ((($review_count - 1) * $review_rate) + $fields['stars']) / ($review_count);
         $diet->review_count = $review_rating;
         $diet->update();
-        return $this->success("Done" , $diet , 200);
+        return $this->success("Done", $diet, 200);
     }
 
     public function reviews($id)
     {
 
         $reviews = Diet::find($id)->reviews->each(function ($data) {
-            $data['user_id'] = User::where('id' , $data['user_id'])->get(['id' , 'f_name' , 'l_name' , 'prof_img_url']);
+            $data['user_id'] = User::where('id', $data['user_id'])->get(['id', 'f_name', 'l_name', 'prof_img_url']);
             return $data;
         });
-        return $this->success("Success" , $reviews , 200);
+        return $this->success("Success", $reviews, 200);
     }
 }
