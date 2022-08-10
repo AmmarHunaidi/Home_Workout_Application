@@ -20,6 +20,11 @@ class WorkoutCategorieController extends Controller
         return $this->success("Success" , WorkoutCategorie::all(['id','name']) , 200);
     }
 
+    function categories()
+    {
+        return $this->success("Success" , WorkoutCategorie::whereNotIn('name' , ['Recommended' , 'All'])->get(['id' , 'name']) , 200);
+    }
+
     public function show($id)
     {
         return $this->success("Success" , WorkoutCategorie::find($id) , 200);

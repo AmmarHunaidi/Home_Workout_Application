@@ -7,6 +7,7 @@ use App\Http\Requests\StoreDietRequest;
 use App\Http\Requests\UpdateDietRequest;
 use App\Models\DietMeal;
 use App\Models\DietReview;
+use App\Models\DietSubscribe;
 use App\Models\FavoriteDiet;
 use App\Models\Food;
 use App\Models\Meal;
@@ -16,6 +17,7 @@ use App\Policies\DietMealPolicy;
 use App\Traits\GeneralTrait;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PhpParser\JsonDecoder;
@@ -40,50 +42,49 @@ class DietController extends Controller
     public function index()
     {
         $result = [];
-        $diets = Diet::all(['id', 'name', 'created_by', 'created_at']);
-        foreach ($diets as $diet) {
+        $diets = Diet::all(['id','name','review_count','created_by','created_at'])->each(function($data) {
             $food = [];
-            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
-            $diet['meal_count'] = $mealcount;
-            $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-            $diet['saved'] = false;
-            DietReview::where(['diet_id' => $diet->id, 'user_id' => Auth::id()])->exists() == true ? $diet['is_reviewed'] = true : $diet['is_reviewed'] = false;
-            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
-            $result[] = $diet;
-        }
-        return $this->success("Success", $result, 200);
+            $mealcount = DietMeal::where('diet_id'  ,$data->id)->count();
+            $data['review_count'] = round($data['review_count'],1);
+            $data['meal_count'] = $mealcount;
+            $data['created_by'] = User::where('id',$data->created_by)->get(['id','f_name','l_name','prof_img_url'])->first();
+            $data['created_by']['prof_img_url'] = 'storage/images/users/' . $data['created_by']['prof_img_url'];
+            $data['saved'] = false;
+            DietReview::where(['diet_id' => $data->id , 'user_id' => Auth::id()])->exists() == true ? $data['is_reviewed'] = true : $data['is_reviewed'] = false;
+            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $data->id])->exists()) $data['saved'] = true;
+        });
+        return $this->success("Success" , array_values($diets->paginate(3)->getCollection()->toArray()) , 200);
     }
 
     public function my_diets()
     {
-        $result = [];
-        $diets = Diet::where('created_by', Auth::id())->get(['id', 'name', 'created_by', 'created_at']);
-        foreach ($diets as $diet) {
+        $diets = Diet::where('created_by' , Auth::id())->get(['id','name','created_by','created_at']);
+        foreach($diets as $diet)
+        {
             $food = [];
             $mealcount = DietMeal::where('diet_id', $diet->id)->count();
             $diet['meal_count'] = $mealcount;
             $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $diet['saved'] = false;
-            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
-            $result[] = $diet;
+
+            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
         }
-        return $this->success("Success", $result, 200);
+        return $this->success("Success" , array_values($diets->paginate(3)->getCollection()->toArray()) , 200);
     }
 
     public function user_diets($id)
     {
-        $result = [];
-        $diets = Diet::where('created_by', $id)->get(['id', 'name', 'created_by', 'created_at']);
-        foreach ($diets as $diet) {
+        $diets = Diet::where('created_by' , $id)->get(['id','name','created_by','created_at']);
+        foreach($diets as $diet)
+        {
             $food = [];
             $mealcount = DietMeal::where('diet_id', $diet->id)->count();
             $diet['meal_count'] = $mealcount;
             $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
             $diet['saved'] = false;
-            if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
-            $result[] = $diet;
+            if(FavoriteDiet::where(['user_id' => Auth::id() , 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
         }
-        return $this->success("Success", $result, 200);
+        return $this->success("Success" , array_values($diets->paginate(3)->getCollection()->toArray()) , 200);
     }
     /**
      * Show the form for creating a new resource.
@@ -165,12 +166,22 @@ class DietController extends Controller
                 ];
                 $day_count++;
             }
-            $mealcount = DietMeal::where('diet_id', $diet->id)->count();
-            $diet['meal_count'] = $mealcount;
-            $diet['schedule'] = $result;
-            $diet['created_by'] = User::find($diet['created_by'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-            return $this->success("Success", $diet, 200);
-        } catch (Exception $exception) {
+            $result[] = [
+                'day' => $day_count,
+                'meal_list' => $day_meals
+            ];
+            $day_count++;
+        }
+        $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
+        $diet['meal_count'] = $mealcount;
+        $diet['schedule'] = $result;
+        $diet['created_by'] = User::find($diet['created_by'])->first(['id','f_name','l_name', 'prof_img_url']);
+        $diet['created_by']->prof_img_url = 'storage/images/users/' . $diet['created_by']->prof_img_url;
+        $diet['subscribed'] = false;
+        if(DietSubscribe::where(['user_id'=>Auth::id() , 'diet_id' => $id])->exists()) $diet['subscribed'] = true;
+        return $this->success("Success" , $diet , 200);
+        }catch(Exception $exception)
+        {
             return $this->fail($exception->getMessage(), 500);
         }
     }
@@ -284,9 +295,9 @@ class DietController extends Controller
 
     public function review(Request $request, $id)
     {
-        $fields = Validator::make($request->only('diet_id', 'description', 'stars'), [
-            'description' => 'required|string',
-            'stars' => 'required|integer|between:1,5'
+        $fields = Validator::make($request->only('description','stars') , [
+            'description' => 'string',
+            'stars' => 'required|numeric|between:0.1,5'
         ]);
         if ($fields->fails()) {
             return $this->fail($fields->errors()->first(), 400);
@@ -309,11 +320,86 @@ class DietController extends Controller
 
     public function reviews($id)
     {
-
-        $reviews = Diet::find($id)->reviews->each(function ($data) {
-            $data['user_id'] = User::where('id', $data['user_id'])->get(['id', 'f_name', 'l_name', 'prof_img_url']);
+        $reviews = DietReview::where('diet_id',$id)->get(['id','stars','description','user_id','created_at'])->each(function ($data) {
+            $data['stars'] = round($data['stars'],1);
+            $data['user_id'] = User::where('id' , $data['user_id'])->get(['id' , 'f_name' , 'l_name' , 'prof_img_url'])->first();
+            $data['user_id']->prof_img_url = 'storage/images/users/' . $data['user_id']->prof_img_url;
             return $data;
         });
-        return $this->success("Success", $reviews, 200);
+        return $this->success("Success" , array_values($reviews->paginate(3)->getCollection()->toArray()) , 200);
+    }
+
+    public function edit_review(Request $request,$id)
+    {
+        $fields = Validator::make($request->only('description','stars') , [
+            'description' => 'string',
+            'stars' => 'required|numeric|between:0.1,5'
+        ]);
+        if($fields->fails())
+        {
+            return $this->fail($fields->errors()->first(),400);
+        }
+        $fields = $fields->safe()->all();
+        if(!DietReview::where('id',$id)->exists())
+        {
+            return $this->fail("Review Not Found" , 400);
+        }
+        $review = DietReview::find($id);
+        if($review->stars != $fields['stars'])
+        {
+            $diet = Diet::find($review->diet_id);
+            $review_rate = $diet->review_count;
+            $review_count = $diet->reviews->count();
+            $review_rating = (double) ((($review_count) * $review_rate) - $review->stars + $fields['stars']) / ($review_count);
+            $review->stars = $fields['stars'];
+            $diet->review_count = $review_rating;
+            $diet->update();
+        }
+        if($request->has('description'))
+        {
+            if($fields['description'] != $review->description)
+            {
+                $review->description = $fields['description'];
+            }
+        }
+        else
+            {
+                $review->description = '';
+            }
+        $review->update();
+        return $this->success("Done" , $review , 200);
+    }
+
+    public function delete_review($id)
+    {
+        $review = DietReview::find($id);
+        $user = User::find(Auth::id());
+        if($review->user_id == Auth::id() || in_array($user->role_id, [4,5]))
+        {
+            $review->delete();
+            return $this->success("Deleted Successfully" , [] ,200);
+        }
+        return $this->fail("Permission Denied" , 400);
+    }
+
+    //add subscribed to summary
+    public function subscribe($id)
+    {
+        $diet = Diet::find($id);
+        $user = User::find(Auth::id());
+        if(DietSubscribe::where('user_id' , $user->id)->exists())
+        {
+            $subscribe = DietSubscribe::where('user_id' , $user->id)->first();
+            if($subscribe->diet_id == $id)
+            {
+                $subscribe->delete();
+                return $this->success("Unsubscribed",[],200);
+            }
+            $subscribe->diet_id = $id;
+            $subscribe->update();
+            return $this->success("Done!" ,$subscribe ,200);
+        }
+        $subscribe = DietSubscribe::create(['user_id' => $user->id , 'diet_id' => $diet->id]);
+        return $this->success("Created" , $subscribe , 200);
     }
 }

@@ -10,37 +10,30 @@ use App\Models\Workout;
 use App\Traits\GeneralTrait;
 use Composer\Pcre\Preg;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PracticeController extends Controller
 {
     use GeneralTrait;
-    public function initiate(Request $request)
+    public function initiate($id)
     {
-        $fields = Validator::make($request->only('workout_id','excersises_played'),[
-            'workout_id' => 'required|integer'
-        ]);
-        if($fields->fails())
-        {
-            return $this->fail($fields->errors()->first(),401);
-        }
-        $fields['user_id'] = $request->user()->id;
-        $practice = Practice::create($fields);
-        return $this->success("Start Practicing!",$practice,201);
+        $practice = Practice::create(['user_id' => Auth::id() , 'workout_id' => $id]);
+        return $this->success("Start Practicing!",$practice->only(['id']),200);
     }
-    public function practice(Request $request)
+
+    public function practice(Request $request,$id)
     {
         $fields = Validator::make($request->only('excersise_id','practice_id','length'),[
             'excersise_id' => 'required|integer',
             'length' => 'requried|integer',
-            'practice_id' => 'required|integer'
         ]);
         if($fields->fails())
         {
             return $this->fail($fields->errors()->first(),401);
         }
         $fields = $fields->safe()->all();
-        $practice = Practice::find($fields['practice_id']);
+        $practice = Practice::find($id);
         $excersise = Excersise::find($fields['excersise_id']);
         $practice->summary_calories += $excersise->burn_calories;
         $practice->summary_time += $fields['length'];
@@ -62,6 +55,8 @@ class PracticeController extends Controller
         }
         $fields = $fields->safe()->all();
         $practice = Practice::find($fields['practice_id']);
+        $workout_excersises = Workout::where('id' , $practice->workout_id)->first();
+        $workout_excersises = $workout_excersises->excersise_count;
         if(count(json_decode($practice->excersises_played)) == 0)
         {
             $practice->query()
@@ -69,6 +64,16 @@ class PracticeController extends Controller
                      ->delete();
             return $this->success("Not Practiced!", [] , 200);
         }
-        return $this->success('Workout Summary' , $practice , 200);
+        else if(count(json_decode($practice->excersises_played)) < 0.2 * $workout_excersises)
+        {
+            $practice->query()
+                     ->where('id',$fields['practice_id'])
+                     ->delete();
+            return $this->success("Practice not trained suffeciently less than 20 percent of excersise practiced." , [] , 200);
+        }
+        else
+        {
+            return $this->success('Workout Summary' , $practice , 200);
+        }
     }
 }
