@@ -107,7 +107,7 @@ class DietController extends Controller
     public function create(Request $request)
     {
         try {
-            if (in_array($request->user()->role_id, [2, 4, 5])) {
+            if (in_array($request->user()->role_id, [3, 4, 5])) {
                 $fields = Validator::make($request->only('name', 'meals'), [
                     'name' => 'required|string',
                     'meals' => 'required|string'
