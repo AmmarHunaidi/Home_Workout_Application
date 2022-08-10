@@ -34,7 +34,6 @@ class SocialiteController extends Controller
             if (!is_null($validated))
                 return $validated;
             $providerUser = Socialite::driver($provider)->userFromToken($request->access_provider_token);
-            // dd($providerUser = Socialite::driver($provider)->userFromToken($request->access_token));
 
             if ($provider == 'google' && !$providerUser->user['email_verified']) {
                 return $this->fail(__("messages.Your Email must be VERIFIED by google first"));

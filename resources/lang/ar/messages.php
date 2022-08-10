@@ -87,4 +87,6 @@ return [
     'Regist' => 'إنشاء حسابات جديدة',
     'Workouts Creation' => 'إنشاء تمارين رياضية',
     'Diets Creation' => 'إنشاء أنظمة غذائية',
+    'Creating new diet or food or meal is temporarily off' => 'إن إنشاء نظام غذائي أو طعام أو وجبة جديدة متوقف مؤقتاً',
+    'Creating new workout_categorie or workout or excersise is temporarily off' => 'إن إنشاء فئة تدريب أو تدريب أو تمرين رياضي جدد متوقف مؤقتاً ',
 ];

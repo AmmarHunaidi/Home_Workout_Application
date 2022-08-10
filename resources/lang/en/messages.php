@@ -87,5 +87,7 @@ return [
     'Regist' => 'Regist',
     'Workouts Creation' => 'Workouts Creation',
     'Diets Creation' => 'Diets Creation',
+    'Creating new diet or food or meal is temporarily off' => 'Creating new diet or food or meal is temporarily off',
+    'Creating new workout_categorie or workout or excersise is temporarily off' => 'Creating new workout_categorie or workout or excersise is temporarily off',
 
 ];
