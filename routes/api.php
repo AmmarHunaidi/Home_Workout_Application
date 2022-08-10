@@ -250,8 +250,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     Route::prefix('meal')->controller(MealController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');
-        Route::delete('/delete', 'destroy');
-        Route::put('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 

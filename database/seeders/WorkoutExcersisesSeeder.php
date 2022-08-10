@@ -20,9 +20,9 @@ class WorkoutExcersisesSeeder extends Seeder
         DB::table('workout_excersises')->insert(array (
             0 =>
             array (
-                'id' => 32,
-                'excersise_id' => 14,
-                'workout_id' => 37,
+                'id' => 1,
+                'excersise_id' => 2,
+                'workout_id' => 1,
                 'position' => 1,
                 'count' => 1,
                 'length' => NULL,
@@ -32,9 +32,9 @@ class WorkoutExcersisesSeeder extends Seeder
             ),
             1 =>
             array (
-                'id' => 36,
-                'excersise_id' => 17,
-                'workout_id' => 37,
+                'id' => 2,
+                'excersise_id' => 1,
+                'workout_id' => 1,
                 'position' => 2,
                 'count' => NULL,
                 'length' => 15,
@@ -44,9 +44,9 @@ class WorkoutExcersisesSeeder extends Seeder
             ),
             3 =>
             array (
-                'id' => 39,
-                'excersise_id' => 17,
-                'workout_id' => 37,
+                'id' => 3,
+                'excersise_id' => 2,
+                'workout_id' => 1,
                 'position' => 3,
                 'count' => NULL,
                 'length' => 16,
@@ -56,9 +56,9 @@ class WorkoutExcersisesSeeder extends Seeder
             ),
             4 =>
             array (
-                'id' => 51,
-                'excersise_id' => 18,
-                'workout_id' => 37,
+                'id' => 4,
+                'excersise_id' => 1,
+                'workout_id' => 1,
                 'position' => 4,
                 'count' => NULL,
                 'length' => 9,

@@ -72,7 +72,9 @@ class PracticeController extends Controller
             $workout = Workout::find($fields['workout_id']);
             if($excersises_played < 0.2 * $workout->workout_excersise()->count())
             {
-                return $this->success("Practice not trained suffeciently less than 20 percent of excersise practiced.", [] , 200);
+                return $this->success("Practice not trained suffeciently less than 20 percent of excersise practiced.", ['summary_calories' => "",
+                'summary_time' =>  "",
+                'excersises_played' =>  ""] , 200);
             }
             $calorie_summary = 0;
             foreach($excersises as $excersise)

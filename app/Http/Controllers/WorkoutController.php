@@ -306,14 +306,12 @@ class WorkoutController extends Controller
     {
         try {
             $user_id = Auth::id();
-            $favorites = User::find($user_id)->favoriteworkouts;
-            foreach ($favorites as $favorite) {
-                $workout = Workout::find($favorite->workout_id)->only(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id', 'workout_image_url']);
-                $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
-                $workout['user_id'] = User::find($workout['user_id'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-                $favorite = $workout;
-            }
-            return $this->success("Favorites", array_values($favorites->paginate(3)->getCollection()->toArray()), 200);
+            $favorites = Workout::whereIn('id' , FavoriteWorkout::where('user_id' , Auth::id())->pluck('workout_id'))->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description'])->each(function ($data) {
+                $data['workout_image_url'] = 'storage/images/workout/' . $data['workout_image_url'];
+                $data['user'] = User::where('id',$data['user'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $data['user']['prof_img_url'] = 'storage/images/users/' . $data['user']['prof_img_url'];
+            }) ;
+            return $this->success("Favorites", array_values($favorites->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }

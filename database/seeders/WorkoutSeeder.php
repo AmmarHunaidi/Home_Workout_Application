@@ -20,7 +20,7 @@ class WorkoutSeeder extends Seeder
         DB::table('workouts')->insert(array (
             0 =>
             array (
-                'id' => 37,
+                'id' => 1,
                 'name' => 'hiit',
                 'length' => 1,
                 'excersise_count' => 0,
