@@ -14,6 +14,7 @@ class Workout extends Model
     //difficulty
     public $fillable = [
         'name',
+        'description',
         'length',
         'excersise_count',
         'predicted_burnt_calories',

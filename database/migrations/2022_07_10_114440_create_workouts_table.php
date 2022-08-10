@@ -27,7 +27,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('categorie_id')->references('id')->on('workout_categories')->cascadeOnDelete();
             $table->text('workout_image_url')->default('Default/default.jpg');
-            $table->boolean('approval')->default(0);
+            $table->boolean('approval')->default(1);
             $table->timestamps();
         });
     }
