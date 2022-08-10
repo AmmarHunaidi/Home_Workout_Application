@@ -32,6 +32,7 @@ use App\Models\MealFood;
 use App\Http\Controllers\ChallengesExcercisesController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\AppControlController;
+use App\Http\Controllers\PracticeController;
 
 //No token needed routes
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
@@ -188,6 +189,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
+        Route::get('/all/categories', 'categories');
     });
 
     Route::prefix('workout')->controller(WorkoutController::class)->group(function () {
@@ -202,6 +204,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::get('/user/{id}' , 'user_workouts');
         Route::post('/review/{id}' , 'review');
         Route::get('/review/{id}' , 'reviews');
+        Route::get('/filter/{filter_1}/{filter_2?}' , 'workouts_filter');
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
@@ -218,6 +221,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
+    });
+
+    Route::prefix('practice')->controller(PracticeController::class)->group(function () {
+        Route::get('/start/{id}', 'initiate');
+        Route::post('/next/{id)' , 'practice');
+        Route::get('/summary' , 'summary');
     });
 });
 
@@ -250,6 +259,9 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::get('/user/{id}' , 'user_diets');
         Route::post('/review/{id}' , 'review');
         Route::get('/review/{id}' , 'reviews');
+        Route::put('/review/{id}' , 'edit_review');
+        Route::delete('/review/{id}' , 'delete_review');
+        Route::post('/subscribe/{id}' , 'subscribe');
     });
 });
 

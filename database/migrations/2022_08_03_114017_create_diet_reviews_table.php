@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('diet_reviews', function (Blueprint $table) {
             $table->id();
-            $table->text('description');
+            $table->text('description')->default("");
             $table->float('stars');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('diet_id')->constrained('diets')->cascadeOnDelete();
