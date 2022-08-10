@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->double('review_count')->default(0.0);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
-            $table->boolean('approval')->default(0);
+            $table->boolean('approval')->default(1);
             $table->timestamps();
         });
     }

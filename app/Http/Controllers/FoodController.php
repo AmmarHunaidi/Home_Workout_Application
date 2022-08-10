@@ -65,11 +65,11 @@ class FoodController extends Controller
                     $path = $image->storeAs($destination_path, $image_name);
                     $food->food_image_url = $image_name;
                 }
-                if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
-                    $food->approval = 1;
-                    $food->update();
-                    return $this->success(_("Created Successfully"), $food, 201);
-                }
+                // if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
+                //     $food->approval = 1;
+                //     $food->update();
+                //     return $this->success(_("Created Successfully"), $food, 201);
+                // }
                 $food->update();
                 $message = 'Food Created Successfully . Awaiting Approval';
                 return $this->success(_("messages." . $message), $food, 201);

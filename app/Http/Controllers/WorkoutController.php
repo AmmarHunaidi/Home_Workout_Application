@@ -92,9 +92,9 @@ class WorkoutController extends Controller
             //return $this->success("Success", $request , 200);
             $user = User::find(Auth::id());
             if (in_array($user->role_id, [2, 4, 5])) {
-                $fields = Validator::make($request->only('name', 'categorie_id', 'equipment', 'difficulty', 'workout_image', 'excersises'), [
+                $fields = Validator::make($request->only('name', 'categorie_id','description', 'equipment', 'difficulty', 'workout_image', 'excersises'), [
                     'name' => 'required|string',
-                    //'description' => 'required|string',
+                    'description' => 'required|string',
                     'categorie_id' => 'required|integer',
                     'equipment' => 'required|string|in:Required,Not Required,Recommended',
                     'difficulty' => 'required|integer|in:1,2,3',
@@ -110,6 +110,7 @@ class WorkoutController extends Controller
                 if (Excersise::where('name', $fields['name'])->exists()) {
                     return $this->fail('Name already taken!', 400);
                 }
+                //return response($fields['description']);
                 $fields['user_id'] = $request->user()->id;
                 $workout = Workout::create($fields);
                 if ($request->hasFile('workout_image')) {
@@ -174,9 +175,9 @@ class WorkoutController extends Controller
         try {
             $user = User::find(Auth::id());
             if (in_array($user->role_id, [2, 4, 5])) {
-                $fields = Validator::make($request->only('name', 'categorie_id', 'equipment', 'difficulty', 'workout_image', 'excersises'), [
+                $fields = Validator::make($request->only('name', 'categorie_id','description', 'equipment', 'difficulty', 'workout_image', 'excersises'), [
                     'name' => 'required|string',
-                    //'description' =>'required|string',
+                    'description' =>'required|string',
                     'categorie_id' => 'required|integer',
                     'equipment' => 'required|string|in:Required,Not Required,Recommended',
                     'difficulty' => 'required|integer|in:1,2,3',
@@ -193,6 +194,7 @@ class WorkoutController extends Controller
                     return $this->fail("Name Already Exists", 400);
                 }
                 if ($workout->name != $fields['name']) $workout->name = $fields['name'];
+                if ($workout->description != $fields['description']) $workout->description = $fields['description'];
                 if ($workout->categorie_id != $fields['categorie_id']) $workout->categorie_id = $fields['categorie_id'];
                 if ($workout->equipment != $fields['equipment']) $workout->equipment = $fields['equipment'];
                 if ($workout->difficulty != $fields['difficulty']) $workout->difficulty = $fields['difficulty'];
@@ -353,7 +355,7 @@ class WorkoutController extends Controller
         try {
             $difficulty = [1, 2, 3];
             if ($filter_2 != null) $difficulty = [$filter_2];
-            if ($filter_1 == 12) //recommended
+            if ($filter_1 == 1) //recommended
             {
                 $followed_coach_workouts = Workout::query()
                     ->whereIn('user_id', Follow::where('follower_id', Auth::id())->get()->pluck('following'))
@@ -376,7 +378,7 @@ class WorkoutController extends Controller
                     $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
                 }
                 return $this->success("Success", array_values($workouts_result->paginate(3)->getCollection()->toArray()), 200);
-            } else if ($filter_1 == 13) //all
+            } else if ($filter_1 == 2) //all
             {
                 $workouts = Workout::query()
                     ->whereNotIn('user_id', Block::where('user_id', Auth::id())->get()->pluck('blocked'))
