@@ -32,6 +32,7 @@ use App\Models\MealFood;
 use App\Http\Controllers\ChallengesExcercisesController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\AppControlController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PracticeController;
 
 //No token needed routes
@@ -53,7 +54,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'se
 });
 
 //verify Email
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'seen', 'appcontrol']], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('emailVerfiy')->controller(VerifyUserController::class)->group(function () {
             Route::post('/', 'verifyAccount');
@@ -174,9 +175,15 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/', 'index');
         Route::get('/edit', 'update');
     });
+    Route::prefix('msg')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::Delete('/{id}', 'destroy');
+    });
 });
-Route::get('/any', function (Request $request) {
-    $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiOWRhZWRhMmRmZDA0YzVmNTEzN2I1MmZjZDkxZDg2MTVhNzE2Njk3YWY0Y2UyZTViMzExYTU5MzQ3MzhlM2U1NzU1YWU0OWI2NGEyOTUzNjUiLCJpYXQiOjE2NTcxODY4MTUuNDM1MjI3LCJuYmYiOjE2NTcxODY4MTUuNDM1MjMxLCJleHAiOjE2NTc3OTE2MTUuNDI1NzM1LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.gF-j4I9Hlh94NOTv__UyUTO-XSf4uVsyu0C607diV7RdiVv4qxU_-MJEhfEOBu1zfzSLncK_ys47DPa7dOZAnZGfUSzZuoJuV5_K7UTGUHX42GI341kxsB-Tbs7IxOneRy-tB2ng63ll4lIZYZGiP9TIlsZhUHgY7WOl7xN6e8VADsTelxOKjMfyjFQScuOaOrjZJXDLD8zCzjctA2Deb7lcIegJPVSQsiVQeCR2nu8CDPK7R_7Vpg_C-lmuGuw7AQJcu06f8LWMEVrwBsgSQ3EnCqZDnXz3YUCGVVisb5C_nYmRVyyiRfewAAsmrcpXdNw24G2bwE-uy2JyMUytsga65G7NLzc5x5NQRf1Pkka6yDoIBcF_WfS3GyurAKTvQzApDdA129ZHNdjFTc9lTLDqzSWF3rcVamYsYwb-FGa86I1eJAESeyNGHbaYenhb64sShKK8HFt7YKFvPv8lNjwt6E3-RGvm8DhOSvEDrD6mUPRuzAdTqBrAs6v44WIZC2UZJ6ZhubZYcFmCGyJhWIAJwHM8sp1nBcuAjx5soWzeevlWU6flT0vinPzJGL25bUCJ29N7Yoq1V0Fzx8wBYfjri-7xulKWq70cZompEjNqKRAJm9ckOYxCuhxrEqxEKAw5yngvLnStPHHU4oPeiopfk9p7pcTJDOIwqen9lcg';
+Route::get('/anyc', function (Request $request) {
+    $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIyIiwianRpIjoiYTZkZTRiNDE4ZmQ3ZDNiYzRhNzI1YTMxMjJmNTRhN2VhMTQ3MjQ1Y2QzZDJkYWU1MTkxNzNiMTlhY2ZkYWQ2YjU4N2JjODViOGM5ZDIwY2QiLCJpYXQiOjE2NTk2MTgzNzIuMzU0MTczLCJuYmYiOjE2NTk2MTgzNzIuMzU0MTgzLCJleHAiOjE2NjAyMjMxNzIuMTM2Nzg2LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.W22lCB78gFTz8zjFWIURIYoUBobBqK57dIJLweOoM0DZaSozt9jv62j4CA3pEAabQmRrbLQml3s1pDkySjY_-oiY5ok3UOM9mgxDcBnf8fePzTOM2xnLqYLOSGCwbFQNmRmHE-uY-zOI390UK27e5I-22Qs71EEm7b1rrkdS_wKzcAEmsrltxSCQ7_tfmB-q0ZubLD6H8pVM48xXBRNHKHQeUr2Jv-ZL5TfyTX9T4zgpVytVFodSzDoWUC1CqrvLQu7_AjCQTR5qs5-Ao9pi9TT7DHTtMVHK3CE2go5um-Jxve6XfQqGfv8fPwJh3X5etC9bDfjyYurm6L1eqoW9xejUKXHIb4YAexZ7LgzoT5L4dcXEEzKe5sEeJgGu1vfw2Apg1B-BRzVjvg8KfAxaYs91sKycmxlAtiz82pzrDE7BYXxPpkLwdlwsUGbjRjFaY0H1iIaGfJ-FobNqad5L2t4o2aDun0GCboOa3p3RiZtYZrkvwHDfVgQqckXRZcczvBp5BEJxI_AKR0ki9t2LBrY1Ah3K0l9iIpsn6PR8rjDCO8AzPAd5-QHSRxfjeHiqxGVFwiV5pe-xJNI7GLfqqJA3ufEn22aeCvEvEps5Ao_IvnYGGBpdnA3ElmL7h3_8mhBkqYqmiQaQUQ4QVafTOivRo1-ZLN_-FgBTSkx4EFc';
+    return 55;
     return ($token);
 });
 
@@ -264,6 +271,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::post('/subscribe/{id}' , 'subscribe');
     });
 });
+
 
 Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount']], function () {
     Route::prefix('home')->controller(HomePageController::class)->group(function()

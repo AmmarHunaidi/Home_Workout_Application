@@ -215,171 +215,171 @@ class DashboardsController extends Controller
     }
 
 
-    public function ApproveDeclineWorkout(Request $request)
-    {
-        $fields = Validator::make($request->only('workout_id', 'approval'), [
-            'workout_id' => 'required|integer',
-            'approval' => 'required|boolean'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
-        }
-        $fields =  $fields->safe()->all();
-        $workout = Workout::find($fields['workout_id']);
-        if ($fields['approval'] == 0) {
-            $workout->delete();
-            return $this->success("Workout declined and deleted", [], 200);
-        } else {
-            $workout->approval = 1;
-            $workout->update();
-            return $this->success("Workout Accepted", [], 200);
-        }
-    }
+    //     public function ApproveDeclineWorkout(Request $request)
+    //     {
+    //         $fields = Validator::make($request->only('workout_id', 'approval'), [
+    //             'workout_id' => 'required|integer',
+    //             'approval' => 'required|boolean'
+    //         ]);
+    //         if ($fields->fails()) {
+    //             return $this->fail($fields->errors()->first(), 400);
+    //         }
+    //         $fields =  $fields->safe()->all();
+    //         $workout = Workout::find($fields['workout_id']);
+    //         if ($fields['approval'] == 0) {
+    //             $workout->delete();
+    //             return $this->success("Workout declined and deleted", [], 200);
+    //         } else {
+    //             $workout->approval = 1;
+    //             $workout->update();
+    //             return $this->success("Workout Accepted", [], 200);
+    //         }
+    //     }
 
-    public function PendingWorkouts()
-    {
-        $workouts = Workout::all(['id', 'name', 'user_id'])->where('approval', 0);
-        return $this->success("Pending Workouts", $workouts, 200);
-    }
+    //     public function PendingWorkouts()
+    //     {
+    //         $workouts = Workout::all(['id', 'name', 'user_id'])->where('approval', 0);
+    //         return $this->success("Pending Workouts", $workouts, 200);
+    //     }
 
-    public function ApproveDeclineDiet(Request $request)
-    {
-        $fields = Validator::make($request->only('diet_id', 'approval'), [
-            'diet_id' => 'required|integer',
-            'approval' => 'required|boolean'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
-        }
-        $fields =  $fields->safe()->all();
-        $diet = Diet::find($fields['diet_id']);
-        if ($fields['approval'] == 0) {
-            $diet->delete();
-            return $this->success("Diet declined and deleted", [], 200);
-        } else {
-            $diet->approval = 1;
-            $diet->update();
-            return $this->success("Diet Accepted", [], 200);
-        }
-    }
+    //     public function ApproveDeclineDiet(Request $request)
+    //     {
+    //         $fields = Validator::make($request->only('diet_id', 'approval'), [
+    //             'diet_id' => 'required|integer',
+    //             'approval' => 'required|boolean'
+    //         ]);
+    //         if ($fields->fails()) {
+    //             return $this->fail($fields->errors()->first(), 400);
+    //         }
+    //         $fields =  $fields->safe()->all();
+    //         $diet = Diet::find($fields['diet_id']);
+    //         if ($fields['approval'] == 0) {
+    //             $diet->delete();
+    //             return $this->success("Diet declined and deleted", [], 200);
+    //         } else {
+    //             $diet->approval = 1;
+    //             $diet->update();
+    //             return $this->success("Diet Accepted", [], 200);
+    //         }
+    //     }
 
-    public function PendingDiets()
-    {
-        $diets = Diet::all(['id', 'name', 'user_id'])->where('approval', 0);
-        return $this->success("Pending Diets", $diets, 200);
-    }
+    //     public function PendingDiets()
+    //     {
+    //         $diets = Diet::all(['id', 'name', 'user_id'])->where('approval', 0);
+    //         return $this->success("Pending Diets", $diets, 200);
+    //     }
 
-    public function ApproveDeclineMeal(Request $request)
-    {
-        $fields = Validator::make($request->only('meal_id', 'approval'), [
-            'meal_id' => 'required|integer',
-            'approval' => 'required|boolean'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
-        }
-        $fields =  $fields->safe()->all();
-        $meal = Meal::find($fields['meal_id']);
-        if ($fields['approval'] == 0) {
-            $meal->delete();
-            return $this->success("Meal declined and deleted", [], 200);
-        } else {
-            $meal->approval = 1;
-            $meal->update();
-            return $this->success("Meal Accepted", [], 200);
-        }
-    }
+    //     public function ApproveDeclineMeal(Request $request)
+    //     {
+    //         $fields = Validator::make($request->only('meal_id', 'approval'), [
+    //             'meal_id' => 'required|integer',
+    //             'approval' => 'required|boolean'
+    //         ]);
+    //         if ($fields->fails()) {
+    //             return $this->fail($fields->errors()->first(), 400);
+    //         }
+    //         $fields =  $fields->safe()->all();
+    //         $meal = Meal::find($fields['meal_id']);
+    //         if ($fields['approval'] == 0) {
+    //             $meal->delete();
+    //             return $this->success("Meal declined and deleted", [], 200);
+    //         } else {
+    //             $meal->approval = 1;
+    //             $meal->update();
+    //             return $this->success("Meal Accepted", [], 200);
+    //         }
+    //     }
 
-    public function PendingMeals()
-    {
-        $meals = Meal::all(['id', 'name', 'user_id'])->where('approval', 0);
-        return $this->success("Pending Diets", $meals, 200);
-    }
+    //     public function PendingMeals()
+    //     {
+    //         $meals = Meal::all(['id', 'name', 'user_id'])->where('approval', 0);
+    //         return $this->success("Pending Diets", $meals, 200);
+    //     }
 
 
-    public function ApproveDeclineFood(Request $request)
-    {
-        $fields = Validator::make($request->only('food_id', 'approval'), [
-            'food_id' => 'required|integer',
-            'approval' => 'required|boolean'
-        ]);
-        if ($fields->fails()) {
-            return $this->fail($fields->errors()->first(), 400);
-        }
-        $fields =  $fields->safe()->all();
-        $food = Food::find($fields['food_id']);
-        if ($fields['approval'] == 0) {
-            $food->delete();
+    //     public function ApproveDeclineFood(Request $request)
+    //     {
+    //         $fields = Validator::make($request->only('food_id', 'approval'), [
+    //             'food_id' => 'required|integer',
+    //             'approval' => 'required|boolean'
+    //         ]);
+    //         if ($fields->fails()) {
+    //             return $this->fail($fields->errors()->first(), 400);
+    //         }
+    //         $fields =  $fields->safe()->all();
+    //         $food = Food::find($fields['food_id']);
+    //         if ($fields['approval'] == 0) {
+    //             $food->delete();
 
-            return $this->success("Food declined and deleted", [], 200);
-        } else {
-            $diet->approval = 1;
-            $diet->update();
-            return $this->success("Food Accepted", [], 200);
+    //             return $this->success("Food declined and deleted", [], 200);
+    //         } else {
+    //             $diet->approval = 1;
+    //             $diet->update();
+    //             return $this->success("Food Accepted", [], 200);
 
-            return $this->success("Food declined and deleted", [] , 200);
-        }
-        else
-        {
-            $food->approval = 1;
-            $food->update();
-            return $this->success("Food Accepted" , [] ,200);
+    //             return $this->success("Food declined and deleted", [] , 200);
+    //         }
+    //         else
+    //         {
+    //             $food->approval = 1;
+    //             $food->update();
+    //             return $this->success("Food Accepted" , [] ,200);
 
-        }
-    }
+    //         }
+    //     }
 
-    public function PendingFood()
-    {
-        $food = Food::all(['id', 'name', 'user_id'])->where('approval', 0);
-        return $this->success("Pending Diets", $food, 200);
-    }
+    //     public function PendingFood()
+    //     {
+    //         $food = Food::all(['id', 'name', 'user_id'])->where('approval', 0);
+    //         return $this->success("Pending Diets", $food, 200);
+    //     }
 
-        $food = Food::all(['id', 'name' , 'user_id'])->where('approval' ,0);
-        return $this->success("Pending Diets" , $food ,200);
-    }
+    //         $food = Food::all(['id', 'name' , 'user_id'])->where('approval' ,0);
+    //         return $this->success("Pending Diets" , $food ,200);
+    //     }
 
-    public function ReportedChallenges(Request $request)
-    {
-        try {
-            $data = [];
-            $chs = Challenge::query()
-                ->whereHas('reports')
-                ->withCount('reports')
-                ->orderBy('reports_count', 'desc')
-                ->paginate(10);
+    //     public function ReportedChallenges(Request $request)
+    //     {
+    //         try {
+    //             $data = [];
+    //             $chs = Challenge::query()
+    //                 ->whereHas('reports')
+    //                 ->withCount('reports')
+    //                 ->orderBy('reports_count', 'desc')
+    //                 ->paginate(10);
 
-            foreach ($chs as $ch) {
-                $data[] = [
-                    'reports' => PostReport::query()->where('post_id', $ch->id)->count(),
-                    'dash' => true,
-                    'ch' => app('App\Http\Controllers\ChallengeController')->chData([$ch], $request)
-                ];
-            }
-            return $this->success('ok', $data);
-        } catch (\Exception $e) {
-            // return $this->fail(__('messages.somthing went wrong'), 500);
-            return $this->fail($e->getMessage(), 500);
-        }
-    }
+    //             foreach ($chs as $ch) {
+    //                 $data[] = [
+    //                     'reports' => PostReport::query()->where('post_id', $ch->id)->count(),
+    //                     'dash' => true,
+    //                     'ch' => app('App\Http\Controllers\ChallengeController')->chData([$ch], $request)
+    //                 ];
+    //             }
+    //             return $this->success('ok', $data);
+    //         } catch (\Exception $e) {
+    //             // return $this->fail(__('messages.somthing went wrong'), 500);
+    //             return $this->fail($e->getMessage(), 500);
+    //         }
+    //     }
 
-    public function AcceptChallengeReport(Request $request, $id)
-    {
-        try {
-            $acc = $request->header('acc');
-            if ($chR = ChallengeReport::where(['ch_id' => $id])->first()) {
-                if ($acc == 'true') {
-                    if ($chR->ch()->first()->img_path != 'Default/35mnhgfrewqw34rfvbhy65r4edfgnhgr4e3sxcwtgr4htyuChallenge.PNG')
-                        Storage::deleteDirectory('public/images/users/' . $chR->ch()->first()->user_id . '/Challenges/' . $chR->ch()->first()->id);
-                    $chR->ch()->delete();
-                } elseif ($acc == 'false') {
-                    $chR->delete();
-                }
-                return $this->success();
-            }
-            return $this->fail(__("messages.Not found"));
-        } catch (\Exception $e) {
-            // return $this->fail(__('messages.somthing went wrong'), 500);
-            return $this->fail($e->getMessage(), 500);
-        }
-    }
+    //     public function AcceptChallengeReport(Request $request, $id)
+    //     {
+    //         try {
+    //             $acc = $request->header('acc');
+    //             if ($chR = ChallengeReport::where(['ch_id' => $id])->first()) {
+    //                 if ($acc == 'true') {
+    //                     if ($chR->ch()->first()->img_path != 'Default/35mnhgfrewqw34rfvbhy65r4edfgnhgr4e3sxcwtgr4htyuChallenge.PNG')
+    //                         Storage::deleteDirectory('public/images/users/' . $chR->ch()->first()->user_id . '/Challenges/' . $chR->ch()->first()->id);
+    //                     $chR->ch()->delete();
+    //                 } elseif ($acc == 'false') {
+    //                     $chR->delete();
+    //                 }
+    //                 return $this->success();
+    //             }
+    //             return $this->fail(__("messages.Not found"));
+    //         } catch (\Exception $e) {
+    //             // return $this->fail(__('messages.somthing went wrong'), 500);
+    //             return $this->fail($e->getMessage(), 500);
+    //         }
+    //     }
 }

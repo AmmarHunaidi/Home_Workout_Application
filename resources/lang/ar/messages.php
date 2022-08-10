@@ -81,4 +81,10 @@ return [
     'Posts feature is temporarily down' => 'ميزة المنشورات متوقفة مؤقتاً',
     'Creating posts is temporarily off' => 'إنشاء منشورات جديدة متوقف مؤقتاً',
     'Creating new account is temporarily off' => ' تسجيل حساب جديد بالتطبيق متوقف مؤقتاً, لا تزال قادر على تسجيل الدخول باستخدام حساب آخر',
+    'All features' => 'كل الميزات',
+    'Posts' => 'المنشورات',
+    'Post creation' => 'إنشاء المنشورات',
+    'Regist' => 'إنشاء حسابات جديدة',
+    'Workouts Creation' => 'إنشاء تمارين رياضية',
+    'Diets Creation' => 'إنشاء أنظمة غذائية',
 ];

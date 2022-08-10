@@ -31,8 +31,10 @@ class ApllyToRoleController extends Controller
                 if (Hash::check($request->password, $user->password)) {
                     $user->posts()->delete();
                     $user->CV()->delete();
+                    $user->challenges()->delete();
                     Storage::deleteDirectory('public/images/users/' . Auth::id() . '/CV');
                     Storage::deleteDirectory('public/images/users/' . Auth::id() . '/posts');
+                    Storage::deleteDirectory('public/images/users/' . Auth::id() . '/challenges');
                     $user->role_id = 1;
                     $user->save();
                     return $this->success(__("messages.You are now a normal user"));

@@ -6,15 +6,20 @@ use App\Models\AppController;
 use Illuminate\Http\Request;
 use App\Traits\GeneralTrait;
 use Illuminate\Support\Facades\Gate;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class AppControlController extends Controller
 {
     use GeneralTrait;
     public function index()
     {
-        try {
+        try { //TODO:TRANSLATE_NAMES
             if (Gate::allows('SuperAdmin-Protection'))
-                return $this->success('ok', AppController::orderBy('id')->get(['id', 'name', 'is_active']));
+                $features = AppController::orderBy('id')->get(['id', 'name', 'is_active']);
+            foreach ($features as $feature) {
+                $feature->name = __('messages.' . $feature->name);
+            }
+            return $this->success('ok', $features);
             return $this->fail(__('messages.Access denied'));
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
