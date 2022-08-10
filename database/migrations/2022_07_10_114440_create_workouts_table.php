@@ -20,8 +20,7 @@ return new class extends Migration
             $table->integer('length')->default(0);
             $table->integer('excersise_count')->default(0);
             $table->integer('predicted_burnt_calories')->default(0);
-            $table->integer('like_count')->default(0);
-            $table->integer('review_count')->default(0);
+            $table->double('review_count')->default(0);
             $table->string('equipment');
             $table->integer('difficulty');
             $table->foreignId('user_id')->constrained('users');

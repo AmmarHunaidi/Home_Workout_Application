@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('practices', function (Blueprint $table) {
             $table->id();
-            $table->integer('summary_calories')->default(0);
-            $table->integer('summary_time')->default(0);
-            $table->string('excersises_played')->default("[]");
+            $table->string('summary_calories')->default('0');
+            $table->string('summary_time')->default('0');
+            $table->string('excersises_played')->deafult('0');
             $table->foreignId('workout_id')->constrained('workouts');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();

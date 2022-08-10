@@ -222,6 +222,7 @@ class WorkoutController extends Controller
                 });
                 $i = 0;
                 $position = 0;
+                $workout->excersise_count = 0;
                 foreach ($excersise_list as $excersise) {
                     $excersise = (array)$excersise;
                     $time = 0;
@@ -235,6 +236,7 @@ class WorkoutController extends Controller
                             'count' => $excersise['value'],
                             'position' => $position
                         ]);
+                        $workout->excersise_count++;
                         $workout->length += $excersise['value'];
                         $calories = Excersise::find($excersise['id'])->burn_calories;
                         $predicted_calories_burn += $calories;
@@ -246,6 +248,7 @@ class WorkoutController extends Controller
                             'length' => $excersise['value'],
                             'position' => $position
                         ]);
+                        $workout->excersise_count++;
                         $workout->length += $excersise['value'];
                         $calories = Excersise::find($excersise['id'])->burn_calories;
                         $predicted_calories_burn += $calories;
@@ -308,7 +311,7 @@ class WorkoutController extends Controller
                 $workout = Workout::find($favorite->workout_id)->only(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id', 'workout_image_url']);
                 $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                 $workout['user_id'] = User::find($workout['user_id'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-                $result[] = $workout;
+                $favorite = $workout;
             }
             return $this->success("Favorites", array_values($favorites->paginate(3)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
@@ -425,7 +428,7 @@ class WorkoutController extends Controller
                 return $this->fail($fields->errors()->first(), 400);
             }
             $fields = $fields->safe()->all();
-            if (WorkoutReview::where(['workokut_id' => $id, 'user_id' => Auth::id()])->exists()) {
+            if (WorkoutReview::where(['workout_id' => $id, 'user_id' => Auth::id()])->exists()) {
                 return $this->fail("You can't add more than one review!!", 400);
             }
             $fields['user_id'] = $request->user()->id;
@@ -473,14 +476,20 @@ class WorkoutController extends Controller
                 return $this->fail("Review Not Found", 400);
             }
             $review = WorkoutReview::find($id);
-            if ($review->stars != $fields['stars']) {
+            // return response($review->stars);
+            if ($review->stars != $fields['stars'] || $review->description != $fields['description']) {
                 $workout = Workout::find($review->workout_id);
                 $review_rate = $workout->review_count;
                 $review_count = $workout->reviews->count();
-                $review_rating = (float) ((($review_count) * $review_rate) - $review->stars + $fields['stars']) / ($review_count);
+                // return response($review_rate);
+                $review_rating = (double) ((((($review_count) * $review_rate) - $review->stars) + $fields['stars'])) / ($review_count);
                 $review->stars = $fields['stars'];
+                // return response($review);
                 $workout->review_count = $review_rating;
+                // return response($workout);
+                //return response($workout);
                 $workout->update();
+                // return response(Workout::find($workout->id));
             }
             if ($request->has('description')) {
                 if ($fields['description'] != $review->description) {
@@ -490,7 +499,7 @@ class WorkoutController extends Controller
                 $review->description = '';
             }
             $review->update();
-            return $this->success("Done", $review, 200);
+            return $this->success("Done", WorkoutReview::find($id), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }

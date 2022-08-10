@@ -306,15 +306,14 @@ class DietController extends Controller
         try {
             $user_id = Auth::id();
             $favorites = User::find($user_id)->favoritediets;
-            $result = [];
             foreach ($favorites as $favorite) {
                 $diet = Diet::find($favorite->diet_id)->only(['id', 'name', 'created_by', 'created_at']);
                 $mealcount = DietMeal::where('diet_id', $diet['id'])->count();
                 $diet['meal_count'] = $mealcount;
                 $diet['created_by'] = User::find($diet['created_by'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-                $result[] = $diet;
+                $favorite = $diet;
             }
-            return $this->success("Favorites", $result, 200);
+            return $this->success("Favorites", array_values($favorites->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
