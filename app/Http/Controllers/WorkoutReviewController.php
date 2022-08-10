@@ -18,8 +18,14 @@ class WorkoutReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index($id)
     {
+        try{
+
+        }catch(Exception $exception)
+        {
+            return $this->fail()
+        }
         $fields = Validator::make($request->only('workout_id', 'description', 'stars'), [
             'workout_id' => 'required|integer'
         ]);
@@ -57,60 +63,5 @@ class WorkoutReviewController extends Controller
         $workout->update();
         return $this->success("Done", $workout, 200);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreWorkoutReviewRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreWorkoutReviewRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\WorkoutReview  $workoutReview
-     * @return \Illuminate\Http\Response
-     */
-    public function show(WorkoutReview $workoutReview)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\WorkoutReview  $workoutReview
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(WorkoutReview $workoutReview)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateWorkoutReviewRequest  $request
-     * @param  \App\Models\WorkoutReview  $workoutReview
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateWorkoutReviewRequest $request, WorkoutReview $workoutReview)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\WorkoutReview  $workoutReview
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(WorkoutReview $workoutReview)
-    {
-        //
-    }
+    
 }
