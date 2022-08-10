@@ -171,7 +171,6 @@ class DietController extends Controller
                 'meal_list' => $day_meals
             ];
             $day_count++;
-        }
         $mealcount = DietMeal::where('diet_id'  ,$diet->id)->count();
         $diet['meal_count'] = $mealcount;
         $diet['schedule'] = $result;
