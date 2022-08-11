@@ -174,10 +174,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/', 'index');
         Route::get('/edit', 'update');
     });
-    Route::prefix('msg')->controller(MessageController::class)->group(function () {
-        Route::get('/', 'index');
-        Route::post('/', 'store');
-        Route::Delete('/{id}', 'destroy');
+    Route::prefix('chat')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'index'); //Get Chat messages
+        Route::post('/', 'store'); //Send message
+        Route::Delete('/{id}', 'destroy'); //Delete it
+        Route::get('/list', 'chatList'); //Get chat list
+        Route::get('/block', 'block'); //Block a chat
     });
 });
 Route::get('/anyc', function (Request $request) {
