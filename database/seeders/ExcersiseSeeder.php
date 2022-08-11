@@ -20,7 +20,7 @@ class ExcersiseSeeder extends Seeder
         DB::table('excersises')->insert(array (
             0 =>
             array (
-                'id' => 14,
+                'id' => 1,
                 'name' => 'Sit Up',
                 'description' => 'Sit Up Description',
                 'burn_Calories' => 10,
@@ -31,7 +31,7 @@ class ExcersiseSeeder extends Seeder
             ),
             1 =>
             array (
-                'id' => 18,
+                'id' => 2,
                 'name' => 'Jumping Jack',
                 'description' => 'Jumping Jack Description',
                 'burn_Calories' => 25,

@@ -29,6 +29,12 @@ class Workout extends Model
     ];
     public $timestamps = true;
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d\TH:i:s.u\Z',
+        'updated_at' => 'datetime:Y-m-d\TH:i:s.u\Z',
+        'deleted_at' => 'datetime:Y-m-d\TH:i:s.u\Z',
+    ];
+
     public function reviews()
     {
         return $this->hasMany(WorkoutReview::class);

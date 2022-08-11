@@ -7,6 +7,7 @@ use App\Http\Requests\StoreExcersiseRequest;
 use App\Http\Requests\UpdateExcersiseRequest;
 use App\Models\ExcersiseMedia;
 use App\Models\User;
+use App\Models\WorkoutExcersises;
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
 use Exception;
@@ -24,14 +25,15 @@ class ExcersiseController extends Controller
     function index()
     {
         try {
-            $result = [];
-            $excersises = Excersise::all(['id', 'name', 'excersise_media_url', 'user_id', 'description']);
+            $excersises = Excersise::all(['id', 'name', 'excersise_media_url', 'user_id', 'description' , 'burn_calories' , 'created_at']);
             foreach ($excersises as $excersise) {
-                $excersise->user_id = User::find($excersise->user_id)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-                $excersise->excersise_media_url = 'storage/images/excersise/' . $excersise->excersise_media_url;
-                $result[] = $excersise;
+                $excersise['user_id'] = User::where('id',$excersise['user_id'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                //return response($excersise);
+                $excersise['user_id']['prof_img_url'] = 'storage/images/users/' . $excersise['user_id']['prof_img_url'];
+                // $excersise->user_id['prof_img_url'] = 'storage/images/users/' . $excersise->user_id['prof_img_url'];
+                $excersise['excersise_media_url'] = 'storage/images/excersise/' . $excersise->excersise_media_url;
             }
-            return $this->success("Success", $result, 200);
+            return $this->success("Success", $excersises, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -142,6 +144,10 @@ class ExcersiseController extends Controller
             $user = User::find(Auth::id());
             $excersise = Excersise::find($id);
             if (in_array($user->role_id, [4, 5]) || $excersise->user_id == Auth::id()) {
+                if(WorkoutExcersises::where('excersise_id',$excersise->id)->exists())
+                {
+                    return $this->fail("Can't delete this excersise due to it being assigned to one or more workouts",400);
+                }
                 Storage::delete('public/images/excersise/' . $excersise->excersise_media_url);
                 $excersise->delete();
                 return $this->success("Success", [], 200);

@@ -5,17 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DietMeal extends Model
+class PracticeWorkout extends Model
 {
     use HasFactory;
-    public $table = 'diet_meals';
+    public $table = 'practice_workouts';
     public $primarykey = 'id';
     public $fillable = [
-        'diet_id',
-        'meal_id',
-        'day'
+        'workout_id',
+        'practice_id'
     ];
     public $timestamps = true;
+
+    public function practice()
+    {
+        return $this->belongsTo(Practice::class);
+    }
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d\TH:i:s.u\Z',
@@ -23,14 +27,8 @@ class DietMeal extends Model
         'deleted_at' => 'datetime:Y-m-d\TH:i:s.u\Z',
     ];
     
-    public function meal()
+    public function workout()
     {
-        return $this->belongsTo(Meal::class);
+        return $this->belongsTo(Workout::class);
     }
-
-    public function diet()
-    {
-        return $this->belongsTo(Diet::class);
-    }
-
 }

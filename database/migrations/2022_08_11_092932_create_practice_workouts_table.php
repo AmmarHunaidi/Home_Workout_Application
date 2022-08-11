@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('practices', function (Blueprint $table) {
+        Schema::create('practice_workouts', function (Blueprint $table) {
             $table->id();
-            $table->string('summary_calories')->default('0');
-            $table->string('summary_time')->default('0');
-            $table->string('excersises_played')->deafult('0');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('practice_id')->constrained('practices');
+            $table->foreignId('workout_id')->constrained('workouts');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('practices');
+        Schema::dropIfExists('practice_workouts');
     }
 };
