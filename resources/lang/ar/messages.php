@@ -23,6 +23,7 @@ return [
     'deleted' => 'تم الحذف',
     'No changes occurred' => 'لم يحدث أي تغيير',
     'Updated successfully' => 'تم التحديث بنجاح',
+    'You need to logIn' => 'يتوجب عليك تسجيل الدخول',
     'You need to recover this account first' => 'عليك استعادة الحساب أولا',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
@@ -89,4 +90,7 @@ return [
     'Diets Creation' => 'إنشاء أنظمة غذائية',
     'Creating new diet or food or meal is temporarily off' => 'إن إنشاء نظام غذائي أو طعام أو وجبة جديدة متوقف مؤقتاً',
     'Creating new workout_categorie or workout or excersise is temporarily off' => 'إن إنشاء فئة تدريب أو تدريب أو تمرين رياضي جدد متوقف مؤقتاً ',
+    //Chat
+    'You can not make a chat with yourself' => 'لا يمكنك إجراء محادثة مع نفسك',
+    'You can not send messages to a blocked chat' => 'لا يمكنك إرسال رسائل لمحادثة محظورة',
 ];

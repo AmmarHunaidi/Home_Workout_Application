@@ -30,6 +30,8 @@ use App\Traits\GeneralTrait;
 use App\Traits\EmailTrait;
 use App\Traits\NotificationTrait;
 
+use function PHPUnit\Framework\isEmpty;
+
 class AuthController extends Controller
 {
     use GeneralTrait, EmailTrait, NotificationTrait;
@@ -448,7 +450,7 @@ class AuthController extends Controller
     {
         try {
             $user = $request->user();
-            if (Hash::check($request->password, $user->password) || !is_null($user->providers()->get())) {
+            if (Hash::check($request->password, $user->password) || !isEmpty($user->providers()->get())) {
                 $this->sendDeleteEmail($user->f_name, $user->email);
                 foreach ($request->user()->token()->get() as $token) {
                     $id = $token->id;

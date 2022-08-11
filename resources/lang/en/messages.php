@@ -25,6 +25,7 @@ return [
     'No changes occurred' => 'No changes occurred',
     'Updated successfully' => 'Updated successfully',
     'You need to recover this account first' => 'You need to recover this account first',
+    'You need to logIn' => 'You need to logIn',
     //Forget password
     'You need to confirm your email' => 'You need to confirm your email. We have sent you a Verification Code, please check your email.',
     'Reset Password Notification' => 'Reset Password Notification ',
@@ -47,7 +48,7 @@ return [
     'Password changed' => 'Password changed',
     'Your Email has been changed' => 'Your Email has been changed',
     'Your Email must be VERIFIED by google first' => 'Your Email must be VERIFIED by google first',
-    'You canot do this change' => 'You canot do this change',
+    'You canot do this change' => 'You can not do this change',
     'You can login with your provider account' => 'You should login with your provider account',
     'You cannot Block your self' => 'You cannot Block your self',
     'You cannot unBlock your self' => 'You cannot unBlock your self',
@@ -89,5 +90,7 @@ return [
     'Diets Creation' => 'Diets Creation',
     'Creating new diet or food or meal is temporarily off' => 'Creating new diet or food or meal is temporarily off',
     'Creating new workout_categorie or workout or excersise is temporarily off' => 'Creating new workout_categorie or workout or excersise is temporarily off',
-
+    //Chat
+    'You can not make a chat with yourself' => 'You can not make a chat with yourself',
+    'You can not send messages to a blocked chat' => 'You can not send messages to a blocked chat',
 ];
