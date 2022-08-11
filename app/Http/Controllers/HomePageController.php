@@ -51,11 +51,14 @@ class HomePageController extends Controller
             $current_diet = DietSubscribe::where('user_id', $user->id)->first();
             if($current_diet != null)
             {
-                $current_diet = Diet::find($current_diet->diet_id);
+                $current_diet = Diet::find($current_diet->diet_id)->only(['id','name']);
             }
             else
             {
-                $current_diet = null;
+                $current_diet = [
+                    'id' => 0,
+                    'name' => ''
+                ];
             }
             //return response($current_diet);
             $data = [

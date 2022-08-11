@@ -6,6 +6,7 @@ use App\Models\Practice;
 use App\Http\Requests\StorePracticeRequest;
 use App\Http\Requests\UpdatePracticeRequest;
 use App\Models\Excersise;
+use App\Models\PracticeWorkout;
 use App\Models\Workout;
 use App\Traits\GeneralTrait;
 use Composer\Pcre\Preg;
@@ -70,7 +71,7 @@ class PracticeController extends Controller
 
             $excersises_played = count($excersises);
             $workout = Workout::find($fields['workout_id']);
-            if($excersises_played < 0.2 * $workout->workout_excersise()->count())
+            if($excersises_played < 0.2 * $workout->workout_excersise->count())
             {
                 return $this->success("Practice not trained suffeciently less than 20 percent of excersise practiced.", ['summary_calories' => "",
                 'summary_time' =>  "",
@@ -87,6 +88,9 @@ class PracticeController extends Controller
                 'summary_calories' => (string)$calorie_summary,
                 'summary_time' =>  (string)$fields['totalTime'],
                 'excersises_played' =>  (string)$excersises_played,
+            ]);
+            $practice_workout = PracticeWorkout::create([
+                'practice_id' => $practice->id,
                 'workout_id' => $fields['workout_id']
             ]);
             $result = $practice->only(['summary_time','summary_calories','excersises_played']);

@@ -54,10 +54,10 @@ class DietController extends Controller
                 $data['created_by'] = User::where('id', $data->created_by)->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                 $data['created_by']['prof_img_url'] = 'storage/images/users/' . $data['created_by']['prof_img_url'];
                 $data['saved'] = false;
-                DietReview::where(['diet_id' => $data->id, 'user_id' => Auth::id()])->exists() == true ? $data['is_reviewed'] = true : $data['is_reviewed'] = false;
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $data->id])->exists()) $data['saved'] = true;
+                DietReview::where(['diet_id' => $data->id, 'user_id' => Auth::id()])->exists() == true ? $data['is_reviewed'] = true : $data['is_reviewed'] = false;
             });
-            return $this->success("Success", array_values($diets->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -71,12 +71,13 @@ class DietController extends Controller
                 $food = [];
                 $mealcount = DietMeal::where('diet_id', $diet->id)->count();
                 $diet['meal_count'] = $mealcount;
-                $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $diet['created_by'] = User::find($diet->created_by)->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $diet['created_by']->prof_img_url = 'storage/images/users/' . $diet['created_by']->prof_img_url;
                 $diet['saved'] = false;
 
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             }
-            return $this->success("Success", array_values($diets->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -90,20 +91,18 @@ class DietController extends Controller
                 $food = [];
                 $mealcount = DietMeal::where('diet_id', $diet->id)->count();
                 $diet['meal_count'] = $mealcount;
-                $diet['created_by'] = User::find($diet->created_by)->only(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $diet['created_by'] = User::find($diet->created_by)->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $diet['created_by']->prof_img_url = 'storage/images/users/' . $diet['created_by']->prof_img_url;
                 $diet['saved'] = false;
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             }
-            return $this->success("Success", array_values($diets->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function create(Request $request)
     {
         try {
@@ -331,9 +330,11 @@ class DietController extends Controller
         try {
             $user_id = Auth::id();
             $diets =Diet::whereIn('id' , FavoriteDiet::where('user_id' , Auth::id())->pluck('diet_id'))->get(['id', 'name', 'created_by', 'created_at'])->each(function ($data) {
-                $diet['meal_count'] = DietMeal::where('diet_id', $data['id'])->count();
-                $diet['created_by'] = User::find($diet['created_by'])->only(['id', 'f_name', 'l_name', 'prof_img_url']);
-            }) ;
+                $data['meal_count'] = DietMeal::where('diet_id', $data['id'])->count();
+                $data['created_by'] = User::where('id',$data['created_by'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $data['created_by']['prof_img_url'] = 'storage/images/users/' . $data['created_by']['prof_img_url'];
+            });
+            return response($diets);
             return $this->success("Favorites", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -382,7 +383,7 @@ class DietController extends Controller
                 $data['user_id']->prof_img_url = 'storage/images/users/' . $data['user_id']->prof_img_url;
                 return $data;
             });
-            return $this->success("Success", array_values($reviews->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($reviews->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -432,6 +433,20 @@ class DietController extends Controller
             $review = DietReview::find($id);
             $user = User::find(Auth::id());
             if ($review->user_id == Auth::id() || in_array($user->role_id, [4, 5])) {
+                $diet = Diet::find($review->diet_id);
+                if($diet->reviews()->count() == 1)
+                {
+                    $diet->review_count =0;
+                    $diet->update();
+                }
+                else
+                {
+                    $review_rate = $diet->review_count;
+                $review_count = $diet->reviews->count();
+                $review_rating = (float) ((($review_count) * $review_rate) - $review->stars) / ($review_count - 1);
+                $diet->review_count = $review_rating;
+                $diet->update();
+                }
                 $review->delete();
                 return $this->success("Deleted Successfully", [], 200);
             }

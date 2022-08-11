@@ -19,7 +19,9 @@ class WorkoutCategorieController extends Controller
     function index()
     {
         try {
-            return $this->success("Success", WorkoutCategorie::all(['id', 'name']), 200);
+            return $this->success("Success", WorkoutCategorie::all(['id', 'name'])->each(function ($data) {
+                $data['name'] = ucfirst($data['name']);
+            }), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -28,7 +30,9 @@ class WorkoutCategorieController extends Controller
     function categories()
     {
         try {
-            return $this->success("Success", WorkoutCategorie::whereNotIn('name', ['Recommended', 'All'])->get(['id', 'name']), 200);
+            return $this->success("Success", WorkoutCategorie::whereNotIn('name', ['Recommended', 'All'])->get(['id', 'name'])->each(function ($data) {
+                $data['name'] = ucfirst($data['name']);
+            }), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }

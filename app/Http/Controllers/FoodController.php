@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Food;
 use App\Http\Requests\StoreFoodRequest;
 use App\Http\Requests\UpdateFoodRequest;
+use App\Models\MealFood;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -104,7 +105,6 @@ class FoodController extends Controller
                     return $this->fail($fields->errors()->first(), 400);
                 }
                 $fields = $fields->safe()->all();
-
                 $food = Food::find($id);
                 $user = User::find(Auth::id());
                 if ($user->id == $food->user_id || in_array($user->id , [4,5])) {
@@ -136,8 +136,12 @@ class FoodController extends Controller
     {
         try {
             $user = User::find(Auth::id());
+            $food = Food::find($id);
             if (in_array($user->role_id, [4, 5])) {
-                $food = Food::find($id);
+                if(MealFood::where('food_id',$food->id)->exists() == true)
+                {
+                    return $this->fail("Can't delete food due to it being assigned too one or more meals!");
+                }
                 $food->delete();
                 $message = 'Food Deleted Successfully';
                 return $this->success(_("message." . $message), $food, 200);

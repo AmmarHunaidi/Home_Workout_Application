@@ -75,7 +75,7 @@ class MealController extends Controller
                     return $this->success(_("Created Successfully"), $meal, 200);
                 }
                 $meal->update();
-                $message = 'Meal Created Successfully . Awaiting Approval';
+                $message = 'Meal Created Successfully';
                 $data = [
                     'meal' => $meal,
                     'food_list' => $food_result

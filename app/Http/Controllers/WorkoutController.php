@@ -9,7 +9,10 @@ use App\Models\Block;
 use App\Models\Excersise;
 use App\Models\FavoriteWorkout;
 use App\Models\Follow;
+use App\Models\Practice;
+use App\Models\PracticeWorkout;
 use App\Models\User;
+use App\Models\WorkoutCategorie;
 use App\Models\WorkoutExcersises;
 use App\Models\WorkoutReview;
 use App\Traits\GeneralTrait;
@@ -30,11 +33,16 @@ class WorkoutController extends Controller
     function index()
     {
         try {
-            $workouts = Workout::all(['id', 'name', 'description', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at']);
+            $workouts = Workout::all(['id', 'name', 'description', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at','review_count']);
             foreach ($workouts as $workout) {
                 $workout['workout_image_url'] = 'storage/image/workout/' . $workout['workout_image_url'];
+                $workout['review_count'] = round($workout['review_count'], 1);
                 $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                 $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
+                $workout['saved'] = false;
+                if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
+                // $workout['is_reviewed'] = false;
+                WorkoutReview::where(['user_id' => Auth::id() , 'workout_id' => $workout->id])->exists() == true ? $workout['is_reviewed'] = true : $workout['is_reviewed'] = false;
             }
             //$workouts = (array) $workouts;
             return $this->success("Success", $workouts, 200);
@@ -76,10 +84,8 @@ class WorkoutController extends Controller
             $workout['user']->prof_img_url = 'storage/images/users/' . $workout['user']->prof_img_url;
             $workout['review_count'] = (string) $workout['review_count'];
             $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
-            $workout['description'] = "Hello";
-            unset($workout['workout_excersise']);
-            unset($workout['like_count']);
-            unset($workout['workout_excersise']);
+            $workout['saved'] = false;
+            if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
             return $this->success("Workout", $workout, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -274,6 +280,8 @@ class WorkoutController extends Controller
                 $workout_excersises = $workout->workout_excersise->each(function ($data) {
                     $data->delete();
                 });
+                $favorites = FavoriteWorkout::where('workout_id',$workout->id)->delete();
+                $practices = PracticeWorkout::where('workout_id' , $workout->id)->delete();
                 $workout->delete();
                 return $this->success("Success", [], 200);
             }
@@ -289,7 +297,7 @@ class WorkoutController extends Controller
             $favorite = FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $id])->exists();
             if ($favorite) {
                 $favorite = FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $id])->delete();
-                return $this->success("Deleted form favorites", [], 200);
+                return $this->success("Deleted from favorites", [], 200);
             } else {
                 $favorite = FavoriteWorkout::create([
                     'user_id' => Auth::id(),
@@ -306,10 +314,11 @@ class WorkoutController extends Controller
     {
         try {
             $user_id = Auth::id();
-            $favorites = Workout::whereIn('id' , FavoriteWorkout::where('user_id' , Auth::id())->pluck('workout_id'))->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description'])->each(function ($data) {
+            $favorites = Workout::whereIn('id' , FavoriteWorkout::where('user_id' , Auth::id())->pluck('workout_id'))->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description','categorie_id as categorie_name'])->each(function ($data) {
                 $data['workout_image_url'] = 'storage/images/workout/' . $data['workout_image_url'];
                 $data['user'] = User::where('id',$data['user'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
                 $data['user']['prof_img_url'] = 'storage/images/users/' . $data['user']['prof_img_url'];
+                $data['categorie_name'] = WorkoutCategorie::find($data['categorie_name'])->only('name');
             }) ;
             return $this->success("Favorites", array_values($favorites->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
@@ -320,15 +329,16 @@ class WorkoutController extends Controller
     public function user_workouts($id)
     {
         try {
-            $workouts = Workout::where('user_id', $id)->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url']);
+            $workouts = Workout::where('user_id', $id)->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url','description','categorie_id as categorie_name']);
             foreach ($workouts as $workout) {
                 $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                 $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                 $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
                 $workout['saved'] = false;
+                $workout['categorie_name'] = WorkoutCategorie::find($workout['categorie_name'])->only('name');
                 if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
             }
-            return $this->success("Success", array_values($workouts->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($workouts->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -337,15 +347,16 @@ class WorkoutController extends Controller
     public function my_workouts()
     {
         try {
-            $workouts = Workout::where('user_id', Auth::id())->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url']);
+            $workouts = Workout::where('user_id', Auth::id())->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url','description','categorie_id as categorie_name']);
             foreach ($workouts as $workout) {
                 $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                 $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                 $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
                 $workout['saved'] = false;
+                $workout['categorie_name'] = WorkoutCategorie::find($workout['categorie_name'])->only('name');
                 if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
             }
-            return $this->success("Success", array_values($workouts->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($workouts->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -355,7 +366,7 @@ class WorkoutController extends Controller
     {
         try {
             $difficulty = [1, 2, 3];
-            if ($filter_2 != null) $difficulty = [$filter_2];
+            if ($filter_2 < 4) $difficulty = [$filter_2];
             if ($filter_1 == 1) //recommended
             {
                 $followed_coach_workouts = Workout::query()
@@ -363,22 +374,30 @@ class WorkoutController extends Controller
                     ->whereIn('difficulty', $difficulty)
                     ->orderBy('review_count', 'desc')
                     ->orderBy('difficulty', 'asc')
-                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url']);
+                    ->orderBy('predicted_burnt_calories' ,'asc')
+                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description','categorie_id as categorie_name'])->each(function ($data) {
+                        $data->created_at =  (string)Carbon::parse($data->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
+                    });
                 $workouts = Workout::query()
                     ->whereNotIn('user_id', array_merge(Block::where('user_id', Auth::id())->get()->pluck('blocked')->toArray(), Follow::where('follower_id', Auth::id())->get()->pluck('following')->toArray()))
                     ->whereIn('difficulty', $difficulty)
                     ->orderBy('review_count', 'desc')
                     ->orderBy('difficulty', 'asc')
-                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url']);
-                //$workouts_result = $followed_coach_workouts->getCollection();
+                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description','categorie_id as categorie_name'])->each(function ($data) {
+                        $data->created_at =  (string)Carbon::parse($data->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
+                    });                //$workouts_result = $followed_coach_workouts->getCollection();
                 $workouts_result = $followed_coach_workouts->merge($workouts);
                 //return response($workouts_result);
                 foreach ($workouts_result as $workout) {
                     $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                     $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                     $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
+                    $workout['saved'] = false;
+                    $workout['categorie_name'] = WorkoutCategorie::find($workout['categorie_name'])->only('name');
+                    if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
+                    $workout['created_at'] = (string)Carbon::parse($workout['created_at'])->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
                 }
-                return $this->success("Success", array_values($workouts_result->paginate(3)->getCollection()->toArray()), 200);
+                return $this->success("Success", array_values($workouts_result->paginate(15)->getCollection()->toArray()), 200);
             } else if ($filter_1 == 2) //all
             {
                 $workouts = Workout::query()
@@ -386,13 +405,19 @@ class WorkoutController extends Controller
                     ->whereIn('difficulty', $difficulty)
                     ->orderBy('review_count', 'desc')
                     ->orderBy('difficulty', 'asc')
-                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url']);
+                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description','categorie_id as categorie_name'])->each(function ($data) {
+                        $data->created_at =  (string)Carbon::parse($data->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
+                    });
                 foreach ($workouts as $workout) {
                     $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                     $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                     $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
+                    $workout['saved'] = false;
+                    $workout['categorie_name'] = WorkoutCategorie::find($workout['categorie_name'])->only('name');
+                    if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
+                    $workout['created_at'] =$workout['created_at']->format('Y-m-d H:i:s');
                 }
-                return $this->success("Success", array_values($workouts->paginate(3)->getCollection()->toArray()), 200);
+                return $this->success("Success", array_values($workouts->paginate(15)->getCollection()->toArray()), 200);
             } else {
                 //return response($filter_2);
                 $workouts = Workout::query()
@@ -402,13 +427,18 @@ class WorkoutController extends Controller
                     ->orderBy('name', 'asc')
                     ->orderBy('difficulty', 'asc')
                     ->orderBy('review_count', 'desc')
-                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'created_at', 'workout_image_url']);
-                foreach ($workouts as $workout) {
+                    ->get(['id', 'name', 'predicted_burnt_calories', 'length', 'excersise_count', 'equipment', 'difficulty', 'user_id as user', 'workout_image_url','description','categorie_id as categorie_name'])->each(function ($data) {
+                        $data->created_at =  (string)Carbon::parse($data->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
+                    });                foreach ($workouts as $workout) {
                     $workout['workout_image_url'] = 'storage/images/workout/' . $workout['workout_image_url'];
                     $workout['user'] = User::where('id', $workout['user'])->get(['id', 'f_name', 'l_name', 'prof_img_url'])->first();
                     $workout['user']['prof_img_url'] = 'storage/images/users/' . $workout['user']['prof_img_url'];
+                    $workout['saved'] = false;
+                    $workout['categorie_name'] = WorkoutCategorie::find($workout['categorie_name'])->only('name');
+                    if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $workout->id])->exists()) $workout['saved'] = true;
+                    $workout['created_at'] = $workout['created_at']->format('Y-m-d H:i:s');
                 }
-                return $this->success("Success", array_values($workouts->paginate(3)->getCollection()->toArray()), 200);
+                return $this->success("Success", array_values($workouts->paginate(15)->getCollection()->toArray()), 200);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -428,6 +458,14 @@ class WorkoutController extends Controller
             $fields = $fields->safe()->all();
             if (WorkoutReview::where(['workout_id' => $id, 'user_id' => Auth::id()])->exists()) {
                 return $this->fail("You can't add more than one review!!", 400);
+            }
+            if(!Workout::where('id',$id)->exists())
+            {
+                return $this->fail('Workout Not Found');
+            }
+            if(Workout::find($id)->user_id == Auth::id())
+            {
+                return $this->fail('Cant add a review to your own diet!');
             }
             $fields['user_id'] = $request->user()->id;
             $fields['workout_id'] = $id;
@@ -453,7 +491,7 @@ class WorkoutController extends Controller
                 $data['user_id']->prof_img_url = 'storage/images/users/' . $data['user_id']->prof_img_url;
                 return $data;
             });
-            return $this->success("Success", array_values($reviews->paginate(3)->getCollection()->toArray()), 200);
+            return $this->success("Success", array_values($reviews->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -507,8 +545,22 @@ class WorkoutController extends Controller
     {
         try {
             $review = WorkoutReview::find($id);
+            $workout = Workout::find($review->workout_id);
             $user = User::find(Auth::id());
             if ($review->user_id == Auth::id() || in_array($user->role_id, [4, 5])) {
+                if($workout->reviews->count() == 1)
+                {
+                    $workout->review_count = 0;
+                    $workout->update();
+                }
+                else
+                {
+                    $review_rate = $workout->review_count;
+                $review_count = $workout->reviews->count();
+                $review_rating = (float) ((($review_count) * $review_rate) - $review->stars) / ($review_count - 1);
+                $workout->review_count = $review_rating;
+                $workout->update();
+                }
                 $review->delete();
                 return $this->success("Deleted Successfully", [], 200);
             }
