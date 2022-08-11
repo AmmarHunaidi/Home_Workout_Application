@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->text('food_image_url')->default('Default/2560px-Pipeline_OpenGL.svg.png');
             $table->foreignId('user_id')->constrained('users');
-            $table->boolean('approval')->default(0);
+            $table->boolean('approval')->default(1);
             $table->timestamps();
         });
     }
