@@ -39,5 +39,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ChallengesTableSeeder::class);
         $this->call(AppFeatureTableSeeder::class);
         $this->call(UsersInfoTableSeeder::class);
+        // $this->call(WorkoutCategorieSeeder::class);
+        // $this->call(WorkoutSeeder::class);
+        // $this->call(WorkoutExcersisesSeeder::class);
     }
 }

@@ -15,19 +15,24 @@ class WorkoutCategorieSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('workout_categories')->delete();
         DB::table('workout_categories')->insert([
-            'name' => 'Full Body',
+            'id' => 1,
+            'name' => 'Recommended',
             'user_id' => 1
         ],
         [
+            'id' => 2,
             'name' => 'Chest',
             'user_id' => 1
         ],
         [
+            'id' => 3,
             'name' => 'Stomach',
             'user_id' => 1
         ],
         [
+            'id' => 4,
             'name' => 'Legs',
             'user_id' => 1
         ]);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Food;
 use App\Http\Requests\StoreFoodRequest;
 use App\Http\Requests\UpdateFoodRequest;
+use App\Models\MealFood;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -92,23 +93,24 @@ class FoodController extends Controller
 
     public function edit(Request $request, $id)
     {
+        //return $this->fail($request , 400);
         try {
-            if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
                 $fields = Validator::make($request->only('name', 'calories', 'food_image', 'description'), [
-                    'name' => 'string|nullable',
-                    'calories' => 'integer|nullable',
-                    'description' => 'string|nullable',
+                    'name' => 'string',
+                    'calories' => 'integer',
+                    'description' => 'string',
                     'food_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
                 ]);
                 if ($fields->fails()) {
                     return $this->fail($fields->errors()->first(), 400);
                 }
                 $fields = $fields->safe()->all();
-                $food = Food::find($fields['food_id']);
-                if ($request->user()->id == $food->user_id) {
-                    if ($fields['name'] != null) $food->name = $fields['name'];
-                    if ($fields['calories'] != null) $food->calories = $fields['calories'];
-                    if ($fields['description'] != null) $food->description = $fields['description'];
+                $food = Food::find($id);
+                $user = User::find(Auth::id());
+                if ($user->id == $food->user_id || in_array($user->id , [4,5])) {
+                    if ($fields['name'] != $food->name) $food->name = $fields['name'];
+                    if ($fields['calories'] != $food->calories) $food->calories = $fields['calories'];
+                    if ($fields['description'] != $food->description) $food->description = $fields['description'];
                     if ($request->hasFile('food_image')) {
                         if ($food->food_image_url != "Default/2560px-Pipeline_OpenGL.svg.png") {
                             Storage::delete('public/images/food/' . $food->food_image_url);
@@ -124,12 +126,8 @@ class FoodController extends Controller
                     $message = 'Food Edited Successfully';
                     return $this->success(_("message." . $message), $food, 200);
                 }
-                $message = 'Permission Denied. Not the owner';
-                return $this->fail(_('message.' . $message), 401);
-            } else {
-                return $this->fail("Not a dietitian!", 401);
-            }
-        } catch (Exception $exception) {
+                return $this->fail('Permission Denied.', 401);
+            } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
     }
@@ -138,8 +136,12 @@ class FoodController extends Controller
     {
         try {
             $user = User::find(Auth::id());
+            $food = Food::find($id);
             if (in_array($user->role_id, [4, 5])) {
-                $food = Food::find($id);
+                if(MealFood::where('food_id',$food->id)->exists() == true)
+                {
+                    return $this->fail("Can't delete food due to it being assigned too one or more meals!");
+                }
                 $food->delete();
                 $message = 'Food Deleted Successfully';
                 return $this->success(_("message." . $message), $food, 200);

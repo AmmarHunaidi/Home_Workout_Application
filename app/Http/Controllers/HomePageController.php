@@ -49,7 +49,17 @@ class HomePageController extends Controller
             }
             $workouts_played = Practice::where('created_at', '>=', Carbon::now()->startOfMonth()->subMonth()->toDateString())->where('user_id', Auth::id())->count();
             $current_diet = DietSubscribe::where('user_id', $user->id)->first();
-            $current_diet = Diet::find($current_diet->diet_id);
+            if($current_diet != null)
+            {
+                $current_diet = Diet::find($current_diet->diet_id)->only(['id','name']);
+            }
+            else
+            {
+                $current_diet = [
+                    'id' => 0,
+                    'name' => ''
+                ];
+            }
             //return response($current_diet);
             $data = [
                 'BMI' => $bmi,

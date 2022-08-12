@@ -75,7 +75,7 @@ class MealController extends Controller
                     return $this->success(_("Created Successfully"), $meal, 200);
                 }
                 $meal->update();
-                $message = 'Meal Created Successfully . Awaiting Approval';
+                $message = 'Meal Created Successfully';
                 $data = [
                     'meal' => $meal,
                     'food_list' => $food_result
@@ -101,13 +101,14 @@ class MealController extends Controller
     //     return $this->success("Success" , $meal , 200);
     // }
 
-    public function edit(Request $request)
+    public function edit(Request $request,$id)
     {
         try {
-            if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
-                $fields = Validator::make($request->only('type', 'meal_id', 'description', 'food_ids'), [
+            $user = User::find(Auth::id());
+            $meal = Meal::find($id);
+            if ($user->id == $meal->created_by || in_array($user->role_id , [4,5])) {
+                $fields = Validator::make($request->only('type', 'description', 'food_ids'), [
                     'type' => 'string|nullable|in:Breakfast,Dinner,Snack,Lunch',
-                    'meal_id' => 'required|integer',
                     'food_ids' => 'required|string',
                     'description' => 'required|string'
                 ]);
@@ -115,7 +116,6 @@ class MealController extends Controller
                     return $this->fail($fields->errors()->first(), 400);
                 }
                 $fields = $fields->safe()->all();
-                $meal = Meal::find($fields['meal_id']);
                 if ($meal->type != $fields['type']) {
                     $meal->type = $fields['type'];
                 }

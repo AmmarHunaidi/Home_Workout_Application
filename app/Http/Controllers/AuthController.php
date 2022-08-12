@@ -11,7 +11,9 @@ use App\Models\UserInfo;
 use App\Models\NewEmail;
 use App\Models\Follow;
 use App\Models\Block;
+use App\Models\Diet;
 use App\Models\Provider;
+use App\Models\Workout;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -460,6 +462,20 @@ class AuthController extends Controller
                 $user->devices()->delete();
                 $user->deleted_at = Carbon::now();
                 $user->save();
+                if($user->role_id == 3)
+                {
+                    Diet::where('created_by' , $user->id)->get()->each(function ($data) {
+                        $data['created_by'] = 5;
+                        $data->update();
+                    });
+                }
+                else if($user->role_id == 2)
+                {
+                    Workout::where('user_id' , $user->id)->get()->each(function ($data) {
+                        $data['user_id'] = 5;
+                        $data->update();
+                    });
+                }
                 return $this->success(__("messages.account deleted"));
             }
             return $this->fail(__("messages.Invalid credentials"));

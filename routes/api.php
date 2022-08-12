@@ -207,12 +207,14 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
-        Route::get('/favorite','favorites');
+        Route::get('/favorites','favorites');
         Route::post('favorite/{id}' , 'favorite');
         Route::get('/my_workouts' , 'my_workouts');
         Route::get('/user/{id}' , 'user_workouts');
         Route::post('/review/{id}' , 'review');
         Route::get('/review/{id}' , 'reviews');
+        Route::put('/review/{id}' , 'edit_review');
+        Route::delete('/review/{id}' , 'delete_review');
         Route::get('/filter/{filter_1}/{filter_2?}' , 'workouts_filter');
     });
 
@@ -229,13 +231,12 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::post('/create', 'create');
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
+
         Route::get('/all', 'index');
     });
 
     Route::prefix('practice')->controller(PracticeController::class)->group(function () {
-        Route::get('/start/{id}', 'initiate');
-        Route::post('/next/{id)' , 'practice');
-        Route::get('/summary' , 'summary');
+        Route::post('/summary' , 'summary');
     });
 });
 
@@ -251,8 +252,8 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     Route::prefix('meal')->controller(MealController::class)->group(function () {
         Route::get('/show', 'show');
         Route::post('/create', 'create');
-        Route::delete('/delete', 'destroy');
-        Route::put('/update', 'edit');
+        Route::delete('/delete/{id}', 'destroy');
+        Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
     });
 
