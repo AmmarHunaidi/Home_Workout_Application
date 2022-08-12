@@ -49,13 +49,13 @@ class ChallengeController extends Controller
                 ->whereNotIn('following', User::query()->whereNotNull('deleted_at')->get('id'))
                 ->get('following'); //users I following without who blocked me
             $chs = Challenge::query()
-                ->where('end_time', '>', Carbon::now())
+                ->where('end_time', '>=', Carbon::now())
                 ->whereIn('user_id', $coaches_ids)
                 ->orderByDesc('created_at')
                 ->paginate(15);
-            if ($chs->count() == 0) {
+            if ($chs->count() <= 3) {
                 $chs = Challenge::query()
-                    ->where('end_time', '>', Carbon::now())
+                    ->where('end_time', '>=', Carbon::now())
                     ->whereNotIn('user_id', $blocks)
                     ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
                     ->orderByDesc('created_at')
@@ -78,13 +78,13 @@ class ChallengeController extends Controller
                 'desc' => ['string', 'min:2', 'max:1000', 'nullable'],
                 'time' => ['boolean', 'required'],
                 'img' => ['image', 'mimes:jpg,png,jpeg,gif,svg,bmp', 'max:8192', 'nullable'],
-                'count' => ['integer', 'min:2', 'max:90000', 'required'],
+                'count' => ['integer', 'min:2', 'max:4000000', 'required'],
                 'ex_id' => ['required', 'exists:challenges_exercises,id'],
                 'end_time' => ['required', 'string'],
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
-            if (Carbon::parse($request->end_time)->lte(Carbon::now()->addDay())) {
+            if (Carbon::parse($request->end_time)->lte(Carbon::now())) {
                 return $this->fail(__('messages.End time should be greater than ') . Carbon::now()->addDay()->format('Y-m-d'));
             }
             $ch = Challenge::create([
@@ -116,6 +116,8 @@ class ChallengeController extends Controller
     {
         try {
             $ch = Challenge::find($id);
+            if (!$ch)
+                return $this->fail(__("messages.Not found"));
             if ($ch && !is_null(Block::where(['user_id' => $ch->user_id, 'blocked' => Auth::id()])->first()))
                 return $this->fail(__("messages.Access denied"));
             $ch->img_path = ChallengeExcercise::where('id', $ch->ex_id)->first()->img_path;
@@ -124,7 +126,7 @@ class ChallengeController extends Controller
             } elseif ($ch->is_time == false) {
                 $ca = $this->calcCaSteps($ch, $request);
             }
-            return $this->success('ok', $this->chData([$ch], $request));
+            return $this->success('ok', $this->chDatashow([$ch], $request));
         } catch (\Exception $e) {
             // return $this->fail(__("messages.somthing went wrong"), 500);
             return $this->fail($e->getMessage(), 500);
@@ -239,13 +241,14 @@ class ChallengeController extends Controller
                 $ca = $this->calcCaSteps($ch, $request);
             }
             $data[] = [
+                'ex_id' => $ch->ex_id,
                 'id' => $ch->id,
                 'name' => (string) $ch->name,
                 'desc' => (string) $desc,
                 'img' => (string) 'storage/images/users/' . $ch->img_path,
                 'end_time' => (string)Carbon::parse($ch->end_time)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
-                'total_count' => (string)$ch->total_count,
-                'my_count' => (string)$my_count,
+                'total_count' => (int)$ch->total_count,
+                'my_count' => (int)$my_count,
                 'is_time' => (bool)$ch->is_time,
                 'created_at' => (string)Carbon::parse($ch->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
                 'sub_count' => (string)$this->subCount($ch->id),
@@ -262,7 +265,61 @@ class ChallengeController extends Controller
         }
         return $data;
     }
+    public function chDatashow($chs, $request)
+    {
+        $data = [];
+        foreach ($chs as $ch) {
+            $user = $ch->user()->first(['id', 'f_name', 'l_name', 'role_id', 'prof_img_url']);
+            $url = $user->prof_img_url;
+            if (!(Str::substr($url, 0, 4) == 'http')) {
+                $url = 'storage/images/users/' . $url;
+            }
+            $is_sub = false;
+            if (ChallengeSub::where(['ch_id' => $ch->id, 'user_id' => Auth::id()])->first())
+                $is_sub = true;
+            $desc = $ch->desc . ', About the challenge excrecise : ' . $ch->ex()->first()->desc;
 
+            $is_active = true;
+            if (Carbon::parse($ch->end_time)->lte(Carbon::now()))
+                $is_active = false;
+
+            $my_count = 0;
+            if ($meSub = ChallengeSub::where(['ch_id' => $ch->id, 'user_id' => Auth::id()])->first())
+                $my_count = $meSub->count;
+            //
+            $end = false;
+            if (Carbon::parse($ch->end_time)->lt(Carbon::now()))
+                $end = true;
+            if ($ch->is_time == true) {
+                $ca = $this->calcCaTime($ch, $request);
+            } elseif ($ch->is_time == false) {
+                $ca = $this->calcCaSteps($ch, $request);
+            }
+            $data[] = [
+                'ex_id' => $ch->ex_id,
+                'id' => $ch->id,
+                'name' => (string) $ch->name,
+                'desc' => (string) $desc,
+                'img' => (string) 'storage/images/ChallengesEx/' . $ch->img_path,
+                'end_time' => (string)Carbon::parse($ch->end_time)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                'total_count' => (int)$ch->total_count,
+                'my_count' => (int)$my_count,
+                'is_time' => (bool)$ch->is_time,
+                'created_at' => (string)Carbon::parse($ch->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                'sub_count' => (string)$this->subCount($ch->id),
+                'rate' => (string)$this->reviewCount($ch),
+                'is_sub' => $is_sub,
+                'is_active' => $is_active,
+                'end' => $end,
+                'user_id' => $user->id,
+                'user_img' => (string)$url,
+                'user_name' => (string)$user->f_name . ' ' . $user->l_name,
+                'role_id' => $user->role_id,
+                'ca' => (string)$ca
+            ];
+        }
+        return $data;
+    }
     public function destroy($id)
     {
         try {
@@ -368,7 +425,7 @@ class ChallengeController extends Controller
         try {
             $request->count = (int)$request->count;
             $validator = Validator::make($request->only('count'), [
-                'count' => ['integer', 'min:2', 'max:90000', 'required'],
+                'count' => ['integer', 'min:0', 'max:90000', 'required'],
             ]);
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
@@ -377,10 +434,8 @@ class ChallengeController extends Controller
                 if ($ch->user()->first()->deleted_at != Null)
                     return $this->fail(__("messages.Not found"));
                 if ($sub = ChallengeSub::where(['ch_id' => $id, 'user_id' => Auth::id()])->first()) {
-                    if ($request->count >= $sub->count) {
-                        $sub->count = $request->count;
-                        $sub->save();
-                    }
+                    $sub->count = $sub->count + $request->count;
+                    $sub->save();
                     if ($ch->is_time == true) {
                         $ca = $this->calcCaTime($ch, $request);
                     } elseif ($ch->is_time == false) {
@@ -451,7 +506,7 @@ class ChallengeController extends Controller
         $info = $user->info()->get()->last();
         if (!$ca = ChallengeSub::where(['ch_id' => $ch->id, 'user_id' => Auth::id()])->first('count'))
             return 0;
-        $time = $ca->count / 60;
+        $time = $ca->count / 60 / 60;
         if (!$time) {
             return 0;
         }

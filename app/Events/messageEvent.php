@@ -11,11 +11,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-class messageEvent implements ShouldBroadcast
+class MessageEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $id, $user_id, $message, $chat_id, $created_at;
+    private $id, $user_id, $message, $chat_id, $created_at;
     public function __construct($id, $user_id, $chat_id, $message, $created_at)
     {
         $this->id = $id;
@@ -32,12 +32,12 @@ class messageEvent implements ShouldBroadcast
             'user_id' => $this->user_id,
             'message' => $this->message,
             'chat_id' => $this->chat_id,
-            'created_at' => $this->created_at,
+            'created_at' => (string)$this->created_at,
         ];
     }
 
     public function broadcastOn()
     {
-        return new Channel('chat.' . $this->user_id);
+        return new Channel('chat');
     }
 }

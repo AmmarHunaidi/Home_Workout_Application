@@ -44,7 +44,7 @@ class MessageController extends Controller
                 $url = 'storage/images/users/' . $url;
             }
             $msgs = Message::query()->where('chat_id', $chat->id)
-                ->orderByDesc('created_at')
+                ->orderBy('created_at')
                 ->get(['id', 'message', 'user_id', 'created_at']);
             $msgsArr = [];
             foreach ($msgs as $msg) {
@@ -52,10 +52,12 @@ class MessageController extends Controller
                     'id' => $msg->id,
                     'message' => (string)$msg->message,
                     'user_id' => $msg->user_id,
-                    'created_at' => (string)Carbon::parse($msg->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                    'created_at' => (string)Carbon::parse($msg->created_at)->utcOffset(config('app.timeoffset'))->format('g:i A'),
+                    'chat_id' => $chat->id,
                 ];
             }
             $data = [
+                'chat_id' => $chat->id,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->f_name . ' ' . $user->l_name,
@@ -63,9 +65,7 @@ class MessageController extends Controller
                     'role_id' => $user->role_id,
                     'role' => Role::find($user->role_id)->name,
                 ],
-                'msgs' => [
-                    $msgsArr
-                ]
+                'msgs' => $msgsArr
             ];
             return $this->success('ok', $data);
         } catch (\Exception $e) {
@@ -85,7 +85,8 @@ class MessageController extends Controller
             if ($validator->fails())
                 return $this->fail($validator->errors()->first(), 400);
             //
-            if (Chat::where(['id' => $request->chat_id, 'blocked' => true])) {
+            $chat = Chat::where('id', $request->chat_id)->first();
+            if ($chat->blocked == 1) {
                 return $this->fail(__('messages.You can not send messages to a blocked chat'));
             }
             $msg = Message::create([
@@ -93,7 +94,9 @@ class MessageController extends Controller
                 'chat_id' => $request->chat_id,
                 'user_id' => Auth::id(),
             ]);
-            event(new messageEvent($msg->id, Auth::id(), $request->chat_id, $request->messages, $msg->created_at));
+            $chat->updated_at = Carbon::now();
+            $created_at = (string)Carbon::parse($msg->created_at)->utcOffset(config('app.timeoffset'))->format('g:i A');
+            event(new MessageEvent($msg->id, Auth::id(), $request->chat_id, $request->message, $created_at));
             return $this->success();
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), 500);
@@ -124,6 +127,7 @@ class MessageController extends Controller
                 $query->where('user_id', $id)
                     ->orWhere('to_user_id', $id);
             })
+                ->orderBy("updated_at")
                 ->paginate(20);
             $data = [];
             foreach ($chats as $chat) {

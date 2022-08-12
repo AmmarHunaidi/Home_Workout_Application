@@ -20,11 +20,9 @@ class WorkoutReviewController extends Controller
      */
     public function index($id)
     {
-        try{
-
-        }catch(Exception $exception)
-        {
-            return $this->fail()
+        try {
+        } catch (Exception $exception) {
+            return $this->fail();
         }
         $fields = Validator::make($request->only('workout_id', 'description', 'stars'), [
             'workout_id' => 'required|integer'
@@ -63,5 +61,4 @@ class WorkoutReviewController extends Controller
         $workout->update();
         return $this->success("Done", $workout, 200);
     }
-    
 }

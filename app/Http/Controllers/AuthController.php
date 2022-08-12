@@ -312,8 +312,8 @@ class AuthController extends Controller
             if ($request->birthdate && $request->birthdate != $user->birth_date) {
                 $user->birth_date = Carbon::parse($request->birthdate)->format('Y-m-d');
             }
-            if (!(is_null($request->bio) || $request->bio != $user->bio)) {
-                $user->bio = $request->bio;
+            if ($request->bio != $user->bio) {
+                $user->bio = (string)$request->bio;
             }
             if ((($request->height && $request->height != $info->height) ||
                     ($request->weight && $request->weight != $info->weight) ||
