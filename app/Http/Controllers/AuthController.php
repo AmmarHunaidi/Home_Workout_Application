@@ -317,24 +317,24 @@ class AuthController extends Controller
             if ($request->bio != $user->bio) {
                 $user->bio = (string)$request->bio;
             }
-            if ((($request->height && $request->height != $info->height) ||
-                    ($request->weight && $request->weight != $info->weight) ||
-                    ($request->height_unit && $request->height_unit != $info->height_unit) ||
-                    ($request->weight_unit && $request->weight_unit != $info->weight_unit))
-                && ($request->height_unit == 'cm' || $request->height_unit == 'ft')
-                && ($request->weight_unit == 'kg' || $request->weight_unit == 'lb')
-            ) {
-                $info->update([
-                    'changed_at' => Carbon::now()->utcOffset(config('app.timeoffset'))->format('Y-m-d H:i:s'),
-                ]);
-                UserInfo::create([
-                    'user_id' => $user->id,
-                    'height' => $request->height,
-                    'weight' => $request->weight,
-                    'height_unit' => $request->height_unit,
-                    'weight_unit' => $request->weight_unit,
-                ]);
-            }
+            // if ((($request->height && $request->height != $info->height) ||
+            //         ($request->weight && $request->weight != $info->weight) ||
+            //         ($request->height_unit && $request->height_unit != $info->height_unit) ||
+            //         ($request->weight_unit && $request->weight_unit != $info->weight_unit))
+            //     && ($request->height_unit == 'cm' || $request->height_unit == 'ft')
+            //     && ($request->weight_unit == 'kg' || $request->weight_unit == 'lb')
+            // ) {
+            $info->update([
+                'changed_at' => Carbon::now()->utcOffset(config('app.timeoffset'))->format('Y-m-d H:i:s'),
+            ]);
+            UserInfo::create([
+                'user_id' => $user->id,
+                'height' => $request->height,
+                'weight' => $request->weight,
+                'height_unit' => $request->height_unit,
+                'weight_unit' => $request->weight_unit,
+            ]);
+            // }
             if ($user->role_id == 5) { // app Logo
                 if ($request->hasFile('img')) {
                     $destination_path = 'public/images/users';
@@ -344,8 +344,7 @@ class AuthController extends Controller
                     $path = $image->storeAs($destination_path, $image_name);
                     $user->prof_img_url = $image_name;
                 }
-            } else
-            if ($request->hasFile('img')) {
+            } elseif ($request->hasFile('img')) {
                 if ($user->prof_img_url != "Default/RrmDmqreoLbR6dhjSVuFenDAii8uBWdqhi2fYSjK9pRISPykLSdefaultprofileimg.jpg") {
                     Storage::delete('public/images/users/' . $user->prof_img_url);
                 }
@@ -355,6 +354,7 @@ class AuthController extends Controller
                 $image_name = $user->id . '/' . "profilePic" . '/' . $randomString . $image->getClientOriginalName();
                 $path = $image->storeAs($destination_path, $image_name);
                 $user->prof_img_url = $image_name;
+                $user->save();
             }
             $user->save();
             return $this->success();
