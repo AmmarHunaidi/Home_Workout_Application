@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Models\Practice;
 use App\Traits\EmailTrait;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,7 +32,16 @@ class MonthlySummary implements ShouldQueue
     {
         foreach($this->users as $user)
         {
-            $user->email
+            $practices = Practice::query()
+                ->where('user_id', $user->id)
+                ->where('created_at', '>=', Carbon::now()->subMonth()->startOfMonth()->toDateString())
+                ->get();
+            $calories = 0;
+            foreach ($practices as $practice) {
+                $calories += $practice->summary_calories;
+            }
+            $workout_count = $practices->count();
+            $this->sendMonthlySummary($user->f_name , $calories , $user->email , $workout_count);
         }
     }
 }

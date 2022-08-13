@@ -327,6 +327,7 @@ class WorkoutController extends Controller
                 $favorite['user'] = User::where('id',$favorite['user'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
                 str_starts_with($favorite['user']['prof_img_url'],'https') ? : $favorite['user']['prof_img_url'] = 'storage/images/users/' . $favorite['user']['prof_img_url'];
                 $favorite['categorie_name'] = WorkoutCategorie::find($favorite['categorie_name'])->only('name');
+                $favorite['saved'] = true;
             }
             return $this->success(__("messages.Favorite Workouts Returned Successfully"), array_values($favorites->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
@@ -371,14 +372,7 @@ class WorkoutController extends Controller
             return $this->fail($exception->getMessage(), 500);
         }
     }
-    //Schedule
-    //Chest
-    //Back
-    //Arms
-    //Abs
-    //Shoulders
-    //Legs
-    //Abs
+
     public function workouts_filter($filter_1, $filter_2 = null)
     {
         try {

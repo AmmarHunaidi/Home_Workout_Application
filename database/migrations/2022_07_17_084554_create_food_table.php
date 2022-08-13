@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('calories');
             $table->string('description')->nullable();
-            $table->text('food_image_url')->default('Default/2560px-Pipeline_OpenGL.svg.png');
+            $table->text('food_image_url')->default('Default/default.jpg');
             $table->foreignId('user_id')->constrained('users');
             $table->boolean('approval')->default(1);
             $table->timestamps();

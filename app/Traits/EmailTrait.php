@@ -61,8 +61,13 @@ trait EmailTrait
         });
     }
 
-    protected static function sendMonthlySummary($user, $body)
+
+    protected static function sendMonthlySummary($name , $calories , $workout_count , $email)
     {
+        Mail::send('emails' . 'en' . '.MonthlySummay' , ['name' => $name , 'calories' => $calories , 'workout_count' => $workout_count] , function ($msg) use ($email) {
+            $msg->to($email);
+            $msg->subject("Monthly Summary");
+        });
     }
 }
 // use App\Traits\EmailTrait; befor the controller class
