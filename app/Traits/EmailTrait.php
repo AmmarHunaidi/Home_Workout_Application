@@ -60,6 +60,11 @@ trait EmailTrait
             $msg->subject("CV Refused " . config('app.name'));
         });
     }
+
+    protected static function sendMonthlySummary($user , $body)
+    {
+        
+    }
 }
 // use App\Traits\EmailTrait; befor the controller class
 // use EmailTrait; inside the controller class

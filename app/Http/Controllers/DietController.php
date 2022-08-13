@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Diet;
 use App\Http\Requests\StoreDietRequest;
 use App\Http\Requests\UpdateDietRequest;
+use App\Jobs\SubscribedDietDeleted;
 use App\Models\DietMeal;
 use App\Models\DietReview;
 use App\Models\DietSubscribe;
@@ -13,18 +14,21 @@ use App\Models\Food;
 use App\Models\Meal;
 use App\Models\MealFood;
 use App\Models\User;
+use App\Models\UserDevice;
 use App\Policies\DietMealPolicy;
 use App\Traits\GeneralTrait;
+use App\Traits\NotificationTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PhpParser\JsonDecoder;
 
 class DietController extends Controller
 {
-    use GeneralTrait;
+    use GeneralTrait,NotificationTrait;
     function getFoodList($food_ids)
     {
         try {
@@ -57,7 +61,7 @@ class DietController extends Controller
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $data->id])->exists()) $data['saved'] = true;
                 DietReview::where(['diet_id' => $data->id, 'user_id' => Auth::id()])->exists() == true ? $data['is_reviewed'] = true : $data['is_reviewed'] = false;
             });
-            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
+            return $this->success(__("messages.Diet List Returned Successfully"), array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -77,7 +81,7 @@ class DietController extends Controller
 
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             }
-            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
+            return $this->success(__("messages.My Diets Returned Successfully"), array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -96,7 +100,7 @@ class DietController extends Controller
                 $diet['saved'] = false;
                 if (FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $diet->id])->exists()) $diet['saved'] = true;
             }
-            return $this->success("Success", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
+            return $this->success(__("messages.User Diets Returned Successfully"), array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -119,7 +123,6 @@ class DietController extends Controller
                 $days = json_decode($fields['meals']);
                 unset($fields['meals']);
                 $diet = Diet::create($fields);
-                $message = 'Diet Created Successfully';
                 $i = 0;
                 $result = [];
                 foreach ($days as $daymeals) {
@@ -145,9 +148,9 @@ class DietController extends Controller
                     'created_by' => $request->user(),
                     'schedule' => $result
                 ];
-                return $this->success(_($message), $diet, 201);
+                return $this->success(__('messages.Diet Created Successfully'), $diet, 201);
             } else {
-                return $this->fail("Permission Denied", 400);
+                return $this->fail(__("messages.Permission Denied!"), 400);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -186,7 +189,7 @@ class DietController extends Controller
             $diet['created_by']->prof_img_url = 'storage/images/users/' . $diet['created_by']->prof_img_url;
             $diet['subscribed'] = false;
             if (DietSubscribe::where(['user_id' => Auth::id(), 'diet_id' => $id])->exists()) $diet['subscribed'] = true;
-            return $this->success("Success", $diet, 200);
+            return $this->success(__("messages.Diet Returned Succesfully"), $diet, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -281,7 +284,8 @@ class DietController extends Controller
                     ];
                 }
                 $diet->update();
-                return $this->success(_("Edited Successfully"), $this->show($diet->id), 200);
+                //echo(___('messages.messages.Access denied'));
+                return $this->success(___('messages.messages.Diet Edited Successfully') , $this->show($diet->id) , 200);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -296,11 +300,19 @@ class DietController extends Controller
             if (in_array($user->id, [4, 5]) || $user->id = $diet->created_by) {
                 $diet->dietmeal()->delete();
                 $diet->favorites()->delete();
+                $users = $diet->subscribers;
+                foreach($users as $user)
+                {
+                    $user = User::find($user->user_id);
+                    $user_devices = UserDevice::where('user_id' , $user->id)->get('mobile_token');
+                    // return response($user_devices);
+                    dispatch(new SubscribedDietDeleted($diet->name , $user_devices));
+                }
+                $diet->subscribers()->delete();
                 $diet->delete();
-                $message = 'Diet Deleted Successfully';
-                return $this->success(_($message), $diet, 200);
-                return $this->fail(_("Permission Denied. Not the owner"), 400);
+                return $this->success(__('messages.Diet Deleted Successfully'), $diet, 200);
             }
+            return $this->fail(__("messages.Permission Denied!"), 400);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -312,13 +324,13 @@ class DietController extends Controller
             $favorite = FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $id])->exists();
             if ($favorite) {
                 $favorite = FavoriteDiet::where(['user_id' => Auth::id(), 'diet_id' => $id])->delete();
-                return $this->success("Deleted form favorites", [], 200);
+                return $this->success(__("messages.Diet deleted from favorites"), [], 200);
             } else {
                 $favorite = FavoriteDiet::create([
                     'user_id' => Auth::id(),
                     'diet_id' => $id
                 ]);
-                return $this->success("Added to favorites!", $favorite, 200);
+                return $this->success(__("messages.Diet added to favorites!"), $favorite, 200);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -335,7 +347,7 @@ class DietController extends Controller
                 $data['created_by']['prof_img_url'] = 'storage/images/users/' . $data['created_by']['prof_img_url'];
             });
             return response($diets);
-            return $this->success("Favorites", array_values($diets->paginate(15)->getCollection()->toArray()), 200);
+            return $this->success(__("messages.Diet Favorites Returned Successfully"), array_values($diets->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -357,7 +369,7 @@ class DietController extends Controller
             }
             if(Diet::find($id)->user_id == Auth::id())
             {
-                return $this->fail('Cant add a review to your own diet!');
+                return $this->fail(__('messages.Cant add a review to your own diet!'));
             }
             $fields['user_id'] = $request->user()->id;
             $fields['diet_id'] = $id;
@@ -368,7 +380,7 @@ class DietController extends Controller
             $review_rating = (float) ((($review_count - 1) * $review_rate) + $fields['stars']) / ($review_count);
             $diet->review_count = $review_rating;
             $diet->update();
-            return $this->success("Done", $diet, 200);
+            return $this->success(__("messages.Review Submitted Successfully"), $diet, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -383,7 +395,7 @@ class DietController extends Controller
                 $data['user_id']->prof_img_url = 'storage/images/users/' . $data['user_id']->prof_img_url;
                 return $data;
             });
-            return $this->success("Success", array_values($reviews->paginate(15)->getCollection()->toArray()), 200);
+            return $this->success(__("messages.Diet Reviews Returned Successfully"), array_values($reviews->paginate(15)->getCollection()->toArray()), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -421,7 +433,7 @@ class DietController extends Controller
                 $review->description = '';
             }
             $review->update();
-            return $this->success("Done", $review, 200);
+            return $this->success(__("messages.Review Edited Successfully"), $review, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -448,9 +460,9 @@ class DietController extends Controller
                 $diet->update();
                 }
                 $review->delete();
-                return $this->success("Deleted Successfully", [], 200);
+                return $this->success(__("messages.Review Deleted Successfully"), [], 200);
             }
-            return $this->fail("Permission Denied", 400);
+            return $this->fail(__("messages.Permission Denied"), 400);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -466,16 +478,24 @@ class DietController extends Controller
                 $subscribe = DietSubscribe::where('user_id', $user->id)->first();
                 if ($subscribe->diet_id == $id) {
                     $subscribe->delete();
-                    return $this->success("Unsubscribed", [], 200);
+                    return $this->success("Unsubscribed from Diet!", [], 200);
                 }
                 $subscribe->diet_id = $id;
                 $subscribe->update();
-                return $this->success("Done!", $subscribe, 200);
+                return $this->success(__("messages.Subscribed to Diet!"), $subscribe, 200);
             }
             $subscribe = DietSubscribe::create(['user_id' => $user->id, 'diet_id' => $diet->id]);
-            return $this->success("Created", $subscribe, 200);
+            return $this->success(__("messages.Subscribed to Diet!"), $subscribe, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
     }
 }
+
+
+//emails
+//edit fix
+//recommendations based on the schedule
+//diet recommendations
+//monthly summary
+

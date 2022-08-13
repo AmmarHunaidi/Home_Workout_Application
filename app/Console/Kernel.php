@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Delete:VerificationCodes')->everySixHours()->runInBackground();
         $schedule->command('tip:send')->everyMinute()->runInBackground()->appendOutputTo('c:\xampp\htdocs\Home_Workout_Application\info.txt');
         $schedule->command('Come:Send')->everyMinute()->runInBackground()->appendOutputTo('c:\xampp\htdocs\Home_Workout_Application\info.txt');
+        $schedule->call('SummaryController@monthlysummary')->monthlyOn(1);
     }
 
     protected function commands()
