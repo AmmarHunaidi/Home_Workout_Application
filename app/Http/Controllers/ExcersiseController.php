@@ -28,12 +28,10 @@ class ExcersiseController extends Controller
             $excersises = Excersise::all(['id', 'name', 'excersise_media_url', 'user_id', 'description' , 'burn_calories' , 'created_at']);
             foreach ($excersises as $excersise) {
                 $excersise['user_id'] = User::where('id',$excersise['user_id'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
-                //return response($excersise);
-                $excersise['user_id']['prof_img_url'] = 'storage/images/users/' . $excersise['user_id']['prof_img_url'];
-                // $excersise->user_id['prof_img_url'] = 'storage/images/users/' . $excersise->user_id['prof_img_url'];
+                str_starts_with($excersise['user_id']['prof_img_url'],'https') ? : $excersise['user_id']['prof_img_url'] = 'storage/images/users/' . $excersise['user_id']['prof_img_url'];
                 $excersise['excersise_media_url'] = 'storage/images/excersise/' . $excersise->excersise_media_url;
             }
-            return $this->success("Success", $excersises, 200);
+            return $this->success(__("messages.All Excercises returned successfully"), $excersises, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -42,7 +40,7 @@ class ExcersiseController extends Controller
     public function show($id)
     {
         try {
-            return $this->success("Excersise", Excersise::find($id), 200);
+            return $this->success(__("messages.Excercise Returned Successfully"), Excersise::find($id), 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -63,7 +61,7 @@ class ExcersiseController extends Controller
                 }
                 $fields = $fields->safe()->all();
                 if (Excersise::where('name', $fields['name'])->exists()) {
-                    return $this->fail('Name already taken!', 400);
+                    return $this->fail(__('messages.Name already taken!'), 400);
                 }
                 $fields['burn_calories'] = (int) $fields['burn_calories'];
                 $fields['user_id'] = $request->user()->id;
@@ -78,9 +76,9 @@ class ExcersiseController extends Controller
                 }
                 $excersise->created_at = (string)Carbon::parse($excersise->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
                 $excersise->update();
-                return $this->success("Created Successfully", $excersise, 201);
+                return $this->success(__("messages.Excercise Created Successfully"), $excersise, 201);
             } else {
-                return $this->fail("Permission not allowed!", 400);
+                return $this->fail(__("messages.Permission Denied!"), 400);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -108,7 +106,7 @@ class ExcersiseController extends Controller
                 $fields = $fields->safe()->all();;
                 if ($excersise->user->id == $user->id || in_array(User::find(Auth::id())->role_id, [4, 5])) {
                     if (in_array($fields['name'], Excersise::where('name', '!=', $excersise->name)->get('name')->toArray())) {
-                        return $this->fail("Name Already Exists", 400);
+                        return $this->fail(__("messages.Name Already Exists"), 400);
                     }
                     if ($fields['name'] != $excersise->name)
                         $excersise->name = $fields['name'];
@@ -129,9 +127,9 @@ class ExcersiseController extends Controller
                     }
                     $excersise->updated_at = (string)Carbon::parse($excersise->created_at)->utcOffset((int)config('app.timeoffset'))->format('Y/m/d g:i A');
                     $excersise->update();
-                    return $this->success("Successfully", $excersise, 200);
+                    return $this->success(__("messages.Excercise Edited Successfully"), $excersise, 200);
                 }
-                return $this->fail("Failed", 400);
+                return $this->fail(__("messages.Permission Denied!"), 400);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -146,13 +144,13 @@ class ExcersiseController extends Controller
             if (in_array($user->role_id, [4, 5]) || $excersise->user_id == Auth::id()) {
                 if(WorkoutExcersises::where('excersise_id',$excersise->id)->exists())
                 {
-                    return $this->fail("Can't delete this excersise due to it being assigned to one or more workouts",400);
+                    return $this->fail(__("messages.Can't delete this excersise due to it being assigned to one or more workouts"),400);
                 }
                 Storage::delete('public/images/excersise/' . $excersise->excersise_media_url);
                 $excersise->delete();
                 return $this->success("Success", [], 200);
             }
-            return $this->fail("Permission not allowed!", 400);
+            return $this->fail(__("messages.Permission Denied!"), 400);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }

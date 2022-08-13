@@ -76,4 +76,5 @@ return [
     'Subscribed' => 'تم الاشتراك',
     'End time should be greater than ' => ' وقت الانتهاء يجب ان يكون أكبر من ',
     'Challeng created' => 'تم إنشاء التحدي',
+    
 ];

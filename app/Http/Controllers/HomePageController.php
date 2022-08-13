@@ -61,6 +61,7 @@ class HomePageController extends Controller
                 ];
             }
             //return response($current_diet);
+            $weight = $user->info->last()->weight;
             $data = [
                 'BMI' => $bmi,
                 'Workouts Played' => $workouts_played,
@@ -74,3 +75,11 @@ class HomePageController extends Controller
         }
     }
 }
+
+
+//bmi here in the summary
+//email
+//notification
+//clean code
+//add excerise and workouts to the database aso diets and emeasl and food
+//erd

@@ -73,7 +73,7 @@ class PracticeController extends Controller
             $workout = Workout::find($fields['workout_id']);
             if($excersises_played < 0.2 * $workout->workout_excersise->count())
             {
-                return $this->success("Practice not trained suffeciently less than 20 percent of excersise practiced.", ['summary_calories' => "",
+                return $this->success(__("mesages.Practice not trained suffeciently less than 20 percent of excersise practiced."), ['summary_calories' => "",
                 'summary_time' =>  "",
                 'excersises_played' =>  ""] , 200);
             }
@@ -94,7 +94,7 @@ class PracticeController extends Controller
                 'workout_id' => $fields['workout_id']
             ]);
             $result = $practice->only(['summary_time','summary_calories','excersises_played']);
-            return $this->success("Well Done!" , $practice->only(['summary_time','summary_calories','excersises_played']) , 200);
+            return $this->success(__("messages.Well Done!") , $practice->only(['summary_time','summary_calories','excersises_played']) , 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
