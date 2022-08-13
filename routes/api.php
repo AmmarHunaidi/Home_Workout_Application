@@ -163,13 +163,13 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerif
         Route::get('/rev/{id}/{num}', 'review'); //add Block
         Route::get('/sub/{id}', 'sub'); //add Block
         Route::post('/done/{id}', 'done'); //add Block
-        Route::post('/', 'store')->middleware('coach');
-        Route::put('/{id}', 'update')->middleware('coach');
-        Route::put('/{id}', 'update')->middleware('coach');
-        Route::get('/my', 'showMy')->middleware('coach');
+        Route::post('/', 'store')->middleware('ch');
+        Route::put('/{id}', 'update')->middleware('ch');
+        Route::put('/{id}', 'update')->middleware('ch');
+        Route::get('/my', 'showMy')->middleware('ch');
         Route::get('/show/{id}', 'show'); //add block protect
         Route::get('/mySub', 'showMySubs');
-        Route::delete('/{id}', 'destroy')->middleware('coach');
+        Route::delete('/{id}', 'destroy')->middleware('ch');
     });
     Route::prefix('App')->controller(AppControlController::class)->group(function () {
         Route::get('/', 'index');
@@ -207,15 +207,15 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::post('/update/{id}', 'edit');
         Route::get('/all', 'index');
-        Route::get('/favorites','favorites');
-        Route::post('favorite/{id}' , 'favorite');
-        Route::get('/my_workouts' , 'my_workouts');
-        Route::get('/user/{id}' , 'user_workouts');
-        Route::post('/review/{id}' , 'review');
-        Route::get('/review/{id}' , 'reviews');
-        Route::put('/review/{id}' , 'edit_review');
-        Route::delete('/review/{id}' , 'delete_review');
-        Route::get('/filter/{filter_1}/{filter_2?}' , 'workouts_filter');
+        Route::get('/favorites', 'favorites');
+        Route::post('favorite/{id}', 'favorite');
+        Route::get('/my_workouts', 'my_workouts');
+        Route::get('/user/{id}', 'user_workouts');
+        Route::post('/review/{id}', 'review');
+        Route::get('/review/{id}', 'reviews');
+        Route::put('/review/{id}', 'edit_review');
+        Route::delete('/review/{id}', 'delete_review');
+        Route::get('/filter/{filter_1}/{filter_2?}', 'workouts_filter');
     });
 
     Route::prefix('excersise')->controller(ExcersiseController::class)->group(function () {
@@ -236,7 +236,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
 
     Route::prefix('practice')->controller(PracticeController::class)->group(function () {
-        Route::post('/summary' , 'summary');
+        Route::post('/summary', 'summary');
     });
 });
 
@@ -263,15 +263,15 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
         Route::delete('/delete/{id}', 'destroy');
         Route::put('/update/{id}', 'edit');
         Route::get('/all', 'index');
-        Route::get('/favorites','favorites');
-        Route::get('favorite/{id}' , 'favorite');
-        Route::get('/my_diets' , 'my_diets');
-        Route::get('/user/{id}' , 'user_diets');
-        Route::post('/review/{id}' , 'review');
-        Route::get('/review/{id}' , 'reviews');
-        Route::put('/review/{id}' , 'edit_review');
-        Route::delete('/review/{id}' , 'delete_review');
-        Route::post('/subscribe/{id}' , 'subscribe');
+        Route::get('/favorites', 'favorites');
+        Route::get('favorite/{id}', 'favorite');
+        Route::get('/my_diets', 'my_diets');
+        Route::get('/user/{id}', 'user_diets');
+        Route::post('/review/{id}', 'review');
+        Route::get('/review/{id}', 'reviews');
+        Route::put('/review/{id}', 'edit_review');
+        Route::delete('/review/{id}', 'delete_review');
+        Route::post('/subscribe/{id}', 'subscribe');
     });
 });
 

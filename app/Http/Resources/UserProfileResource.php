@@ -20,7 +20,7 @@ class UserProfileResource extends JsonResource
         if (!$birth_date == null) {
             $birth_date = Carbon::parse($birth_date)->format('Y-m-d');
         } else $birth_date = '';
-        $info = UserInfo::where('user_id', $this->id)->first();
+        $info = UserInfo::where('user_id', $this->id)->get()->last();
         $cv = false;
         if ($this->CV()->first())
             $cv = true;

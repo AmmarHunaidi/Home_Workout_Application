@@ -36,6 +36,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('Coach-Protection', function (User $user) {
             return $user->role_id === 2;
         });
+        Gate::define('Challenge-Protection', function (User $user) {
+            return $user->role_id === 2 || $user->role_id === 4 || $user->role_id === 5;
+        });
         Gate::define('Add-Diseseas-Protection', function (User $user) {
             return $user->role_id === 4 || $user->role_id === 5;
         });
