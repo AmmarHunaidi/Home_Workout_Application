@@ -9,9 +9,12 @@ use App\Models\Diet;
 use App\Models\DietMeal;
 use App\Models\DietReview;
 use App\Models\FavoriteDiet;
+use App\Models\FavoriteWorkout;
 use App\Models\Post;
 use App\Models\Role;
 use App\Models\Workout;
+use App\Models\WorkoutCategorie;
+use App\Models\WorkoutReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -315,8 +318,7 @@ class SearchController extends Controller
             ->where('name', 'like', '%' . strtolower($text) . '%')
             ->whereNotIn('user_id', Block::where('blocked', Auth::id())->get('user_id'))
             ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
-            ->withCount('reviews')
-            ->orderBy('reviews_count', 'desc')
+            ->orderByDesc('review_count')
             ->limit(5)
             ->get('name');
         $data = [];
@@ -333,5 +335,47 @@ class SearchController extends Controller
 
     public function searchWo($text)
     {
+        $wos = Workout::query()
+            ->where('name', 'like', '%' . strtolower($text) . '%')
+            ->whereNotIn('user_id', Block::where('blocked', Auth::id())->get('user_id'))
+            ->whereNotIn('user_id', User::query()->whereNotNull('deleted_at')->get('id'))
+            ->orderByDesc('review_count')
+            ->paginate(15);
+        $data = [];
+        foreach ($wos as $wo) {
+            $save = false;
+            if (FavoriteWorkout::where(['user_id' => Auth::id(), 'workout_id' => $wo->id])->exists()) $save = true;
+            WorkoutReview::where(['user_id' => Auth::id(), 'workout_id' => $wo->id])->exists() == true ? $review = true : $review = false;
+            $user = User::where('id', $wo->user_id)->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+            $url = $user->prof_img_url;
+            if (!(Str::substr($url, 0, 4) == 'http')) {
+                $url = 'storage/images/users/' . $url;
+            }
+            $data[] = [
+                'id' => $wo->id,
+                'name' => (string)$wo->name,
+                'predicted_burnt_calories' => $wo->predicted_burnt_calories,
+                'length' => $wo->length,
+                'excersise_count' => $wo->excersise_count,
+                'equipment' => $wo->equipment,
+                'difficulty' => $wo->difficulty,
+                'user' => [
+                    'id' => $user->id,
+                    'f_name' => $user->f_name,
+                    'l_name' => $user->f_name,
+                    'prof_img_url' => $url,
+                ],
+                'workout_image_url' => 'storage/images/workout/' . $wo->workout_image_url,
+                'description' => $wo->description,
+                'categorie_name' => [
+                    'name' => WorkoutCategorie::where('id', $wo->categorie_id)->first('name')->name
+                ],
+                'review_count' => $wo->review_count,
+                'created_at' => (string)Carbon::parse($wo->created_at)->utcOffset(config('app.timeoffset'))->format('Y/m/d g:i A'),
+                'saved' => $save,
+                'is_reviewed' => $review
+            ];
+        }
+        return $data;
     }
 }

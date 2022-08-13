@@ -79,5 +79,6 @@ class Kernel extends HttpKernel
         'coach' => \App\Http\Middleware\IsCoach::class,
         'seen' => \App\Http\Middleware\UpdateUserLastSeen::class,
         'appcontrol' => \App\Http\Middleware\CheckAppFeature::class,
+        'ch' => \App\Http\Middleware\ChallengeMiddleware::class,
     ];
 }

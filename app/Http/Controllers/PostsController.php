@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Block;
+use App\Models\DailyTip;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\PostMedia;
@@ -54,7 +55,7 @@ class PostsController extends Controller
                     ->paginate(10, ['id', 'user_id', 'text', 'type', 'created_at']);
             }
             // if there is too few posts
-            if ($posts->count() == 0) {
+            if ($posts->count() < 4) {
                 if ($request->user()->role_id == 2 || $request->user()->role_id == 3 || $request->user()->role_id == 5) {
                     $moreposts = Post::query()
                         ->orWhere('user_id', Auth::id())

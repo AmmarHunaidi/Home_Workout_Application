@@ -314,12 +314,12 @@ class AuthController extends Controller
             if ($request->birthdate && $request->birthdate != $user->birth_date) {
                 $user->birth_date = Carbon::parse($request->birthdate)->format('Y-m-d');
             }
-            if (!(is_null($request->bio) || $request->bio != $user->bio)) {
-                $user->bio = $request->bio;
+            if ($request->bio != $user->bio) {
+                $user->bio = (string)$request->bio;
             }
             if ((($request->height && $request->height != $info->height) ||
                     ($request->weight && $request->weight != $info->weight) ||
-                    ($request->height_unut && $request->height_unut != $info->height_unit) ||
+                    ($request->height_unit && $request->height_unit != $info->height_unit) ||
                     ($request->weight_unit && $request->weight_unit != $info->weight_unit))
                 && ($request->height_unit == 'cm' || $request->height_unit == 'ft')
                 && ($request->weight_unit == 'kg' || $request->weight_unit == 'lb')
@@ -462,16 +462,13 @@ class AuthController extends Controller
                 $user->devices()->delete();
                 $user->deleted_at = Carbon::now();
                 $user->save();
-                if($user->role_id == 3)
-                {
-                    Diet::where('created_by' , $user->id)->get()->each(function ($data) {
+                if ($user->role_id == 3) {
+                    Diet::where('created_by', $user->id)->get()->each(function ($data) {
                         $data['created_by'] = 5;
                         $data->update();
                     });
-                }
-                else if($user->role_id == 2)
-                {
-                    Workout::where('user_id' , $user->id)->get()->each(function ($data) {
+                } else if ($user->role_id == 2) {
+                    Workout::where('user_id', $user->id)->get()->each(function ($data) {
                         $data['user_id'] = 5;
                         $data->update();
                     });
