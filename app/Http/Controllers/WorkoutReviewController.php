@@ -13,4 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class WorkoutReviewController extends Controller
 {
+
 }
+ 

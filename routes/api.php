@@ -65,7 +65,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'bots', 'timeZone', 'se
 });
 
 //Token needed routes
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'seen', 'deltedAccount', 'auth:api', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'emailVerified', 'seen', 'deltedAccount', 'auth:api', 'appcontrol','throttle:60,1']], function () {
     Route::prefix('user')->controller(AuthController::class)->group(function () {
         Route::post('/info', 'info'); //add his info
         Route::get('/profile', 'useraccount'); //get his profile
@@ -191,7 +191,7 @@ Route::get('/anyc', function (Request $request) {
 
 //Workout + Excersise Routes
 //Add MiddleWares
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol','throttle:60,1']], function () {
     Route::prefix('workout_categorie')->controller(WorkoutCategorieController::class)->group(function () {
         Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
@@ -240,7 +240,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
     });
 });
 
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol','throttle:60,1']], function () {
     Route::prefix('food')->controller(FoodController::class)->group(function () {
         Route::get('/show/{id}', 'show');
         Route::post('/create', 'create');
@@ -276,7 +276,7 @@ Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api',
 });
 
 
-Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol']], function () {
+Route::group(['middleware' => ['apikey', 'json', 'lang', 'timeZone', 'auth:api', 'emailVerified', 'deltedAccount', 'seen', 'appcontrol','throttle:60,1']], function () {
     Route::prefix('home')->controller(HomePageController::class)->group(function () {
         Route::get('/summary', 'summary');
     });

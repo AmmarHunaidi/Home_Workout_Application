@@ -18,15 +18,11 @@ use Illuminate\Support\Str;
 class FoodController extends Controller
 {
     use GeneralTrait;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         try {
-            return $this->success("Success", Food::where('approval', 1)->get(['id', 'name', 'description', 'calories', 'food_image_url'])->map(function ($data) {
+            return $this->success(__("messages.Food List Returned Successfully"), Food::where('approval', 1)->get(['id', 'name', 'description', 'calories', 'food_image_url'])->map(function ($data) {
                 if (!$data->description) {
                     $data->description = '';
                 }
@@ -37,11 +33,7 @@ class FoodController extends Controller
             return $this->fail($exception->getMessage(), 500);
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create(Request $request)
     {
         try {
@@ -50,9 +42,10 @@ class FoodController extends Controller
                     'name' => 'required|string',
                     'calories' => 'required|integer',
                     'description' => 'nullable|string',
-                    'food_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
+                    'food_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp'
                 ]);
                 if ($fields->fails()) {
+                    error_log($fields->errors());
                     return $this->fail($fields->errors()->first(), 400);
                 }
                 $fields = $fields->safe()->all();
@@ -66,16 +59,10 @@ class FoodController extends Controller
                     $path = $image->storeAs($destination_path, $image_name);
                     $food->food_image_url = $image_name;
                 }
-                // if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
-                //     $food->approval = 1;
-                //     $food->update();
-                //     return $this->success(_("Created Successfully"), $food, 201);
-                // }
                 $food->update();
-                $message = 'Food Created Successfully . Awaiting Approval';
-                return $this->success(_("messages." . $message), $food, 201);
+                return $this->success(__('messages.Food Created Successfully'), $food, 201);
             } else {
-                return $this->fail("Not a dietitian!", 401);
+                return $this->fail(__("messages.Permision Denied!"), 400);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -85,7 +72,7 @@ class FoodController extends Controller
     {
         try {
             $food = Food::find($id);
-            return $this->success("Success", $food, 201);
+            return $this->success(__("messages.Food Returned Successfully"), $food, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -93,13 +80,12 @@ class FoodController extends Controller
 
     public function edit(Request $request, $id)
     {
-        //return $this->fail($request , 400);
         try {
                 $fields = Validator::make($request->only('name', 'calories', 'food_image', 'description'), [
                     'name' => 'string',
                     'calories' => 'integer',
                     'description' => 'string',
-                    'food_image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
+                    'food_image' => 'image|mimes:jpg,png,jpeg,gif,svg,bmp|max:4096'
                 ]);
                 if ($fields->fails()) {
                     return $this->fail($fields->errors()->first(), 400);
@@ -112,7 +98,7 @@ class FoodController extends Controller
                     if ($fields['calories'] != $food->calories) $food->calories = $fields['calories'];
                     if ($fields['description'] != $food->description) $food->description = $fields['description'];
                     if ($request->hasFile('food_image')) {
-                        if ($food->food_image_url != "Default/2560px-Pipeline_OpenGL.svg.png") {
+                        if ($food->food_image_url != "Default/default.jpg") {
                             Storage::delete('public/images/food/' . $food->food_image_url);
                         }
                         $destination_path = 'public/images/food';
@@ -123,10 +109,9 @@ class FoodController extends Controller
                         $food->food_image_url = $image_name;
                     }
                     $food->update();
-                    $message = 'Food Edited Successfully';
-                    return $this->success(_("message." . $message), $food, 200);
+                    return $this->success(__("messages.Food Edited Successfully"), $food, 200);
                 }
-                return $this->fail('Permission Denied.', 401);
+                return $this->fail(__('messages.Permission Denied!'), 401);
             } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -140,13 +125,12 @@ class FoodController extends Controller
             if (in_array($user->role_id, [4, 5])) {
                 if(MealFood::where('food_id',$food->id)->exists() == true)
                 {
-                    return $this->fail("Can't delete food due to it being assigned too one or more meals!");
+                    return $this->fail(__("messages.Can't delete food due to it being assigned too one or more meals!"));
                 }
                 $food->delete();
-                $message = 'Food Deleted Successfully';
-                return $this->success(_("message." . $message), $food, 200);
+                return $this->success(__('messages.Food Deleted Successfully'), $food, 200);
             }
-            return $this->fail(_('Permission Denied. Not the owner'), 400);
+            return $this->fail(__('messages.Permission Denied'), 400);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }

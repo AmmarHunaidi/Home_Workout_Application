@@ -35,7 +35,7 @@ class MealController extends Controller
                 $meal['food_list'] = $food;
                 $result[] = $meal;
             }
-            return $this->success("Success", $result, 200);
+            return $this->success(__("messages.Meals Returned Successfully"), $result, 200);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
@@ -69,18 +69,12 @@ class MealController extends Controller
                     MealFood::create($data);
                     $meal->calorie_count += $food->calories;
                 }
-                if ($request->user()->role_id == 4 || $request->user()->role_id == 5) {
-                    $meal->approval = 1;
-                    $meal->update();
-                    return $this->success(_("Created Successfully"), $meal, 200);
-                }
                 $meal->update();
-                $message = 'Meal Created Successfully';
                 $data = [
                     'meal' => $meal,
                     'food_list' => $food_result
                 ];
-                return $this->success(_($message), $meal, 200);
+                return $this->success(__('messages.Meal Created Successfully'), $meal, 200);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -155,15 +149,13 @@ class MealController extends Controller
                 }
                 $meal->update();
                 $meal = Meal::find($meal->id);
-                $message = 'Meal Edited Successfully';
                 $data = [
                     'meal' => $meal,
                     'food_list' => $food_result
                 ];
-                return $this->success(_($message), $data, 200);
+                return $this->success(__('messages.Meal Edited Successfully'), $data, 200);
             } else {
-                $message = 'Permission Denied. Not the owner';
-                return $this->fail(_($message), 400);
+                return $this->fail(__('messages.Permission Denied!'), 400);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -177,14 +169,14 @@ class MealController extends Controller
             $user = User::find(Auth::id());
             $meal = Meal::find($id);
             if (DietMeal::where('meal_id', $meal->id)->exists()) {
-                return $this->fail("Can't Delete Meal Due to it being assigned to a/many Diets!", 400);
+                return $this->fail(__("messages.Can't Delete Meal Due to it being assigned to a/many Diets!"), 400);
             }
             if (in_array($user->role_id, [4, 5]) || $user->id == $meal->user_id) {
                 $meal->mealfood()->delete();
                 $meal->delete();
-                return $this->success('Meal Deleted Successfully', $meal, 200);
+                return $this->success(__('messages.Meal Deleted Successfully'), $meal, 200);
             }
-            return $this->fail('Permission Denied. Not the owner', 400);
+            return $this->fail(__('messages.Permission Denied!'), 400);
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
         }
