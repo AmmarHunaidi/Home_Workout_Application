@@ -23,6 +23,7 @@ return [
     'deleted' => 'تم الحذف',
     'No changes occurred' => 'لم يحدث أي تغيير',
     'Updated successfully' => 'تم التحديث بنجاح',
+    'You need to logIn' => 'يتوجب عليك تسجيل الدخول',
     'You need to recover this account first' => 'عليك استعادة الحساب أولا',
     //Forget Password
     'You need to confirm your email' => 'تحتاج إلى تأكيد بريدك. لقد أرسلنا لك رمز تحقق ، يرجى التحقق من بريدك الإلكتروني',
@@ -147,4 +148,7 @@ return [
         'Unsubscribed from Diet!' => 'تم الغاء الاشتراك بالنظام الغذائي',
         'Well Done!' => 'احسنت',
         'Practice not trained suffeciently less than 20 percent of excersise practiced.' => 'تمرين غير كافي',
+    //Chat
+    'You can not make a chat with yourself' => 'لا يمكنك إجراء محادثة مع نفسك',
+    'You can not send messages to a blocked chat' => 'لا يمكنك إرسال رسائل لمحادثة محظورة',
 ];
