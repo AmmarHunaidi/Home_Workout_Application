@@ -21,50 +21,22 @@ class PostsTableSeeder extends Seeder
         \DB::table('posts')->insert(array (
             0 => 
             array (
-                'id' => 1,
-                'user_id' => 1,
-                'text' => 'post type 1 text 👀',
-                'is_accepted' => 1,
-                'type' => 1,
-                'created_at' => '2022-07-14 23:36:01',
-                'updated_at' => '2022-07-14 23:36:01',
-            ),
-            1 => 
-            array (
-                'id' => 2,
-                'user_id' => 1,
-                'text' => 'post type 1 text 👀 2',
-                'is_accepted' => 1,
-                'type' => 1,
-                'created_at' => '2022-07-14 23:36:56',
-                'updated_at' => '2022-07-14 23:36:56',
-            ),
-            2 => 
-            array (
-                'id' => 3,
-                'user_id' => 1,
-                'text' => 'post type 1 text 👀 2',
-                'is_accepted' => 1,
-                'type' => 1,
-                'created_at' => '2022-07-14 23:37:45',
-                'updated_at' => '2022-07-14 23:37:45',
-            ),
-            3 => 
-            array (
                 'id' => 4,
                 'user_id' => 1,
-                'text' => 'post type 2 📊',
+                'text' => 'We recommend 3 litres of water per day.',
                 'is_accepted' => 1,
+                'is_reviewed' => 0,
                 'type' => 2,
                 'created_at' => '2022-07-14 23:39:16',
                 'updated_at' => '2022-07-14 23:39:16',
             ),
-            4 => 
+            1 => 
             array (
                 'id' => 5,
                 'user_id' => 1,
-                'text' => 'post type 3',
+                'text' => 'What\'s about the next workout?!💪',
                 'is_accepted' => 1,
+                'is_reviewed' => 0,
                 'type' => 3,
                 'created_at' => '2022-07-14 23:42:12',
                 'updated_at' => '2022-07-14 23:42:12',

@@ -39,7 +39,7 @@ class PostsVotesTableSeeder extends Seeder
             array (
                 'id' => 3,
                 'post_id' => 5,
-                'vote' => 'vote 1',
+                'vote' => 'Full Body',
                 'created_at' => '2022-07-14 23:42:12',
                 'updated_at' => '2022-07-14 23:42:12',
             ),
@@ -47,7 +47,7 @@ class PostsVotesTableSeeder extends Seeder
             array (
                 'id' => 4,
                 'post_id' => 5,
-                'vote' => 'vote 2',
+                'vote' => 'Legs',
                 'created_at' => '2022-07-14 23:42:12',
                 'updated_at' => '2022-07-14 23:42:12',
             ),
@@ -55,7 +55,7 @@ class PostsVotesTableSeeder extends Seeder
             array (
                 'id' => 5,
                 'post_id' => 5,
-                'vote' => 'vote 3',
+                'vote' => 'Arms',
                 'created_at' => '2022-07-14 23:42:12',
                 'updated_at' => '2022-07-14 23:42:12',
             ),

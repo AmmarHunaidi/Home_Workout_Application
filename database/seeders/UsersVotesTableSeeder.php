@@ -23,9 +23,9 @@ class UsersVotesTableSeeder extends Seeder
             array (
                 'id' => 1,
                 'user_id' => 1,
-                'vote_id' => 5,
+                'vote_id' => 2,
                 'created_at' => '2022-07-14 23:40:12',
-                'updated_at' => '2022-07-14 23:42:39',
+                'updated_at' => '2022-08-13 08:58:11',
             ),
             1 => 
             array (
