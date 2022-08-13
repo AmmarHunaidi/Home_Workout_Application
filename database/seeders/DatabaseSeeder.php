@@ -42,5 +42,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(WorkoutCategorieSeeder::class);
         // $this->call(WorkoutSeeder::class);
         // $this->call(WorkoutExcersisesSeeder::class);
+        $this->call(FoodTableSeeder::class);
+        $this->call(ExcersisesTableSeeder::class);
     }
 }

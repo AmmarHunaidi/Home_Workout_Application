@@ -38,16 +38,16 @@ class HomePageController extends Controller
             else if ($bmi >= 18.5 && $bmi <= 24.9) $bmi = 'Normal Weight';
             else if ($bmi >= 25 && $bmi <= 29.9) $bmi = 'Overweight';
             else $bmi = 'Obesity';
-            $fromDate = Carbon::now()->subMonth()->startOfMonth()->toDateString();
-            $tillDate = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+            // $fromDate = Carbon::now()->startOfMonth()->toDateString();
+            // $tillDate = Carbon::now()->endOfMonth()->toDateString();
             $practices = Practice::query()
                 ->where('user_id', $user->id)
-                ->where('created_at', '>=', Carbon::now()->startOfMonth()->subMonth()->toDateString())
+                ->where('created_at', '>=', Carbon::now()->startOfMonth()->toDateString())
                 ->get();
             foreach ($practices as $practice) {
                 $burnt_calories += $practice->summary_calories;
             }
-            $workouts_played = Practice::where('created_at', '>=', Carbon::now()->startOfMonth()->subMonth()->toDateString())->where('user_id', Auth::id())->count();
+            $workouts_played = Practice::where('created_at', '>=', Carbon::now()->startOfMonth()->toDateString())->where('user_id', Auth::id())->count();
             $current_diet = DietSubscribe::where('user_id', $user->id)->first();
             if($current_diet != null)
             {
