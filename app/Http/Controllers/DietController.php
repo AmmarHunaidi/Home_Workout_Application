@@ -28,11 +28,12 @@ use PhpParser\JsonDecoder;
 
 class DietController extends Controller
 {
-    use GeneralTrait,NotificationTrait;
+    use GeneralTrait, NotificationTrait;
     function getFoodList($food_ids)
     {
         try {
             $food_list = [];
+            // return response($food_list);
             foreach ($food_ids as $food_id) {
                 $food = Food::find($food_id)->first();
                 //return response($food);
@@ -171,8 +172,9 @@ class DietController extends Controller
                 //$day = $day->sort();
                 foreach ($day as $day_meal) {
                     $meal = Meal::find($day_meal->meal_id);
-                    $meal_food = MealFood::where('meal_id', $meal->id)->get();
+                    $meal_food = MealFood::where('meal_id', $meal->id)->get(['food_id']);
                     $meal['food_list'] = $this->getFoodList($meal_food);
+                    // return response($meal['food_list']);
                     $day_meals[] = $meal;
                 }
                 $result[] = [
@@ -285,7 +287,7 @@ class DietController extends Controller
                 }
                 $diet->update();
                 //echo(___('messages.messages.Access denied'));
-                return $this->success(___('messages.messages.Diet Edited Successfully') , $this->show($diet->id) , 200);
+                return $this->success(___('messages.messages.Diet Edited Successfully'), $this->show($diet->id), 200);
             }
         } catch (Exception $exception) {
             return $this->fail($exception->getMessage(), 500);
@@ -301,12 +303,11 @@ class DietController extends Controller
                 $diet->dietmeal()->delete();
                 $diet->favorites()->delete();
                 $users = $diet->subscribers;
-                foreach($users as $user)
-                {
+                foreach ($users as $user) {
                     $user = User::find($user->user_id);
-                    $user_devices = UserDevice::where('user_id' , $user->id)->get('mobile_token');
+                    $user_devices = UserDevice::where('user_id', $user->id)->get('mobile_token');
                     // return response($user_devices);
-                    dispatch(new SubscribedDietDeleted($diet->name , $user_devices));
+                    dispatch(new SubscribedDietDeleted($diet->name, $user_devices));
                 }
                 $diet->subscribers()->delete();
                 $diet->delete();
@@ -341,9 +342,9 @@ class DietController extends Controller
     {
         try {
             $user_id = Auth::id();
-            $diets =Diet::whereIn('id' , FavoriteDiet::where('user_id' , Auth::id())->pluck('diet_id'))->get(['id', 'name', 'created_by', 'created_at'])->each(function ($data) {
+            $diets = Diet::whereIn('id', FavoriteDiet::where('user_id', Auth::id())->pluck('diet_id'))->get(['id', 'name', 'created_by', 'created_at'])->each(function ($data) {
                 $data['meal_count'] = DietMeal::where('diet_id', $data['id'])->count();
-                $data['created_by'] = User::where('id',$data['created_by'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
+                $data['created_by'] = User::where('id', $data['created_by'])->first(['id', 'f_name', 'l_name', 'prof_img_url']);
                 $data['created_by']['prof_img_url'] = 'storage/images/users/' . $data['created_by']['prof_img_url'];
             });
             return response($diets);
@@ -367,8 +368,7 @@ class DietController extends Controller
             if (DietReview::where(['diet_id' => $id, 'user_id' => Auth::id()])->exists()) {
                 return $this->fail("You can't add more than one review!!", 400);
             }
-            if(Diet::find($id)->user_id == Auth::id())
-            {
+            if (Diet::find($id)->user_id == Auth::id()) {
                 return $this->fail(__('messages.Cant add a review to your own diet!'));
             }
             $fields['user_id'] = $request->user()->id;
@@ -446,18 +446,15 @@ class DietController extends Controller
             $user = User::find(Auth::id());
             if ($review->user_id == Auth::id() || in_array($user->role_id, [4, 5])) {
                 $diet = Diet::find($review->diet_id);
-                if($diet->reviews()->count() == 1)
-                {
-                    $diet->review_count =0;
+                if ($diet->reviews()->count() == 1) {
+                    $diet->review_count = 0;
                     $diet->update();
-                }
-                else
-                {
+                } else {
                     $review_rate = $diet->review_count;
-                $review_count = $diet->reviews->count();
-                $review_rating = (float) ((($review_count) * $review_rate) - $review->stars) / ($review_count - 1);
-                $diet->review_count = $review_rating;
-                $diet->update();
+                    $review_count = $diet->reviews->count();
+                    $review_rating = (float) ((($review_count) * $review_rate) - $review->stars) / ($review_count - 1);
+                    $diet->review_count = $review_rating;
+                    $diet->update();
                 }
                 $review->delete();
                 return $this->success(__("messages.Review Deleted Successfully"), [], 200);
@@ -498,4 +495,3 @@ class DietController extends Controller
 //recommendations based on the schedule
 //diet recommendations
 //monthly summary
-
